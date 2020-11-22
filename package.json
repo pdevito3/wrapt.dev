@@ -10,6 +10,8 @@
   "dependencies": {
     "@mdx-js/loader": "^1.6.21",
     "@next/mdx": "^10.0.2",
+    "@tailwindcss/forms": "^0.2.1",
+    "@tailwindcss/ui": "^0.7.2",
     "autoprefixer": "^10.0.2",
     "next": "10.0.2",
     "postcss": "^8.1.8",
