@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import NextLink from 'next/link'
-import Banner from '../components/Banner'
-import Search from '../components/Search'
+import Banner from 'src/components/Banner'
+import Search from 'src/components/Search'
 
 
 
