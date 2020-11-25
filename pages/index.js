@@ -27,7 +27,7 @@ export default function Home() {
         <div className="px-4 sm:px-6 md:px-8 mb-14 sm:mb-20 xl:mb-8">
           <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="flex flex-1 items-center space-x-5 max-w-lg">
-              <p class="text-violet-500 w-1/2">.NET Acclerate SVG</p>
+              <p class="text-violet-500 w-1/2">.NET Accelerate SVG</p>
               <Search />
             </div>
 
