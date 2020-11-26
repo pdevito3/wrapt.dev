@@ -1,5 +1,5 @@
 import React from 'react'
-import { DocumentationLayout } from '../../layouts/DocumentationLayout'
+import { DocumentationLayout } from 'src/layouts/DocumentationLayout'
 import Link from 'next/link'
 
 export default function DocsLandingPage() {

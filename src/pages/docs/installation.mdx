@@ -1,1 +1,45 @@
-install instructions tbd
+---
+title: Installation
+description: Learn how to get up and running with .NET Accelerate.
+---
+
+import { DocumentationLayout  } from 'src/layouts/DocumentationLayout'
+
+## Prerequisites
+
+- Visual Studio 2019 16.8.0+ or [.Net 5.0 SDK](https://dotnet.microsoft.com/download/dotnet-core/5.0) 
+
+## Getting Started
+
+1. To start, you'll need to start by installing the [Foundation API Template](https://github.com/pdevito3/foundation.api). This is the base template we'll use when creating a new Web API.
+
+   ```shell
+   dotnet new -i foundation.api
+   ```
+
+   > Note that on the off chance that you have another dotnet template on your machine with a `foundation` short name, you will need to uninstall that template before using a `crafstman new:api` command
+
+
+
+2. Then, install the `Craftsman` tool globally. This is going to be the workhorse behind all of our commands. 
+
+   ```shell
+   dotnet tool install -g craftsman
+   ```
+
+   > You can then run `dotnet tool update -g craftsman` to update the package in the future.
+
+
+
+3. Run any of the below for a list of available commands
+
+   ```shell
+   craftsman 
+   craftsman list
+   craftsman -h
+   craftsman --help
+   ```
+
+4. That's it! Now we can [build our API](#new-api-command).
+
+export default ({ children }) => <DocumentationLayout children={children}></DocumentationLayout>
