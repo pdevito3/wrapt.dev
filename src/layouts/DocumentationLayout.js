@@ -1,11 +1,11 @@
 import { SidebarLayout } from 'src/layouts/SidebarLayout'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-// import twitterSquare from '@/img/twitter-square.jpg'
+// import twitterSquare from 'src/img/twitter-square.jpg'
 // import { Title } from 'src/components/Title'
 import { documentationNav } from 'src/navs/documentation'
 
-export function DocumentationLayout({children, ...props}) {
+export function DocumentationLayout(props) {
   const router = useRouter()
 
   return (
@@ -21,10 +21,7 @@ export function DocumentationLayout({children, ...props}) {
           // content={`https://dotnetaccelerate.com${twitterSquare}`}
         />
       </Head>
-      <>
-        <SidebarLayout nav={documentationNav} {...props} />
-        {children}
-      </>
+      <SidebarLayout nav={documentationNav} {...props} />
     </>
   )
 }

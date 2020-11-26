@@ -1,4 +1,4 @@
-// import { createPageList } from '@/utils/createPageList'
+// import { createPageList } from 'src/utils/createPageList'
 
 // const pages = createPageList(
 //   require.context(`../pages/docs/?meta=title,shortTitle,published`, false, /\.mdx$/),
