@@ -2,6 +2,7 @@ import '../styles/tailwind.css'
 import { useState, useEffect, Fragment } from 'react'
 import Router from 'next/router'
 import Head from 'next/head'
+import { Header } from 'src/components/Header'
 
 function MyApp({ Component, pageProps, router }) {
   let [navIsOpen, setNavIsOpen] = useState(false)
@@ -51,9 +52,9 @@ function MyApp({ Component, pageProps, router }) {
           content={`https://dotnetaccelerate.com${twitterLargeCard}`}
         /> */}
       </Head>
-      {/* {router.pathname !== '/' && (
+      {router.pathname !== '/' && (
         <Header navIsOpen={navIsOpen} onNavToggle={(isOpen) => setNavIsOpen(isOpen)} />
-      )} */}
+      )}
       <Layout {...layoutProps}>
         <Component {...pageProps} />
       </Layout>

@@ -1,5 +1,9 @@
 @import "tailwindcss/base";
+
+/*! purgecss start ignore */
 @import url('https://rsms.me/inter/inter.css');
+@import 'prism.css';
+/*! purgecss end ignore */
 
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";

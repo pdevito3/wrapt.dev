@@ -42,12 +42,6 @@ function Search() {
           </span>
         )}
      </button>
-
-
-
-    
-
-
   )
 }
 

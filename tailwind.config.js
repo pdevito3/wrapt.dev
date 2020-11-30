@@ -104,8 +104,6 @@ module.exports = {
       },
       colors:{
         violet: colors.violet,
-        teal: colors.teal,
-        
         code: {
           punctuation: '#A1E8FF',
           tag: '#D58FFF',

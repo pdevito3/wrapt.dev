@@ -110,7 +110,7 @@ module.exports.highlightCode = function highlightCode(code, prismLanguage) {
   const language = isDiff ? prismLanguage.substr(5) : prismLanguage
   const grammar = Prism.languages[isDiff ? 'diff' : language]
   if (!grammar) {
-    console.warn(`Unrecognised language: ${prismLanguage}`)
+    console.warn(`Unrecognized language: ${prismLanguage}`)
     return Prism.util.encode(code)
   }
   let highlighted = Prism.highlight(code, grammar, prismLanguage)
