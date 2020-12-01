@@ -17,10 +17,10 @@ function Banner() {
                   </svg>
                   <p className="ml-3 font-medium text-white truncate">
                     <span class="md:hidden">
-                      Support .NET Accelerate.
+                      Support Wrapt.
                     </span>
                     <span class="hidden md:inline">
-                      Support the ongoing development of .NET Accelerate.
+                      Support the ongoing development of Wrapt.
                     </span> 
                   </p>
                 </div>

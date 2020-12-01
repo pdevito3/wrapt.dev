@@ -24,32 +24,32 @@ function MyApp({ Component, pageProps, router }) {
     : {}
   const meta = Component.layoutProps?.meta || {}
   const description =
-    meta.metaDescription || meta.description || 'Documentation for the .NET Accelerate framework.'
+    meta.metaDescription || meta.description || 'Documentation for the Wrapt framework.'
 
   return (
     <>
       {/* <Title suffix="Tailwind CSS">{meta.metaTitle || meta.title}</Title> */}
       <Head>
         <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
-        <meta key="twitter:site" name="twitter:site" content="@dotnetaccelerate" />
+        <meta key="twitter:site" name="twitter:site" content="@wrapt" />
         <meta key="twitter:description" name="twitter:description" content={description} />
         {/* <meta
           key="twitter:image"
           name="twitter:image"
-          content={`https://dotnetaccelerate.com${twitterLargeCard}`}
+          content={`https://wrapt.dev${twitterLargeCard}`}
         /> */}
-        <meta key="twitter:creator" name="twitter:creator" content="@dotnetaccelerate" />
+        <meta key="twitter:creator" name="twitter:creator" content="@wrapt" />
         <meta
           key="og:url"
           property="og:url"
-          content={`https://dotnetaccelerate.com${router.pathname}`}
+          content={`https://wrapt.dev${router.pathname}`}
         />
         <meta key="og:type" property="og:type" content="article" />
         <meta key="og:description" property="og:description" content={description} />
         {/* <meta
           key="og:image"
           property="og:image"
-          content={`https://dotnetaccelerate.com${twitterLargeCard}`}
+          content={`https://wrapt.dev${twitterLargeCard}`}
         /> */}
       </Head>
       {router.pathname !== '/' && (

@@ -10,14 +10,14 @@ export default function Home() {
         <meta
           key="twitter:title"
           name="twitter:title"
-          content="Dotnet Accelerate - Scaffold an entire Web API with a simple yaml file."
+          content="Wrapt - Scaffold an entire Web API with a simple yaml file."
         />
         <meta
           key="og:title"
           property="og:title"
-          content="Dotnet Accelerate - Scaffold an entire Web API with a simple yaml file."
+          content="Wrapt - Scaffold an entire Web API with a simple yaml file."
         />
-        <title>Dotnet Accelerate - Scaffold an entire Web API with a simple yaml file.</title>
+        <title>Wrapt - Scaffold an entire Web API with a simple yaml file.</title>
       </Head>
 
       <Banner />
@@ -25,7 +25,7 @@ export default function Home() {
         <div className="px-4 sm:px-6 md:px-8 mb-14 sm:mb-20 xl:mb-8">
           <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="flex flex-1 items-center space-x-5 max-w-lg">
-              <p class="text-violet-500 w-1/2">.NET Accelerate SVG</p>
+              <p class="text-violet-500 w-1/2">Wrapt SVG</p>
               <Search />
             </div>
 
@@ -52,13 +52,13 @@ export default function Home() {
           {/* <Logo className="w-auto h-7 sm:h-8" /> */}
           <div className="text-center w-full">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-gray-900 mt-10 mb-8 sm:mt-14 sm:mb-10">
-              Skip the API boilerplate and 
+              Skip the boilerplate and 
             <br class="hidden md:block"/>
               <span class="text-violet-700 font-semibold whitespace-pre-wrap"> focus on your business logic.</span>
             </h1>
             <div className="w-full flex items-center justify-center">
               <p className="max-w-lg text-lg sm:text-2xl sm:leading-10 font-medium mb-10 sm:mb-11 ">
-                Scaffold an entire Web API with a simple yaml file so you can focus on the high value features in your web app.
+                Scaffold an entire Web API with a simple yaml or json file so you can focus on the high value features in your web app.
               </p>
             </div>
             <div className="flex items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">

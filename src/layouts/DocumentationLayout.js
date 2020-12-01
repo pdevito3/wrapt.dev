@@ -10,7 +10,7 @@ export function DocumentationLayout(props) {
 
   return (
     <>
-      <Title suffix={router.pathname === '/' ? undefined : 'Dotnet Accelerate'}>
+      <Title suffix={router.pathname === '/' ? undefined : 'Wrapt'}>
         {props.layoutProps.meta.metaTitle || props.layoutProps.meta.title}
       </Title>
       
@@ -19,7 +19,7 @@ export function DocumentationLayout(props) {
         <meta
           key="twitter:image"
           name="twitter:image"
-          // content={`https://dotnetaccelerate.com${twitterSquare}`}
+          // content={`https://wrapt.dev${twitterSquare}`}
         />
       </Head>
       <SidebarLayout nav={documentationNav} {...props} />

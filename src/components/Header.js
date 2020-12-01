@@ -17,8 +17,8 @@ export function Header({ navIsOpen, onNavToggle }) {
                 Router.push('/brand')
               }}
             >
-              <span className="sr-only">.NET Accelerate home page</span>
-              <p class="text-violet-500">.NET Accelerate SVG</p>
+              <span className="sr-only">Wrapt home page</span>
+              <p class="text-violet-500">Wrapt SVG</p>
             </a>
           </Link>
         </div>
