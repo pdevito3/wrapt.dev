@@ -6,8 +6,7 @@ description:
 
 ## Add Entity Command
 
-This command can add one or more new entities to your Wrapt project using a formatted yaml or json file. 
-**The input file uses a simplified format from the `new:api` command that only requires a list of one or more entities.**
+This command can add a new property onto an entity using just the CLI. No file required!
 
 ## The Command
 
@@ -32,6 +31,15 @@ craftsman add:entity [options] <filepath>
 | -h, --help      | Display help message. No filepath is needed to display the help message.
 
 
+## Example Commands
+```shell
+craftsman add:property --entity Vet -name VetName -type string -filter false -sort true
+craftsman add:property -e Vet -n VetName -t string -f false -s true
+craftsman add:property -e Vet -n VetName -t string
+craftsman add:property -e Sale -n Product -t Product -k ProductId
+craftsman add:property -e Vet -n AppointmentDate -t DateTime? -f false -s true
+```
+
 ### Foreign Keys
 Similar to when we're adding an entity with a [foreign key in a file](/docs/entities#example-with-foreign-key), we can add a foreign key property ad hoc using 
 the `add:property` command. Let's say that we had a `Sale` entity that has a `ProductId` property that acts as a foreign key to another `Product` entity. If 
@@ -42,57 +50,3 @@ crafstman add:property -e Sale -n Product -t Product -k ProductId
 ```
 
 > Note that adding foreign keys will currently break the `Post` and `Update` integration tests as described in [issue #2](https://github.com/pdevito3/craftsman/issues/2).
-
-### Example Commands
-```shell
-craftsman add:entity -h
-craftsman add:entity C:\fullpath\newentity.yaml
-craftsman add:entity C:\fullpath\newentity.yml
-craftsman add:entity C:\fullpath\newentity.json
-```
-
-## Example File
-
-First, you'll want to create a `yaml` or `json` file that describes the new entity. This is pretty much the same as the file we made for our `new:api` command, but now, the only required section is the `Entities` section. Just create a list of one or more entities, and you're good to go. For example:
-
-```yaml
-Entities:
-  - Name: Supplier
-    Properties:
-      - Name: SupplierId
-        IsPrimaryKey: true
-        Type: int
-        CanFilter: true
-        CanSort: true
-      - Name: Name
-        Type: string
-        CanFilter: true
-        CanSort: true
-      - Name: EmployeeCount
-        Type: int?
-        CanFilter: true
-        CanSort: true
-      - Name: CreationDate
-        Type: datetime?
-        CanFilter: true
-        CanSort: true
-      - Name: SupplierType
-        Type: int?
-        CanFilter: true
-        CanSort: true
-```
-
-#### Using the Command
-
-To actually add the entity, you'll want to `cd` into whatever directory your API solution is located at.
-
-```shell
-cd C:\MyFull\RepoPath\Here
-```
-
-Then, we just need to add our `yaml` or `json` path to our `craftsman add:entity` command:
-
-```shell
-craftsman add:entity C:\Users\Paul\Documents\ApiConfigs\supplier-entity.yaml
-```
-
