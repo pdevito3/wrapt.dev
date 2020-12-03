@@ -1,0 +1,98 @@
+---
+title: Add Entity Property Command
+shortTitle: Add Entity Property
+description: 
+---
+
+## Add Entity Command
+
+This command can add one or more new entities to your Wrapt project using a formatted yaml or json file. 
+**The input file uses a simplified format from the `new:api` command that only requires a list of one or more entities.**
+
+## The Command
+
+```shell
+craftsman add:entity [options] <filepath>
+```
+
+### Arguments
+| Argument        | Required | Type    | Description                                                  |
+| --------------- | -------- | ------- | ------------------------------------------------------------ |
+| -e, -entity     | Yes      | Text    | Name of the entity to add the property. Must match the name of the entity file (e.g. `Vet.cs` should be `Vet`) |
+| -n, -name       | Yes      | Text    | Name of the property to add                                  |
+| -t, -type       | Yes      | Text    | Data type of the property to add                             |
+| -f, -filter     | No       | Boolean | Determines if the property is filterable                     |
+| -s, --sort      | No       | Boolean | Determines if the property is sortable                       |
+| -k, -foreignkey | No       | Text    | When adding an object linked by a foreign key, use this field to enter the name of the property that acts as the foreign key |
+
+
+### Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+
+
+### Foreign Keys
+Similar to when we're adding an entity with a [foreign key in a file](/docs/entities#example-with-foreign-key), we can add a foreign key property ad hoc using 
+the `add:property` command. Let's say that we had a `Sale` entity that has a `ProductId` property that acts as a foreign key to another `Product` entity. If 
+we wanted to return the product in our responses, we could add an additional `Product` property of type `Product` that links to the primary key of `ProductId` in our `Product` entity:
+
+```shell
+crafstman add:property -e Sale -n Product -t Product -k ProductId
+```
+
+> Note that adding foreign keys will currently break the `Post` and `Update` integration tests as described in [issue #2](https://github.com/pdevito3/craftsman/issues/2).
+
+### Example Commands
+```shell
+craftsman add:entity -h
+craftsman add:entity C:\fullpath\newentity.yaml
+craftsman add:entity C:\fullpath\newentity.yml
+craftsman add:entity C:\fullpath\newentity.json
+```
+
+## Example File
+
+First, you'll want to create a `yaml` or `json` file that describes the new entity. This is pretty much the same as the file we made for our `new:api` command, but now, the only required section is the `Entities` section. Just create a list of one or more entities, and you're good to go. For example:
+
+```yaml
+Entities:
+  - Name: Supplier
+    Properties:
+      - Name: SupplierId
+        IsPrimaryKey: true
+        Type: int
+        CanFilter: true
+        CanSort: true
+      - Name: Name
+        Type: string
+        CanFilter: true
+        CanSort: true
+      - Name: EmployeeCount
+        Type: int?
+        CanFilter: true
+        CanSort: true
+      - Name: CreationDate
+        Type: datetime?
+        CanFilter: true
+        CanSort: true
+      - Name: SupplierType
+        Type: int?
+        CanFilter: true
+        CanSort: true
+```
+
+#### Using the Command
+
+To actually add the entity, you'll want to `cd` into whatever directory your API solution is located at.
+
+```shell
+cd C:\MyFull\RepoPath\Here
+```
+
+Then, we just need to add our `yaml` or `json` path to our `craftsman add:entity` command:
+
+```shell
+craftsman add:entity C:\Users\Paul\Documents\ApiConfigs\supplier-entity.yaml
+```
+

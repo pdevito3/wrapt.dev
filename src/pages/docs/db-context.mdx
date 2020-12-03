@@ -1,0 +1,30 @@
+---
+title: Db Context
+description: 
+---
+
+## DbContext
+
+An object that describes the basic information for your database. At the moment, only one application DbContext is supported per API.
+
+| Name          | Required | Description                                                  | Default   |
+| ------------- | -------- | ------------------------------------------------------------ | --------- |
+| DbContextName | Yes      | A single key value pair that designates the name you want to use for your API. | *None*    |
+| DatabaseName  | Yes      | The name of your database.                                   | *None*    |
+| Provider      | No       | An enumerator that designated the database provider for your DbContext. | SqlServer |
+
+### Providers
+These are the valid options for the `Provider` property:
+- SqlServer
+- MySQL (Coming Soon)
+- Postgres (Coming Soon)
+
+## Example
+In this example, we are creating a Sql Server datbase with a database name of `VetClinic` and a DbContext of `VetClinicDbContext`.
+```yaml
+DbContext:
+  ContextName: VetClinicDbContext
+  DatabaseName: VetClinic
+  Provider: SqlServer
+```
+

@@ -8,13 +8,6 @@ export const SidebarContext = createContext()
 
 export function SidebarLayout({ children, navIsOpen, setNavIsOpen, nav, sidebar, fallbackHref }) {
   return (
-    // <>
-    //   {/* <Sidebar children={children}/> */}
-    //   <div className="bg-blue-500 px-48">sidebar</div>
-    //   <div className="prose">
-    //     {children}
-    //   </div>
-    // </>
     <SidebarContext.Provider value={{ nav, navIsOpen, setNavIsOpen }}>
       <div className="w-full max-w-8xl mx-auto">
         <div className="lg:flex">

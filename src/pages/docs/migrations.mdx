@@ -1,0 +1,45 @@
+---
+title: Database Migrations
+---
+
+## Using Database Migrations
+
+Currently, migrations are a pain to deal with when you have multiple environment files like this as it is not a smooth process to differentiate between the right `appsettings` file. 
+If you'd like to use migrations you will need to set `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` to let the host builder locate the appropriate settings file. Here's 
+some examples for [Windows](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10), 
+[Bash](https://askubuntu.com/questions/58814/how-do-i-add-environment-variables), 
+and [PowerShell](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7). 
+If you'd like to track this feature request in EF, the Github issue is [here](https://github.com/dotnet/efcore/issues/8695).
+
+When running migrations, make sure your `UseInMemoryDatabase` setting is set to `false` in your appsettings. This should be the case by default on all environments that are not `Development`.
+
+## Example
+First, make sure you have `dotnet ef` installed. To install it globally run:
+
+```shell
+dotnet tool install -g dotnet-ef
+```
+
+Next, you'll want to perform your first migration. For example:
+```shell
+dotnet ef migrations add "InitialMigration" --project Infrastructure.Persistence --startup-project WebApi --output-dir Migrations
+```
+
+To add a configuration, you'll want to do this, otherwise the migration will look at your in memory db and fail:
+```shell
+dotnet ef migrations add "InitialMigration" --project Infrastructure.Persistence --startup-project WebApi --output-dir Migrations --configuration Release
+```
+
+To make updates to your database, you can run this:
+```shell
+dotnet ef database update -p Infrastructure.Persistence -s WebApi
+```
+
+## Common Db Migration Error
+
+If you're getting an error like the below, make sure that your connection string is set in your `appsettings.json` file and `UseInMemoryDatabase` is set to `false`.
+
+```
+Unable to resolve service for type 'Microsoft.EntityFrameworkCore.Migrations.IMigrator'. This is often because no database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions<TContext> object in its constructor and passes it to the base constructor for DbContext.
+```
+

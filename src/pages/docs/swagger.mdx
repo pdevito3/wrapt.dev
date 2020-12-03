@@ -1,0 +1,40 @@
+---
+title: Swagger/OpenAPI
+description: 
+---
+import OptionalPill from 'src/components/OptionalPill'
+
+## Swagger <OptionalPill padLeft={"sm"} />
+
+If desired, you can add a basic swagger configuration using the `SwaggerConfig` option. This will scaffold out a barebones swagger pager using [NSwag](https://github.com/RicoSuter/NSwag), which you can update to use any additional features you wish. 
+
+To get to your swagger page, you can go to `/swagger`.
+
+| Name        | Required | Description                          | Default |
+| ----------- | -------- | ------------------------------------ | ------- |
+| Title       | Yes      | The title of the swagger document    | *None*  |
+| Description | No       | The description for your swagger doc | *None*  |
+| ApiContact  | No       | The primary contact for the API      | *None*  |
+
+### ApiContact
+
+| Name  | Required | Description                 | Default |
+| ----- | -------- | --------------------------- | ------- |
+| Name  | No       | The name of the contact     | *None*  |
+| Email | No       | The email of the contact    | *None*  |
+| Url   | No       | The website for the contact | *None*  |
+
+
+
+## Example
+
+```yaml
+SwaggerConfig:
+  Title: MySwaggerDoc
+  Description: This is the official swagger doc for my amazing company.
+  ApiContact: 
+    Name: Paul
+    Email: paul@example.com
+    Url: https://www.mywebsite.com
+```
+

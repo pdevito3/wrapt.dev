@@ -1,0 +1,46 @@
+---
+title: Multiple Environments
+description: 
+---
+
+import OptionalPill from 'src/components/OptionalPill'
+
+## Multiple Environments <OptionalPill padLeft={"sm"} />
+
+Wrapt templates are configured with one environment by default, with the ability to add as many additional environments as you'd like. By default, the project will run `Development` . This is configured to run locally and use an in-memory database by default and should not be connected to a live database.  This ensures that all users will be able to run the solution without  needing to go through additional database set up.
+
+Additional environments are added using an `Environments` list in your initial build file. This will use a multiple startup approach as described [here](https://aspnetcore.readthedocs.io/en/stable/fundamentals/environments.html). This means that there will be a `Startup{EnvironmentName}.cs` class, and `appsettings.{environment}.json` file, and a `launchsettings.json` profile added for each environment.
+
+#### Environment Properties
+
+| Name             | Required | Description                                                  | Default |
+| ---------------- | -------- | ------------------------------------------------------------ | ------- |
+| EnvironmentName  | Yes      | The name of the environment that will set `ASPNETCORE_ENVIRONMENT`, the suffix of your `Startup.cs` etc. Note that `Development` is a reserved string for the in memery environment. | *None*  |
+| ConnectionString | Yes      | The connection string for the database. The connection string will just be added in between quotes and treated like a string, so will need to be valid in that format | *None*  |
+| ProfileName      | Yes      | The name of the profile that is added into your `launchsettings.json` to run this environment | *None*  |
+
+> IMPORTANT
+>
+> Note that the connection strings will currently be added to `appsettings.{environment}.json`, so they will be committed to source control. You should NOT be adding anything with credentials in here. 
+>
+> There are plans to support secret manager usage and integration with external secret managers in AWS, Azure, etc. in the future.
+
+#### Example
+In this example, we are setting up Production, QA, Staging, and Local environments in addition to the default Development environment which does not have to be specified here. 
+Note that the `Local` environment here would be using a local db stored on my computer versus separate from `Development` environment which will use an in memory database.
+```yaml
+Environments:
+  - EnvironmentName: Production
+    ConnectionString: "Data Source=prodserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ProfileName: Prod
+  - EnvironmentName: Qa
+    ConnectionString: "Data Source=qaserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ProfileName: Qa
+  - EnvironmentName: Staging
+    ConnectionString: "Data Source=stagingserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ProfileName: Staging
+  - EnvironmentName: Local
+    ConnectionString: "Data Source=localhost\\SqlExpress;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ProfileName: Local
+```
+

@@ -1,0 +1,25 @@
+---
+title: Git
+description: 
+---
+
+import OptionalPill from 'src/components/OptionalPill'
+
+## Git <OptionalPill padLeft={"sm"} />
+By default, Wrapt will do some initial git setup for you (`git init`, `git add -a`, `git commit -m "Initial commit"`, and add a `.gitignore`). 
+
+If you'd like to skip this and do it yourself, you can set the `AddGit` option to `false` on the base level.
+
+```yaml
+AddGit: false
+```
+
+#### Example
+In this example we have a `yaml` file that's setting up an API for a Vet Clinic. You can see that `AddGit` is set to false, so no git setup will be performed. 
+
+```yaml
+SolutionName: VetClinic.Api
+Entities:
+#entity details
+AddGit: false
+```

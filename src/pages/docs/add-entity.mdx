@@ -1,0 +1,81 @@
+---
+title: Add Entity Command
+shortTitle: Add Entity
+description: 
+---
+
+## Add Entity Command
+
+This command can add one or more new entities to your Wrapt project using a formatted yaml or json file. 
+**The input file uses a simplified format from the `new:api` command that only requires a list of one or more entities.**
+
+## The Command
+
+```shell
+craftsman add:entity [options] <filepath>
+```
+
+### Arguments
+| Argument        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| filepath        | The full filepath for the yaml or json file that lists the new entities that you want to add to your API.
+
+### Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+
+
+### Example Commands
+```shell
+craftsman add:entity -h
+craftsman add:entity C:\fullpath\newentity.yaml
+craftsman add:entity C:\fullpath\newentity.yml
+craftsman add:entity C:\fullpath\newentity.json
+```
+
+## Example File
+
+First, you'll want to create a `yaml` or `json` file that describes the new entity. This is pretty much the same as the file we made for our `new:api` command, but now, the only required section is the `Entities` section. Just create a list of one or more entities, and you're good to go. For example:
+
+```yaml
+Entities:
+  - Name: Supplier
+    Properties:
+      - Name: SupplierId
+        IsPrimaryKey: true
+        Type: int
+        CanFilter: true
+        CanSort: true
+      - Name: Name
+        Type: string
+        CanFilter: true
+        CanSort: true
+      - Name: EmployeeCount
+        Type: int?
+        CanFilter: true
+        CanSort: true
+      - Name: CreationDate
+        Type: datetime?
+        CanFilter: true
+        CanSort: true
+      - Name: SupplierType
+        Type: int?
+        CanFilter: true
+        CanSort: true
+```
+
+#### Using the Command
+
+To actually add the entity, you'll want to `cd` into whatever directory your API solution is located at.
+
+```shell
+cd C:\MyFull\RepoPath\Here
+```
+
+Then, we just need to add our `yaml` or `json` path to our `craftsman add:entity` command:
+
+```shell
+craftsman add:entity C:\Users\Paul\Documents\ApiConfigs\supplier-entity.yaml
+```
+
