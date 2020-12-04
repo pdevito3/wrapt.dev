@@ -15,14 +15,14 @@ craftsman add:entity [options] <filepath>
 ```
 
 ### Arguments
-| Argument        | Required | Type    | Description                                                  |
-| --------------- | -------- | ------- | ------------------------------------------------------------ |
-| -e, -entity     | Yes      | Text    | Name of the entity to add the property. Must match the name of the entity file (e.g. `Vet.cs` should be `Vet`) |
-| -n, -name       | Yes      | Text    | Name of the property to add                                  |
-| -t, -type       | Yes      | Text    | Data type of the property to add                             |
-| -f, -filter     | No       | Boolean | Determines if the property is filterable                     |
-| -s, --sort      | No       | Boolean | Determines if the property is sortable                       |
-| -k, -foreignkey | No       | Text    | When adding an object linked by a foreign key, use this field to enter the name of the property that acts as the foreign key |
+| Argument         | Required | Type    | Description                                                  |
+| ---------------- | -------- | ------- | ------------------------------------------------------------ |
+| -e, --entity     | Yes      | Text    | Name of the entity to add the property. Must match the name of the entity file (e.g. `Vet.cs` should be `Vet`) |
+| -n, --name       | Yes      | Text    | Name of the property to add                                  |
+| -t, --type       | Yes      | Text    | Data type of the property to add                             |
+| -f, --filter     | No       | Boolean | Determines if the property is filterable                     |
+| -s, --sort       | No       | Boolean | Determines if the property is sortable                       |
+| -k, --foreignkey | No       | Text    | When adding an object linked by a foreign key, use this field to enter the name of the property that acts as the foreign key |
 
 
 ### Options
@@ -33,7 +33,7 @@ craftsman add:entity [options] <filepath>
 
 ## Example Commands
 ```shell
-craftsman add:property --entity Vet -name VetName -type string -filter false -sort true
+craftsman add:property --entity Vet --name VetName --type string --filter false --sort true
 craftsman add:property -e Vet -n VetName -t string -f false -s true
 craftsman add:property -e Vet -n VetName -t string
 craftsman add:property -e Sale -n Product -t Product -k ProductId

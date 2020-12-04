@@ -1,0 +1,272 @@
+---
+title: First Example Project
+description: A step by step example for creating a new Wrapt API
+---
+
+## What are We Building?
+Let's say that we want to create an application to manage recipes. We're going to call it `CarbonKitchen` and it 
+should start out by storing recipes and their associated ingredients. 
+
+## Creating a Template File
+As we discussed in [the basics](/docs/how-it-works#the-basics), we need to start out by building a barebones `yaml` 
+or `json` file to lay out what we want our API to look like. You can find the details for each of these properties we're 
+working with in the `Template File` section of the docs, but let's start building it out.
+
+### Solution and Database Setup
+We're going to start out by creating a new `yaml` file and adding a [SolutionName](/docs/solution-name) of 
+'CarbonKitchen.Api' and a basic [DbContext](/docs/db-context) that points to SqlServer.
+
+```yaml
+SolutionName: CarbonKitchen.Api
+DbContext:
+ ContextName: CarbonKitchenDbContext
+ DatabaseName: CarbonKitchen
+ Provider: SqlServer
+```
+
+### Entity Setup
+Then I'm going to add in my 'Recipe' and 'Ingredient' [Entities](/docs/entities) with a variety of 
+properties based on my requirements. Be sure to check the [entity](/docs/entities#entity-properties) to 
+see what's required and what defaults are used, but it's built to be as minimal as possible.
+
+```yaml
+SolutionName: CarbonKitchen.Api
+DbContext:
+ ContextName: CarbonKitchenDbContext
+ DatabaseName: CarbonKitchen
+ Provider: SqlServer
+Entities:
+- Name: Recipe
+  Properties:
+  - Name: RecipeId
+    IsPrimaryKey: true
+    Type: int
+    CanFilter: true
+    CanSort: true
+  - Name: Title
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Directions
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: RecipeSourceLink
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Description
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: ImageLink
+    Type: string
+    CanFilter: true
+    CanSort: true
+- Name: Ingredient
+  Properties:
+  - Name: IngredientId
+    IsPrimaryKey: true
+    Type: int
+    CanFilter: true
+    CanSort: true
+  - Name: RecipeId
+    Type: int?
+    CanFilter: true
+    CanSort: true
+  - Name: Name
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Unit
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Amount
+    Type: double?
+    CanFilter: true
+    CanSort: true
+```
+
+### Optional Environment and Swagger Setup
+Now I'm going to add in a few environments as well as some Swagger documentation. Both of these are optional, but good to have.
+```yaml
+SolutionName: CleanCarbonKitchen.Api
+DbContext:
+ ContextName: CarbonKitchenDbContext
+ DatabaseName: CarbonKitchen
+ Provider: SqlServer
+Entities:
+- Name: Recipe
+  Properties:
+  - Name: RecipeId
+    IsPrimaryKey: true
+    Type: int
+    CanFilter: true
+    CanSort: true
+  - Name: Title
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Directions
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: RecipeSourceLink
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Description
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: ImageLink
+    Type: string
+    CanFilter: true
+    CanSort: true
+- Name: Ingredient
+  Properties:
+  - Name: IngredientId
+    IsPrimaryKey: true
+    Type: int
+    CanFilter: true
+    CanSort: true
+  - Name: RecipeId
+    Type: int?
+    CanFilter: true
+    CanSort: true
+  - Name: Name
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Unit
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Amount
+    Type: double?
+    CanFilter: true
+    CanSort: true
+- Name: ShoppingListItem
+  Properties:
+  - Name: ShoppingListItemId
+    IsPrimaryKey: true
+    Type: int
+    CanFilter: true
+    CanSort: true
+  - Name: Amount
+    Type: double?
+    CanFilter: true
+    CanSort: true
+  - Name: Name
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Category
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Unit
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Acquired
+    Type: bool?
+    DefaultValue: false
+    CanFilter: true
+    CanSort: true
+  - Name: Hidden
+    Type: bool?
+    DefaultValue: false
+    CanFilter: true
+    CanSort: true
+  - Name: ShoppingListId
+    Type: int?
+    CanFilter: true
+    CanSort: true
+Environments:
+  - EnvironmentName: Production
+    ConnectionString: "Data Source=myprodserver;Initial Catalog=CarbonKitchen;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ProfileName: Prod
+  - EnvironmentName: Qa
+    ConnectionString: "Data Source=myqaserver;Initial Catalog=CarbonKitchen;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ProfileName: Qa
+SwaggerConfig:
+  Title: Carbon Kitchen
+  Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
+  ApiContact: 
+    Name: Carbon Kitchen
+    Email: devsupport@CarbonKitchen.com
+    Url: https://www.carbonkitchen.com
+```
+
+## Creating a New API
+Now that we've put together our basic API layout, let's actually build our API. To start, make sure you've followed the [install instructions](/docs/installation).
+Then, open Command Prompt, Powershell, Terminal, etc. and `cd` to whatever directory you want to create your project repository in. Finally, we can literally just run [one command](/docs/new-api):
+
+```shell
+craftsman new:api C:\Users\Paul\Documents\WraptTemplates\NewCarbonKitchen.yaml
+```
+
+> Note that the filepath here should match wherever you saved your yaml file.
+
+Once that's done, Craftsman will have added an entire API for you in whatever directory you ran this in. For details on the project architecture and organization you can go [here](/docs/project-organization).
+
+### Using Your API 
+Now you can `cd` into your project directory and run `dotnet run --project webapi` and your API is up and running with no boilerplate in sight 👏
+
+## Adding a New Entity
+But hold on, we have this existing project, but what if we wanted to create a new entity to capture shopping list items so that we can add ingredients we need for our grocery outing? 
+All we need to do is create another `yaml` or `json` file that describes this new entity. Something like this:
+
+```yaml
+Entities:
+- Name: ShoppingListItem
+  Properties:
+  - Name: ShoppingListItemId
+    IsPrimaryKey: true
+    Type: int
+    CanFilter: true
+    CanSort: true
+  - Name: Amount
+    Type: double?
+    CanFilter: true
+    CanSort: true
+  - Name: Name
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Category
+    Type: string
+    CanFilter: true
+    CanSort: true
+  - Name: Unit
+    Type: string
+    CanFilter: true
+    CanSort: true
+```
+
+Then, we can add that entity to our project using the [add:entity command](/docs/add-entity):
+
+```shell
+craftsman add:entity C:\Users\Paul\Documents\WraptTemplates\ShoppingListEntity.yaml
+```
+
+## Adding a New Property
+Now what if we wanted to add a new property to determine whether or not that shopping list item has been acquired and put into our cart. There's [a command](/docs/add-entity-property) for that too! And we 
+don't even need a file this time!
+
+Let's say we wanted to add a nullable boolean called 'Acquired' that can be filtered and sorted. We could do something like this:
+
+```shell
+craftsman add:property --entity ShoppingListItem --name Acquired --type bool? --filter true -sort true
+```
+
+We could also use shorthand and do something like this:
+```shell
+craftsman add:property -e ShoppingListItem -n Acquired -t bool? -f true -s true
+```
+
+## Customization
+Great! Now I have my API, but I want to add some custom business logic. Maybe I want to do some special operation in the recipe repository when I'm adding something new or add another 
+endpoint to manage ingredients in batch. This is all completely doable! For details, see the page on [customizing Wrapt projects](/docs/customizing-wrapt-projects).

@@ -6,11 +6,12 @@ const pages = createPageList(
 )
 
 export const documentationNav = {
-  'Getting Started': [
-    pages['overview'],
+  'The Essentials': [
     pages['installation'],
-    // pages['quickstart,']
-    // {title: 'API Template File', published: false},
+    pages['how-it-works'],
+    pages['first-example'],
+    pages['project-organization'],
+    pages['customizing-wrapt-projects'],
   ],
   'Template File': [
     pages['template-file-overview'],

@@ -56,13 +56,13 @@ const NavItem = forwardRef(({ href, children, isActive, isPublished, fallbackHre
       <Link href={isPublished ? href : fallbackHref}>
         <a
           className={clsx('px-3 py-2 transition-colors duration-200 relative block', {
-            'text-cyan-700': isActive,
+            'text-violet-700': isActive,
             'hover:text-gray-900 text-gray-500': !isActive && isPublished,
             'text-gray-400': !isActive && !isPublished,
           })}
         >
           <span
-            className={clsx('rounded-md absolute inset-0 bg-cyan-50', {
+            className={clsx('rounded-md absolute inset-0 bg-violet-100', {
               'opacity-50': isActive,
               'opacity-0': !isActive,
             })}
