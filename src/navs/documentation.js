@@ -9,12 +9,11 @@ export const documentationNav = {
   'The Essentials': [
     pages['installation'],
     pages['how-it-works'],
-    pages['first-example'],
+    pages['tutorial'],
     pages['project-organization'],
     pages['customizing-wrapt-projects'],
   ],
   'Template File': [
-    pages['template-file-overview'],
     pages['solution-name'],
     pages['db-context'],
     pages['entities'],

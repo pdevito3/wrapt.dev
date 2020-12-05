@@ -1,9 +1,16 @@
 ---
 title: Customizing Wrapt Projects
-description: A walkthrough of the organization schema for Wrapt projects
+description: How to customize Wrapt projects.
 ---
 
 ## Customization
+So you've ran your `new:api` command and haveyour API scaffolded out, but you want to make some customizations for your business logic. 
 
-Wrapt projects are meant to be as flexible as possible and the handful of spots that should not be modified are marked inside of the API with comments or 
-regions that will tell you what needs to be left alone for Craftsman to work as is
+At this point you can go anywhere into the project and modify whatever you want! There are a handful of spots throughout the project 
+that are marked with comments or regions that will tell you what needs to be left alone for Craftsman to be able to work with it in 
+the future, but even those can be modified if you'd like. Just keep in mind that you'll no longer to be able to reliably use 
+Craftsman commands in your project.
+
+For example, if you go into an Entity file, you'll notice a comment at the bottom like this `// add-on property marker - Do Not 
+Delete This Comment`. This comment is what Crafstman will look for when adding new properties to your entity, so if it were removed,
+that operation would no longer be able to run properly.

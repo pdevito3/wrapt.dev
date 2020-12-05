@@ -4,9 +4,11 @@ title: Database Migrations
 
 ## Using Database Migrations
 
-Currently, migrations are a pain to deal with when you have multiple environment files like this as it is not a smooth process to differentiate between the right `appsettings` file. 
-If you'd like to use migrations you will need to set `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` to let the host builder locate the appropriate settings file. Here's 
-some examples for [Windows](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10), 
+If you are only using one `Startup` and `appsettings` file, migrations work as they always would. However, if you are using multiple environments, 
+migrations are a pain to deal with when you have multiple environment files like this as it is not a smooth process to differentiate between 
+the right `appsettings` file. If you'd like to use migrations you will need to set `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` to let 
+the host builder locate the appropriate settings file. Here's some examples for 
+[Windows](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10), 
 [Bash](https://askubuntu.com/questions/58814/how-do-i-add-environment-variables), 
 and [PowerShell](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7). 
 If you'd like to track this feature request in EF, the Github issue is [here](https://github.com/dotnet/efcore/issues/8695).

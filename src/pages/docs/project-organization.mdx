@@ -4,4 +4,30 @@ description: A walkthrough of the organization schema for Wrapt projects
 ---
 
 ## Clean Architecture
-TBD
+Instead of making you learn some custom directory structure, Wrapt projects are organized using the well known and maintainable `Clean Architecture` format. If you are not familiar with this strcuture, 
+there are some great resources on it [here](https://www.youtube.com/watch?v=joNTQy-KXiU), [here](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html), and 
+[here](https://www.codewithmukesh.com/blog/onion-architecture-in-aspnet-core/). 
+
+In short, `Clean Architecture` breaks your project up into logical layers like below. If you want to add something and you're not seeing it here, but think it should be, feel free to 
+submit a ticket on github for it to be added.
+
+### Core
+The core layer is split into two projects, the `Application` and `Domain` layers. 
+
+The `Domain` project is pretty simple and will capture all of the entities and items directly related to that. This layer should never depend on any other project.
+
+The `Application` project is meant to abstract out our specific business rules for our application. It is dependent on the `Domain` layer, but has no dependencies on 
+any other layer or project. This layer defines our interfaces, DTOs, Enums, Exceptions, Mapping Profiles, Validators, Specifications, and Wrappers that can be used by our external layers.
+
+
+### Infrastructure
+Our infrastructure layer is used for all of our external communication requirements (e.g. database communication). For more control, this layer is split into a `Persistence` 
+project as well as a `Shared` project. Additional layers like `Auth`, `Web Api Clients`, `File System Accessors`, `Logging Adapters`, and `Email/SMS Sending` can also be added here.
+
+The `Persistence` project will capture our application specific database configuration. The `Shared` project will capture any external service requirements that 
+we may need across our infrastructure layer (e.g. DateTimeService).
+
+
+### API
+Finally, we have our API layer. This is where our `WebApi` project will live to provide us access to our API endpoints. This layer depends on both the `Core` and `Infrastructure` layers, 
+however, the dependency on `Infrastructure` is only to support dependency injection. Therefore only `Startup` classes should reference `Infrastructure`.

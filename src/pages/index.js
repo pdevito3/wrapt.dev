@@ -20,7 +20,7 @@ export default function Home() {
         <title>Wrapt - Scaffold an entire Web API with a simple yaml file.</title>
       </Head>
 
-      <Banner />
+      {/* <Banner /> */}
       <header className="relative z-10 max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl mx-auto">
         <div className="px-4 sm:px-6 md:px-8 mb-14 sm:mb-20 xl:mb-8">
           <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -52,12 +52,11 @@ export default function Home() {
           {/* <Logo className="w-auto h-7 sm:h-8" /> */}
           <div className="text-center w-full">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-gray-900 mt-10 mb-8 sm:mt-14 sm:mb-10">
-              Skip the boilerplate and 
-            <br class="hidden md:block"/>
+              Skip the boilerplate and
               <span class="text-violet-700 font-semibold whitespace-pre-wrap"> focus on your business logic.</span>
             </h1>
             <div className="w-full flex items-center justify-center">
-              <p className="max-w-lg text-lg sm:text-2xl sm:leading-10 font-medium mb-10 sm:mb-11 ">
+              <p className="max-w-lg md:max-w-3xl text-lg sm:text-2xl sm:leading-10 font-medium mb-10 sm:mb-11 ">
                 Scaffold an entire Web API with a simple yaml or json file so you can focus on the high value features in your web app.
               </p>
             </div>

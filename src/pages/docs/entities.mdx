@@ -1,8 +1,9 @@
 ---
 title: Entities
 ---
+import FileRequirementPill from 'src/components/FileRequirementPill'
 
-## Entities
+## Entities <FileRequirementPill padLeft={"sm"} type={"required"} />
 
 An list of database entities in your project. These entities are added as dbsets to your database context, so they translate 1:1 to tables in your database. 
 
@@ -117,3 +118,7 @@ Entities:
 ```
 
 > Note that adding foreign keys will currently break the `Post` and `Update` integration tests as described in [issue #2](https://github.com/pdevito3/craftsman/issues/2).
+
+## Composite Keys
+For the time being, composite keys can not be created using Craftsman commands. With that said, you are more than welcome to scaffold out an entity with one of the keys and then 
+modify the generated entity, repository, tests, etc. to accomodate that composite key.
