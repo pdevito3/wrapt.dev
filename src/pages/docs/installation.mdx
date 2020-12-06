@@ -15,15 +15,14 @@ description: Learn how to get up and running with Wrapt.
    dotnet new -i foundation.api
    ```
 
-   > Note that on the off chance that you have another dotnet template on your machine with a `foundation` short name, you will need to uninstall that template before using a `crafstman new:api` command
+   > Note that on the off chance that you have another dotnet template on your machine with a `foundation` short name, you will need to uninstall that template before using 
+   a `crafstman new:api` command. To get the uninstall command run `dotnet new -u` and find the uninstall command listed for your foundation template.
 
 2. Install the `Craftsman` tool globally. This is going to be the workhorse behind all of our commands. 
 
    ```shell
    dotnet tool install -g craftsman
    ```
-
-   > You can then run `dotnet tool update -g craftsman` to update the package in the future.
 
 3. Run any of the below for a list of available commands
 
@@ -34,4 +33,15 @@ description: Learn how to get up and running with Wrapt.
    craftsman --help
    ```
 
-4. That's it! Now let's cover [how this all works](/docs/how-it-works/).
+4. That's it! Now let's look at [an example](/docs/tutorial) to see it in action.
+
+## Staying Up to Date
+To keep up to date with the latest Craftsman capabilities, first update the Foundation template.
+```shell
+dotnet new foundation.api --update-apply
+```
+
+Then you can update Crafstman:
+```shell
+dotnet tool update -g craftsman
+```

@@ -7,8 +7,8 @@ const pages = createPageList(
 
 export const documentationNav = {
   'The Essentials': [
-    pages['installation'],
     pages['how-it-works'],
+    pages['installation'],
     pages['tutorial'],
     pages['project-organization'],
     pages['customizing-wrapt-projects'],
