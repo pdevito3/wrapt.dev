@@ -19,7 +19,7 @@ Additional environments can be add added using an `Environments` list in your in
 | Name             | Required | Description                                                  | Default |
 | ---------------- | -------- | ------------------------------------------------------------ | ------- |
 | EnvironmentName  | Yes      | The name of the environment that will set `ASPNETCORE_ENVIRONMENT`, the suffix of your `Startup.cs` etc. Note that `Development` and `Startup` are reserved strings for the in memory and production environments respectively. `Startup` can be used to add settings to the production environment. | *None*  |
-| ConnectionString | Yes      | The connection string for the database. The connection string will just be added in between quotes and treated like a string, so will need to be valid in that format | *None*  |
+| ConnectionString | Yes      | The connection string for the database. The connection string will just be added in between quotes and treated like a string, so will need to be valid in that format. Backslashes will automtically be escaped for you. | *None*  |
 | ProfileName      | Yes      | The name of the profile that is added into your `launchsettings.json` to run this environment | *None*  |
 
 > IMPORTANT
@@ -45,7 +45,7 @@ Environments:
     ConnectionString: "Data Source=stagingserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
     ProfileName: Staging
   - EnvironmentName: Local
-    ConnectionString: "Data Source=localhost\\SqlExpress;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ConnectionString: "Data Source=localhost\SqlExpress;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
     ProfileName: Local
 ```
 
