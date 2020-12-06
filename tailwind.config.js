@@ -1,5 +1,6 @@
 const defaultTheme = require('tailwindcss/defaultTheme')
 const colors = require('tailwindcss/colors')
+const { toRgba } = require('tailwindcss/lib/util/withAlphaVariable')
 
 module.exports = {
   purge: ['./src/**/*.{js,jsx,mdx}'],
@@ -181,5 +182,50 @@ module.exports = {
     require('@tailwindcss/forms'),
     require('@tailwindcss/ui'),
     require('@tailwindcss/typography'),
+    function ({ addUtilities, theme }) {
+      const shadows = theme('boxShadow')
+      addUtilities(
+        Object.keys(shadows).reduce(
+          (utils, key) => ({
+            ...utils,
+            [`.text-shadow${key === 'DEFAULT' ? '' : `-${key}`}`]: {
+              textShadow: shadows[key].replace(
+                /([0-9]+(px)? [0-9]+(px)? [0-9]+(px)?) [0-9]+(px)?/g,
+                '$1'
+              ),
+            },
+          }),
+          {}
+        )
+      )
+    },
+    function ({ addUtilities, theme }) {
+      const utilities = {
+        '.bg-stripes': {
+          backgroundImage:
+            'linear-gradient(45deg, var(--stripes-color) 12.50%, transparent 12.50%, transparent 50%, var(--stripes-color) 50%, var(--stripes-color) 62.50%, transparent 62.50%, transparent 100%)',
+          backgroundSize: '5.66px 5.66px',
+        },
+      }
+
+      const addColor = (name, color) =>
+        (utilities[`.bg-stripes-${name}`] = { '--stripes-color': color })
+
+      const colors = flattenColorPalette(theme('backgroundColor'))
+      for (let name in colors) {
+        try {
+          const [r, g, b, a] = toRgba(colors[name])
+          if (a !== undefined) {
+            addColor(name, colors[name])
+          } else {
+            addColor(name, `rgba(${r}, ${g}, ${b}, 0.4)`)
+          }
+        } catch (_) {
+          addColor(name, colors[name])
+        }
+      }
+
+      addUtilities(utilities)
+    },
   ],
 }
