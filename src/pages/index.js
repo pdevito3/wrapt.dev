@@ -61,9 +61,9 @@ export default function Home() {
               </p>
             </div>
             <div className="flex items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <NextLink href="/docs">
+              <NextLink href="/docs/how-it-works">
                 <a className="w-full sm:w-auto flex-none bg-violet-700 hover:bg-violet-500 text-white text-lg leading-6 font-semibold py-3 px-6 border border-transparent rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-violet-700 focus:outline-none transition-colors duration-200">
-                  Get started
+                  Get Started
                 </a>
               </NextLink>
               {/* <NpmInstallButton /> */}
