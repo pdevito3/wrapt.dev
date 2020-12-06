@@ -16,10 +16,10 @@ function Banner() {
                     <path fillrule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" cliprule="evenodd" />
                   </svg>
                   <p className="ml-3 font-medium text-white truncate">
-                    <span class="md:hidden">
+                    <span className="md:hidden">
                       Support Wrapt.
                     </span>
-                    <span class="hidden md:inline">
+                    <span className="hidden md:inline">
                       Support the ongoing development of Wrapt.
                     </span> 
                   </p>

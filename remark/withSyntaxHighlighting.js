@@ -17,11 +17,11 @@ module.exports.withSyntaxHighlighting = () => {
       if (node.lang !== null) {
         node.type = 'html'
         node.value = [
-          `<div class="my-6 rounded-xl overflow-hidden ${colors[node.meta] || 'bg-gray-800'}">`,
-          `<pre class="language-${node.lang} ${
+          `<div className="my-6 rounded-xl overflow-hidden ${colors[node.meta] || 'bg-gray-800'}">`,
+          `<pre className="language-${node.lang} ${
             colors[node.meta] ? 'bg-black bg-opacity-75' : ''
           }">`,
-          `<code class="language-${node.lang}">`,
+          `<code className="language-${node.lang}">`,
           highlightCode(node.value, node.lang),
           '</code>',
           '</pre>',

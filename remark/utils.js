@@ -118,7 +118,7 @@ module.exports.highlightCode = function highlightCode(code, prismLanguage) {
   return language === 'html'
     ? highlighted.replace(
         /\*\*(.*?)\*\*/g,
-        (_, text) => `<span class="code-highlight bg-code-highlight">${text}</span>`
+        (_, text) => `<span className="code-highlight bg-code-highlight">${text}</span>`
       )
     : highlighted
 }

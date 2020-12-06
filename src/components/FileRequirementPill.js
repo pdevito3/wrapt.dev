@@ -8,7 +8,7 @@ function FileRequirementPill(props) {
 
   return (
     <span className={paddingLeft}>
-      <span class={`inline-flex items-center px-6 py-1.5 rounded-full text-sm font-semibold ${pillColors} shadow`}>
+      <span className={`inline-flex items-center px-6 py-1.5 rounded-full text-sm font-semibold ${pillColors} shadow`}>
         {props.type === "optional" ? "Optional" : "Required"}
       </span>
     </span>

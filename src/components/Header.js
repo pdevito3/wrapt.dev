@@ -18,7 +18,7 @@ export function Header({ navIsOpen, onNavToggle }) {
               }}
             >
               <span className="sr-only">Wrapt home page</span>
-              <p class="text-violet-500">Wrapt SVG</p>
+              <p className="text-violet-500">Wrapt SVG</p>
             </a>
           </Link>
         </div>
