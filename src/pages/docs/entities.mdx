@@ -7,13 +7,15 @@ import FileRequirementPill from 'src/components/FileRequirementPill'
 
 An list of database entities in your project. These entities are added as dbsets to your database context, so they translate 1:1 to tables in your database. 
 
+## Entity Properties
+
 | Name       | Required | Description                                                  | Default                          |
 | ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Name       | Yes      | The name of the entity                                       | *None*                           |
 | Properties | Yes       | A list of properties assigned to your entity described [here](#entity-properties) | *None*                           |
 | Plural     | No       | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`) | Entity Name appended with an `s` |
 
-### Entity Properties
+### Properties
 
 An list of properties that can be assigned to an entity.
 
@@ -28,7 +30,8 @@ An list of properties that can be assigned to an entity.
 | CanManipulate      | No       | When set to false, you will not be able to update this property when calling the associated endpoint. When set to `false`, the property will be able to be established when using the POST endpoint, but will not be able to be updated after that. This is managed by the DTOs if you want to manually adjust this. | true<br/>*false for primary key* |
 | DefaultValue       | No       | Allows you to add a default value to a property. Note that it should be entered exactly as you'd want it, so a string would be something like `"My Default Value"`, a bool might be `true`, and an int might be `0` | *None*                           |
 | ForeignKeyPropName | No       | When adding an object linked by a foreign key, use `ForeignKeyPropName` to enter the name of the property that acts as the foreign key | *None*                           |
-| Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            |
+
+<!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 
 ## Example
 This example would create a supplier entity with several properties. Note:

@@ -3,39 +3,55 @@ title: Database Migrations
 ---
 
 ## Using Database Migrations
+Wrapt projects are completely compatable with Entity Framework Database Migrations.
 
-If you are only using one `Startup` and `appsettings` file, migrations work as they always would. However, if you are using multiple environments, 
-migrations are a pain to deal with when you have multiple environment files like this as it is not a smooth process to differentiate between 
-the right `appsettings` file. If you'd like to use migrations you will need to set `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` to let 
+As usual, if you are only using one `Startup` and `appsettings` file, migrations work as they always would. If you are using multiple environments, 
+migrations in Entity Framework currently require you to set the environment manually before you run your migration differentiating between the right `appsettings` file. 
+
+If you'd like to use migrations you will need to set `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` to let 
 the host builder locate the appropriate settings file. Here's some examples for 
 [Windows](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10), 
 [Bash](https://askubuntu.com/questions/58814/how-do-i-add-environment-variables), 
 and [PowerShell](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7). 
-If you'd like to track this feature request in EF, the Github issue is [here](https://github.com/dotnet/efcore/issues/8695).
+
+If you'd like to track the feature request for an inline command in EF, the Github issue is [here](https://github.com/dotnet/efcore/issues/8695).
 
 When running migrations, make sure your `UseInMemoryDatabase` setting is set to `false` in your appsettings. This should be the case by default on all environments that are not `Development`.
 
 ## Example
-First, make sure you have `dotnet ef` installed. To install it globally run:
+1. Make sure you have `dotnet ef` installed. To install it globally run:
+  ```shell
+  dotnet tool install -g dotnet-ef
+  ```
 
-```shell
-dotnet tool install -g dotnet-ef
-```
+2. Set your env variable (e.g. Prod) that matches the environment name in `launchsettings`:
 
-Next, you'll want to perform your first migration. For example:
-```shell
-dotnet ef migrations add "InitialMigration" --project Infrastructure.Persistence --startup-project WebApi --output-dir Migrations
-```
+  *Powershell*
+  ```PowerShell
+  $Env:ASPNETCORE_ENVIRONMENT = "Prod"
+  ```
 
-To add a configuration, you'll want to do this, otherwise the migration will look at your in memory db and fail:
-```shell
-dotnet ef migrations add "InitialMigration" --project Infrastructure.Persistence --startup-project WebApi --output-dir Migrations --configuration Release
-```
+  *Bash*
+  ```Bash
+  ASPNETCORE_ENVIRONMENT = "Prod"
+  ```
 
-To make updates to your database, you can run this:
-```shell
-dotnet ef database update -p Infrastructure.Persistence -s WebApi
-```
+3. Perform your first migration. For example:
+  ```shell
+  dotnet ef migrations add "InitialMigration" --project Infrastructure.Persistence --startup-project WebApi --output-dir Migrations
+  ```
+
+  Your migrations should be under the project you are running them on, so in this case `Infrastructure.Persistence`
+
+4. To add additional migrations, you can do something like this. Again, make sure that your `ASPNETCORE_ENVIRONMENT` has been set.
+  ```shell
+  dotnet ef migrations add "added X column to y entity" --project Infrastructure.Persistence --startup-project WebApi --output-dir Migrations
+  ```
+
+5. To push the updates to your database, you can run this:
+  ```shell
+  dotnet ef database update -p Infrastructure.Persistence -s WebApi
+  ```
 
 ## Common Db Migration Error
 
