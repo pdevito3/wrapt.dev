@@ -26,7 +26,7 @@ export default function Home() {
           <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="flex flex-1 items-center space-x-5 max-w-lg">
               <p class="text-violet-500 w-1/2">Wrapt SVG</p>
-              <Search />
+              {/* <Search /> */}
             </div>
 
             <div className="flex space-x-6 sm:space-x-10">
@@ -36,7 +36,8 @@ export default function Home() {
                 </a>
               </NextLink>
               <a
-                href="https://github.com/tailwindlabs/tailwindcss"
+                target="_blank"
+                href="https://github.com/pdevito3/craftsman"
                 className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
               >
                 <span className="sr-only">Tailwind CSS on GitHub</span>

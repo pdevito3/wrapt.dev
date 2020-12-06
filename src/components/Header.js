@@ -24,11 +24,12 @@ export function Header({ navIsOpen, onNavToggle }) {
         </div>
         <div className="flex-auto h-18 flex items-center justify-between px-4 sm:px-6 lg:mx-6 lg:px-0 xl:mx-8">
           <div className="flex flex-1 items-center max-w-sm">
-            <Search />
+            {/* <Search /> */}
           </div>
           <div className="flex items-center space-x-6">
             <a
-              href="https://github.com/tailwindlabs/tailwindcss"
+              target="_blank"
+              href="https://github.com/pdevito3/craftsman"
               className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
             >
               <span className="sr-only">Tailwind CSS on GitHub</span>
