@@ -2,6 +2,7 @@ import Head from 'next/head'
 import NextLink from 'next/link'
 import Banner from 'src/components/Banner'
 import Search from 'src/components/Search'
+import FeatureBlock from 'src/components/FeatureBlock'
 
 export default function Home() {
   return (
@@ -30,7 +31,7 @@ export default function Home() {
             </div>
 
             <div className="flex space-x-6 sm:space-x-10">
-              <NextLink href="/docs/installation">
+              <NextLink href="/docs/how-it-works">
                 <a className="text-base leading-6 font-medium hover:text-gray-600 transition-colors duration-200">
                   Docs
                 </a>
@@ -74,7 +75,48 @@ export default function Home() {
         {/* <Hero /> */}
       </header>
       
-     
+      <body>
+        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-24 lg:px-8">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl font-extrabold text-gray-900">No More Boilerplate</h2>
+            <p className="mt-4 text-lg text-gray-500">Wrapt Web APIs eliminate the tedium so you can hit the ground running and get your applications deployed quickly.</p>
+          </div>
+          <dl className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3 lg:gap-x-8">
+            <FeatureBlock 
+              title={'Automated HTTP Endpoint Generation'} 
+              details={'Every entity will have GET, POST, PUT, PATCH, and DELETE endpoints automatically generated for you so you can hit the ground running right away.'} 
+            />
+            <FeatureBlock 
+              title={'Clean Architecture'} 
+              details={'No need to learn a custom organizational structure — Wrapt Web APIs follow best in class practices with Clean Architecture to optimize for flexibility and scalablity. '} 
+            />
+            <FeatureBlock 
+              title={'Filtering, Sorting, and Pagination'} 
+              details={'Not only will pagination metadata be returned will all your GET collection requests, but complex filtering and sorting is baked right into your repositories as well. '} 
+            />
+            <FeatureBlock 
+              title={'Unit and Integration Tests '} 
+              details={'Web APIs generated with Wrapt will scaffold out unit and integration tests for you automatically, so you can make updates with confidence.'} 
+            />
+            <FeatureBlock 
+              title={'Quick Add Commands'} 
+              details={"Craftsman CLI commands allow you to add new entities, properties, and more to your projects in seconds. No more jumping around to make sure your addition is in all the right spots."} 
+            />
+            <FeatureBlock 
+              title={'Built in Swagger Documentation'} 
+              details={'Providing detailed documentation for how your API works is critical. Wrapt Web APIs will set up reliable Swagger documentation so your users and dev team know how your API works'} 
+            />
+            {/* <FeatureBlock 
+              title={'Fluent Validation'} 
+              details={'test'}
+            />
+            <FeatureBlock 
+              title={'Serilog'} 
+              details={'Magna a vel sagittis aliquam eu amet. Et lorem auctor quam nunc odio. Sed bibendum.'} 
+            /> */}
+          </dl>
+        </div>
+      </body>
     </div>
   )
 }
