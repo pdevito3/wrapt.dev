@@ -12,10 +12,10 @@ export function Header({ navIsOpen, onNavToggle }) {
           <Link href="/">
             <a
               className="overflow-hidden w-10 md:w-auto"
-              onContextMenu={(e) => {
-                e.preventDefault()
-                Router.push('/brand')
-              }}
+              // onContextMenu={(e) => {
+              //   e.preventDefault()
+              //   Router.push('/brand')
+              // }}
             >
               <span className="sr-only">Wrapt home page</span>
               <p className="text-violet-500">Wrapt SVG</p>

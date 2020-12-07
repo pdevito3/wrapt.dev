@@ -31,3 +31,120 @@ we may need across our infrastructure layer (e.g. DateTimeService).
 ### API
 Finally, we have our API layer. This is where our `WebApi` project will live to provide us access to our API endpoints. This layer depends on both the `Core` and `Infrastructure` layers, 
 however, the dependency on `Infrastructure` is only to support dependency injection. Therefore only `Startup` classes should reference `Infrastructure`.
+
+## What Boilerplate Do You Get?
+### Entities & DTOs
+Entities are set up to represent distinct tables in your database. These entities should not be exposed outside of the API and accordingly each have their own read, create, 
+and update data transfer objects (DTOs). 
+
+#### Domain Entities
+At some point you may want to make a domain entity that is not directly linked to a database table. You can either do this manually or use the `add:entity` command 
+and update the associated files to meet your needs.
+
+### Repositories
+Wrapt APIs have a repository built out for each entity that act as the core data access layer (DAL) any time we need to touch the database. You can find the repositories in the 
+`Infrastructure.Persistence` layer.
+
+### Filtering and Sorting
+#### Toggling Filtering and Sorting
+Wrapt APIs use the magnificent [Sieve](https://github.com/Biarity/Sieve) library for filtering and sorting. All GET collection endpoints will have this capability enabled automatically 
+and can be used for any attributes that you have this configured for. These properties can be set when creating an entity or 
+adding a new property, otherwise you'll need to manage filtering and sorting on existing entity properties manually. There are details in the docs, but all you 
+need to to is manage the `Sieve` attribute on any entity properties.
+
+Note that Wrapt APIs do *not* use Sieve's pagination capabilities. For mroe information on how Wrapt handles pagination, see the [pagination](#pagination) section.
+
+```csharp
+[Sieve(CanFilter = true, CanSort = false)]
+```
+
+#### Using Filtering and Sorting
+To add a filter to your API calls, just add a `Filters` query string and the designated filter values youd like to use. Below is a few examples, but you can find a full list of 
+operators [here](https://github.com/Biarity/Sieve#operators).
+
+```http
+http://localhost:5000/api/staff?Filters=firstname@=*al
+http://localhost:5000/api/cities?Filters=name==Atlanta
+```
+
+Sorting can also be added using the `SortOrder` query string and passing a comma separated list in the order you'd like to sort by. You can use a preceding `-` to sort descendingly.
+```http
+http://localhost:5000/api/cities?SortOrder=name
+http://localhost:5000/api/cities?Filters=name==Atlanta&SortOrder=name
+http://localhost:5000/api/cities?Filters=name==Atlanta&SortOrder=name,-popularityscore
+```
+#### Updating Filtering and Sorting
+If you'd like to change the pagination and/or sorting, you can updated the `ENTITYParametersDto`.
+
+### Pagination
+Wrapt APIs use a custom pagination capability to make working with large dataset as easy as possible.
+
+#### Pagination Requests
+When making a request to your GET collection endpoint, you can pass a `PageNumber` and `PageSize` query string, or exlcude them to use the default values. 
+
+To change the default pagination values, go to the `ENTITYParametersDto` class that you'd like to modify and create an override parameter for the property you'd like to change. 
+```csharp
+public class CityParametersDto : BasePaginationParameters
+{
+    public override int DefaultPageSize { get; set; } = 50;
+    public string Filters { get; set; }
+    public string SortOrder { get; set; }
+}
+```
+
+Please note that if you make change to the `BasePaginationParameters` class, it will affect **all** classes that inherit from it (which is every one by default)
+
+#### Pagination Responses
+Getting paginated results is nice, but you'll very likely want to know information about the collection's pagination info as well, especially when you're programming a UI. Wrapt APIs 
+will automatically return a complete list of pagination metadata in the response header as `X-Pagination`. The following fields will be returned:
+
+| Metadata        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| TotalCount | The total **record** count for the entire collection. |
+| PageSize | The page size **that was requested**. |
+| CurrentPageSize | The **current** page size. |
+| CurrentStartIndex | The index of the first record on this page. |
+| CurrentEndIndex | The index of the last record on this page. |
+| PageNumber | The current page number in the collection. |
+| TotalPages | The total **page** count for the entire collection. |
+| HasPrevious | A boolean that denotes whether or not there is a previous page. |
+| HasNext | A boolean that denotes whether or not there is a next page. |
+
+
+### Fluent Validation
+Wrapt APIs are set up to run validation rules on any POST, PUT, and PATCH endpoints using [Fluent Validation](https://fluentvalidation.net/). No rules are added by default, 
+but you can add any rules that fit your business needs in `Core.Application.Validation`. Validation rules can be assigned to the `ENTITYForManipulationDtoValidator` class 
+if you'd like the rule to be run on both creation (POST calls) and update (PUT, PATCH). If you'd like a rule to just be ran on one or the other, you can add the rule to 
+the respective validator class.
+
+The OOTB rules for fluent validation are pretty robust, but if you need to make a custom validation rule, something like 
+the below is a good example [(source)](https://www.locktar.nl/programming/net-core/creating-custom-validators-with-fluentvalidation/) .
+
+```csharp
+public static class CustomValidators
+{
+    public static IRuleBuilderOptions<T, string> NotStartWithWhiteSpace<T>(this IRuleBuilder<T, string> ruleBuilder)
+    {
+        return ruleBuilder
+          .Must(m => m != null && !m.StartsWith(" "))
+          .WithMessage("'{PropertyName}' should not start with whitespace");
+    }
+}
+```
+
+```csharp
+public class PersonValidator : AbstractValidator<Person>
+{
+    public PersonValidator()
+    {        
+        RuleFor(e => e.FirstName)
+          .NotEmpty()
+          .MaximumLength(30)
+          .NotStartWithWhiteSpace();
+        RuleFor(e => e.LastName)
+          .NotEmpty()
+          .MaximumLength(30)
+          .NotStartWithWhiteSpace();
+    }
+}
+```

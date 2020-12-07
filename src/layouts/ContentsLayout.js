@@ -27,7 +27,7 @@ function TableOfContents({ tableOfContents, currentSection }) {
   }
 
   return (
-    <>
+    <div className="md:fixed">
       <h5 className="text-gray-900 uppercase tracking-wide font-semibold mb-3 text-sm lg:text-xs">
         On this page
       </h5>
@@ -83,7 +83,7 @@ function TableOfContents({ tableOfContents, currentSection }) {
           )
         })}
       </ul>
-    </>
+    </div>
   )
 }
 
