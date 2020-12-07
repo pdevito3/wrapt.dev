@@ -4,7 +4,7 @@ description: A walkthrough of the organization schema for Wrapt projects
 ---
 
 ## Clean Architecture
-Instead of making you learn some custom directory structure, Wrapt projects are organized using the well known and maintainable `Clean Architecture` format. If you are not familiar with this strcuture, 
+Instead of making you learn some custom directory structure, Wrapt projects are organized using the well known and maintainable `Clean Architecture` format. If you are not familiar with this structure, 
 there are some great resources on it [here](https://www.youtube.com/watch?v=joNTQy-KXiU), [here](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html), and 
 [here](https://www.codewithmukesh.com/blog/onion-architecture-in-aspnet-core/). 
 
@@ -52,14 +52,14 @@ and can be used for any attributes that you have this configured for. These prop
 adding a new property, otherwise you'll need to manage filtering and sorting on existing entity properties manually. There are details in the docs, but all you 
 need to to is manage the `Sieve` attribute on any entity properties.
 
-Note that Wrapt APIs do *not* use Sieve's pagination capabilities. For mroe information on how Wrapt handles pagination, see the [pagination](#pagination) section.
+Note that Wrapt APIs do *not* use Sieve's pagination capabilities. For more information on how Wrapt handles pagination, see the [pagination](#pagination) section.
 
 ```csharp
 [Sieve(CanFilter = true, CanSort = false)]
 ```
 
 #### Using Filtering and Sorting
-To add a filter to your API calls, just add a `Filters` query string and the designated filter values youd like to use. Below is a few examples, but you can find a full list of 
+To add a filter to your API calls, just add a `Filters` query string and the designated filter values you'd like to use. Below is a few examples, but you can find a full list of 
 operators [here](https://github.com/Biarity/Sieve#operators).
 
 ```http
@@ -67,7 +67,7 @@ http://localhost:5000/api/staff?Filters=firstname@=*al
 http://localhost:5000/api/cities?Filters=name==Atlanta
 ```
 
-Sorting can also be added using the `SortOrder` query string and passing a comma separated list in the order you'd like to sort by. You can use a preceding `-` to sort descendingly.
+Sorting can also be added using the `SortOrder` query string and passing a comma separated list in the order you'd like to sort by. You can use a preceding `-` to sort as descending.
 ```http
 http://localhost:5000/api/cities?SortOrder=name
 http://localhost:5000/api/cities?Filters=name==Atlanta&SortOrder=name
@@ -80,7 +80,7 @@ If you'd like to change the pagination and/or sorting, you can updated the `ENTI
 Wrapt APIs use a custom pagination capability to make working with large dataset as easy as possible.
 
 #### Pagination Requests
-When making a request to your GET collection endpoint, you can pass a `PageNumber` and `PageSize` query string, or exlcude them to use the default values. 
+When making a request to your GET collection endpoint, you can pass a `PageNumber` and `PageSize` query string, or exclude them to use the default values. 
 
 To change the default pagination values, go to the `ENTITYParametersDto` class that you'd like to modify and create an override parameter for the property you'd like to change. 
 ```csharp

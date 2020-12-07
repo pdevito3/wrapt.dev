@@ -36,7 +36,7 @@ An list of properties that can be assigned to an entity.
 ## Example
 This example would create a supplier entity with several properties. Note:
 - The `SupplierId` is marked as a primary key
-- We have normal and nullable primatives in the `Type` option
+- We have normal and nullable primitives in the `Type` option
 - We have marked the properties as sortable and filterable
 - We have given a default value for `IsVip`
 
@@ -96,7 +96,7 @@ Entities:
 ```
 
 If we wanted to return the product in our responses, we could add an additional `Product` property of type `Product` that links to the primary key of `ProductId` in our `Product` entity:
-> If possible, we recommend that you avoid returning the foreign key object directly in an entity response like this. Instead, have your front end call each necessary endpoint or build a domain object that build this out seperately.
+> If possible, we recommend that you avoid returning the foreign key object directly in an entity response like this. Instead, have your front end call each necessary endpoint or build a domain object that build this out separately.
 
 ```yaml
 Entities:
@@ -124,4 +124,4 @@ Entities:
 
 ## Composite Keys
 For the time being, composite keys can not be created using Craftsman commands. With that said, you are more than welcome to scaffold out an entity with one of the keys and then 
-modify the generated entity, repository, tests, etc. to accomodate that composite key.
+modify the generated entity, repository, tests, etc. to accommodate that composite key.

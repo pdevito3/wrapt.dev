@@ -88,7 +88,7 @@ export default function Home() {
             />
             <FeatureBlock 
               title={'Clean Architecture'} 
-              details={'No need to learn a custom organizational structure — Wrapt Web APIs follow best in class practices with Clean Architecture to optimize for flexibility and scalablity. '} 
+              details={'No need to learn a custom organizational structure — Wrapt Web APIs follow best in class practices with Clean Architecture to optimize for flexibility and scalability. '} 
             />
             <FeatureBlock 
               title={'Filtering, Sorting, and Pagination'} 
