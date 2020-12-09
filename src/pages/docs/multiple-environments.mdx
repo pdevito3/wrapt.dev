@@ -12,7 +12,7 @@ Wrapt templates are configured with Development (`StartupDevelopment`) and Produ
 The project will run `StartupDevelopment` locally by default using an in-memory database. This environment should generally not be connected to a live database to ensure that devs will 
 be able to clone your API down and run the solution without needing to go through additional database set up.
 
-Additional environments can be add added using an `Environments` list in your initial build file. This will use a multiple startup approach as described [here](https://aspnetcore.readthedocs.io/en/stable/fundamentals/environments.html). This means that there will be a `Startup{EnvironmentName}.cs` class, and `appsettings.{environment}.json` file, and a `launchsettings.json` profile added for each environment.
+Additional environments can be add added using an `Environments` list in your initial build file. This will use a multiple startup approach as described [in the aspnetcore docs](https://aspnetcore.readthedocs.io/en/stable/fundamentals/environments.html). This means that there will be a `Startup{EnvironmentName}.cs` class, and `appsettings.{environment}.json` file, and a `launchsettings.json` profile added for each environment.
 
 ## Environment Properties
 

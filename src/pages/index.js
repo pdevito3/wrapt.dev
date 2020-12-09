@@ -81,7 +81,7 @@ export default function Home() {
             <h2 className="text-3xl font-extrabold text-gray-900">No More Boilerplate</h2>
             <p className="mt-4 text-lg text-gray-500">Wrapt Web APIs eliminate the tedium so you can hit the ground running and get your applications deployed quickly.</p>
           </div>
-          <dl className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3 lg:gap-x-8">
+          <div className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3 lg:gap-x-8">
             <FeatureBlock 
               title={'Automated HTTP Endpoint Generation'} 
               details={'Every entity will have GET, POST, PUT, PATCH, and DELETE endpoints automatically generated for you so you can hit the ground running right away.'} 
@@ -104,7 +104,7 @@ export default function Home() {
             />
             <FeatureBlock 
               title={'Built in Swagger Documentation'} 
-              details={'Providing detailed documentation for how your API works is critical. Wrapt Web APIs will set up reliable Swagger documentation so your users and dev team know how your API works'} 
+              details={'Providing detailed documentation for how your API works is critical. Wrapt Web APIs will set up reliable Swagger documentation so your users and dev team know how your API works.'} 
             />
             {/* <FeatureBlock 
               title={'Fluent Validation'} 
@@ -114,7 +114,7 @@ export default function Home() {
               title={'Serilog'} 
               details={'Magna a vel sagittis aliquam eu amet. Et lorem auctor quam nunc odio. Sed bibendum.'} 
             /> */}
-          </dl>
+          </div>
         </div>
       </body>
     </div>

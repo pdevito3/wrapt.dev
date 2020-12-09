@@ -8,12 +8,12 @@ function FeatureBlock({title, details}) {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
       </svg>
       <div className="ml-3">
-        <dt className="text-lg leading-6 font-medium text-gray-900">
+        <div className="text-lg leading-6 font-medium text-gray-900">
           {title}
-        </dt>
-        <dd className="mt-2 text-base text-gray-500">
+        </div>
+        <div className="mt-2 text-base text-gray-500">
           {details}
-        </dd>
+        </div>
       </div>
     </div>
   )
