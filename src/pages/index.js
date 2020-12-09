@@ -18,7 +18,7 @@ export default function Home() {
           property="og:title"
           content="Wrapt - Scaffold an entire Web API with a simple yaml file."
         />
-        <title>Wrapt - Scaffold an entire Web API with a simple yaml file.</title>
+        <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml file.</title>
       </Head>
 
       {/* <Banner /> */}
@@ -59,7 +59,7 @@ export default function Home() {
             </h1>
             <div className="w-full flex items-center justify-center">
               <p className="max-w-lg md:max-w-3xl text-lg sm:text-2xl sm:leading-10 font-medium mb-10 sm:mb-11 ">
-                Scaffold an entire Web API with a simple yaml or json file so you can focus on the high value features in your web app.
+                Scaffold an entire .NET 5 Web API with a simple yaml or json file so you can focus on the high value features in your web app.
               </p>
             </div>
             <div className="flex items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
