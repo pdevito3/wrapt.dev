@@ -1,10 +1,63 @@
+import React, { useState, useRef } from "react"
+import Vimeo from "@u-wave/react-vimeo"
 import Head from 'next/head'
 import NextLink from 'next/link'
 import Banner from 'src/components/Banner'
 import Search from 'src/components/Search'
 import FeatureBlock from 'src/components/FeatureBlock'
+import useIsMountedRef from 'src/hooks/useIsMountedRef'
+import { usePrevious } from "src/hooks/usePrevious"
+import { useSpring, animated, useTransition } from "react-spring"
+import dynamic from 'next/dynamic'
+// import { ReactComponent as PlayIcon } from "src/assets/images/play.svg"
+// import { ReactComponent as PauseIcon } from "src/assets/images/pause.svg"
+// import { ReactComponent as ReplayIcon } from "src/assets/images/replay2.svg"
+
+// const PlayIcon = dynamic(() => import("src/assets/images/play.svg"))
+// const PauseIcon = dynamic(() => import("src/assets/images/pause.svg"))
+// const ReplayIcon = dynamic(() => import("src/assets/images/replay2.svg"))
 
 export default function Home() {
+  let isMounted = useIsMountedRef();
+
+  let segments = {
+    createServer: { start: 0, end: 5 },
+    useDatabase: { start: 5, end: 10 },
+    seedFactories: { start: 10, end: 15 },
+    writeTests: { start: 15, end: 31 },
+  }
+  let videoPlayer = useRef()
+  let [currentTime, setCurrentTime] = useState(0)
+  let [playerState, setPlayerState] = useState("loading")
+
+  let currentSegment =
+    Object.keys(segments).find((name) => {
+      let segment = segments[name]
+      return segment.start <= currentTime && segment.end > currentTime
+    }) || Object.keys(segments)[0]
+
+  function handleTimeUpdate(event) {
+    setCurrentTime(event.seconds)
+  }
+
+  async function seekVideo(time) {
+    await videoPlayer.current.player.setCurrentTime(time)
+  }
+
+  async function pauseVideo() {
+    await videoPlayer.current.player.pause()
+    if (isMounted.current) {
+      setPlayerState("paused")
+    }
+  }
+
+  async function playVideo() {
+    await videoPlayer.current.player.play()
+    if (isMounted.current) {
+      setPlayerState("playing")
+    }
+  }
+
   return (
     <div >
       <Head>
@@ -86,6 +139,253 @@ export default function Home() {
           </div>
         {/* <Hero /> */}
       </header>
+
+      {/* <div className="md:px-8">
+        <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
+          <div className="relative" style={{paddingBottom: '56.25%'}}>
+            <div className="absolute inset-0 w-full h-full">
+              <button className="absolute inset-0 z-10 w-full focus:outline-none" />
+              <div data-vimeo-initialized="true">
+                <div style={{padding: '56.25% 0 0 0', position: 'relative'}}>
+                  <iframe ref={video1}
+                  src="https://player.vimeo.com/video/489238512?muted=1&autoplay=1&controls=0&loop=1"
+                  allow="autoplay;fullscreen"
+                  allowFullScreen
+                  style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}} 
+                  title="Homepage hero"
+                  data-ready="true"
+                  frameBorder={0} 
+                />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
+
+
+<div className="mt-16 md:mt-20 2xl:mt-24"></div>
+
+<div className="md:px-8">
+  <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
+    <AspectRatio ratio={16 / 9}>
+      <button
+        className="absolute inset-0 z-10 w-full focus:outline-none"
+        onClick={() =>
+          playerState === "paused" ? playVideo() : pauseVideo()
+        }
+      />
+      <Vimeo
+        video="489238512"
+        controls={false}
+        autoplay={true}
+        muted={true}
+        loop={true}
+        responsive={true}
+        onTimeUpdate={handleTimeUpdate}
+        ref={videoPlayer}
+      />
+    </AspectRatio>
+  </div>
+</div>
+
+
+
+<div className="mt-12"></div>
+
+<Gutters>
+  <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
+    <div className="flex -mx-4">
+      <div className="w-1/4 px-4">
+        <VideoSegmentProgress
+          start={segments.createServer.start}
+          end={segments.createServer.end}
+          current={currentTime}
+          paused={playerState === "paused"}
+        />
+      </div>
+      <div className="w-1/4 px-4">
+        <VideoSegmentProgress
+          start={segments.useDatabase.start}
+          end={segments.useDatabase.end}
+          current={currentTime}
+          paused={playerState === "paused"}
+        />
+      </div>
+      <div className="w-1/4 px-4">
+        <VideoSegmentProgress
+          start={segments.seedFactories.start}
+          end={segments.seedFactories.end}
+          current={currentTime}
+          paused={playerState === "paused"}
+        />
+      </div>
+      <div className="w-1/4 px-4">
+        <VideoSegmentProgress
+          start={segments.writeTests.start}
+          end={segments.writeTests.end}
+          current={currentTime}
+          paused={playerState === "paused"}
+        />
+      </div>
+    </div>
+
+    <div className="mt-8 md:hidden">
+      <p className="font-medium text-white">
+        {currentSegment === "createServer"
+          ? "Create a Server"
+          : currentSegment === "useDatabase"
+          ? "Use the database"
+          : currentSegment === "seedFactories"
+          ? "Seed with factories"
+          : "Write UI tests"}
+      </p>
+    </div>
+
+    <div className="hidden mt-3 md:block">
+      <div className="flex -mx-4">
+        <div className="w-1/4 px-4">
+          <button
+            onClick={async (e) => {
+              await seekVideo(segments.createServer.start)
+              await playVideo()
+            }}
+            className={`text-center hover:text-white block w-full focus:outline-none ${
+              currentSegment === "createServer"
+                ? "text-white"
+                : "text-gray-700"
+            }`}
+          >
+            Create a server
+          </button>
+
+          {currentSegment === "createServer" && (
+            <VideoSegmentControls
+              state={playerState}
+              play={playVideo}
+              pause={pauseVideo}
+              reset={(e) => seekVideo(segments.createServer.start)}
+            />
+          )}
+        </div>
+
+        <div className="w-1/4 px-4">
+          <button
+            onClick={async (e) => {
+              await seekVideo(segments.useDatabase.start)
+              await playVideo()
+            }}
+            className={`text-center hover:text-white block w-full focus:outline-none ${
+              currentSegment === "useDatabase"
+                ? "text-white"
+                : "text-gray-700"
+            }`}
+          >
+            Use the database
+          </button>
+          {currentSegment === "useDatabase" && (
+            <VideoSegmentControls
+              state={playerState}
+              play={playVideo}
+              pause={pauseVideo}
+              reset={(e) => seekVideo(segments.useDatabase.start)}
+            />
+          )}
+        </div>
+
+        <div className="w-1/4 px-4">
+          <button
+            onClick={async (e) => {
+              await seekVideo(segments.seedFactories.start)
+              await playVideo()
+            }}
+            className={`block text-center hover:text-white w-full focus:outline-none ${
+              currentSegment === "seedFactories"
+                ? "text-white"
+                : "text-gray-700"
+            }`}
+          >
+            Seed with factories
+          </button>
+          {currentSegment === "seedFactories" && (
+            <VideoSegmentControls
+              state={playerState}
+              play={playVideo}
+              pause={pauseVideo}
+              reset={(e) => seekVideo(segments.seedFactories.start)}
+            />
+          )}
+        </div>
+        <div className="w-1/4 px-4">
+          <button
+            onClick={async (e) => {
+              await seekVideo(segments.writeTests.start)
+              await playVideo()
+            }}
+            className={`text-center hover:text-white block w-full focus:outline-none ${
+              currentSegment === "writeTests"
+                ? "text-white"
+                : "text-gray-700"
+            }`}
+          >
+            Write UI tests
+          </button>
+          {currentSegment === "writeTests" && (
+            <VideoSegmentControls
+              state={playerState}
+              play={playVideo}
+              pause={pauseVideo}
+              reset={(e) => seekVideo(segments.writeTests.start)}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+
+    <div className="h-40 mt-3 overflow-hidden md:h-32 md:mt-10 md:text-center md:flex md:justify-center">
+      <FadeBetween currentSegment={currentSegment}>
+        <State for="createServer">
+          <Text color="light-gray">
+            Mirage runs alongside the rest of your frontend
+            JavaScript code — no new server processes or terminal
+            windows needed. Use the devtools you know and love to
+            write UI code that's ready for the network.
+          </Text>
+        </State>
+        <State for="useDatabase">
+          <Text color="light-gray">
+            Mirage uses an in-memory database to maintain the
+            referential integrity of your application data. This
+            lets you build out fully dynamic features, even ones
+            that depend on data-fetching and persistence logic,
+            without ever leaving your frontend codebase.
+          </Text>
+        </State>
+        <State for="seedFactories">
+          <Text color="light-gray">
+            Use factories to quickly put your server into any state
+            you need. No more waiting on your backend team or
+            staging environment just to toggle between dynamic
+            application states — even ones that rely on complex
+            graphs of relational data.
+          </Text>
+        </State>
+        <State for="writeTests">
+          <Text color="light-gray">
+            Love high-level testing but hate slow, flaky end-to-end
+            infrastructure? Mirage lets you write UI tests that
+            verify complete user flows and stress hard-to-test
+            application states like failed network requests, all
+            without running anything other than your frontend app in
+            either node or the browser.
+          </Text>
+        </State>
+      </FadeBetween>
+    </div>
+  </div>
+</Gutters>
+
+
       
       <body>
         <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-24 lg:px-8">
@@ -129,6 +429,154 @@ export default function Home() {
           </div>
         </div>
       </body>
+    </div>
+  )
+}
+
+
+function VideoSegmentProgress({ start, end, current, paused }) {
+  let duration = end - start
+  let segmentCompletedTime = current - start
+  let segmentRemaining = duration - segmentCompletedTime
+
+  let progress =
+    current <= start
+      ? 0
+      : current > end
+      ? 100
+      : (segmentCompletedTime / duration) * 100
+
+  let previousProgress = usePrevious(progress)
+  let changeInProgress = progress - previousProgress
+  let didJump = changeInProgress < 0 || changeInProgress > 10
+
+  const props = useSpring({
+    to: {
+      width: paused ? `${progress}%` : progress > 0 ? "100%" : "0%",
+      backgroundColor: progress === 100 ? "#2B2F31" : "#05C77E",
+    },
+    immediate: didJump,
+    config(key) {
+      let map = {
+        width: {
+          duration: segmentRemaining * 1000,
+          easing: (t) => t,
+        },
+        backgroundColor: {
+          duration: 250,
+        },
+      }
+
+      return map[key]
+    },
+  })
+
+  return (
+    <div className="relative w-full h-1 overflow-hidden transition bg-gray-900 rounded">
+      <animated.div
+        className="absolute top-0 bottom-0 left-0"
+        style={props}
+      ></animated.div>
+    </div>
+  )
+}
+
+
+function VideoSegmentControls({ state, play, pause, reset }) {
+  return (
+    <div className="flex items-center justify-center mt-2 ">
+      <button
+        className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
+        onClick={reset}
+      >
+        {/* <ReplayIcon className="w-4 h-4" /> */}
+        <svg className="w-4 h-4" viewBox="0 0 20 20">
+          <g id="Page-1" stroke="none" stroke-width="1" fill-rule="evenodd">
+            <path fill='currentColor' d="M14.6568542,15.6568542 C13.209139,17.1045695 11.209139,18 9,18 C4.581722,18 1,14.418278 1,10 C1,5.581722 4.581722,2 9,2 C13.418278,2 17,5.581722 17,10 L15,10 C15,6.6862915 12.3137085,4 9,4 C5.6862915,4 3,6.6862915 3,10 C3,13.3137085 5.6862915,16 9,16 C10.6568542,16 12.1568542,15.3284271 13.2426407,14.2426407 L14.6568542,15.6568542 L14.6568542,15.6568542 Z M12,10 L20,10 L16,14 L12,10 L12,10 Z"></path>
+          </g>
+        </svg>
+      </button>
+      {state === "paused" ? (
+        <button
+          className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
+          onClick={play}
+        >
+          {/* <PlayIcon className="w-3 h-3" /> */}
+          <svg className="w-3 h-3" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0L12 6L0 12V0Z" fill="currentColor"/>
+          </svg>
+        </button>
+      ) : (
+        <button
+          className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
+          onClick={pause}
+        >
+          {/* <PauseIcon className="w-3 h-3" /> */}
+          <svg className="w-3 h-3" width="7" height="9" viewBox="0 0 7 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H2.1V8.4H0V0ZM4.9 0H7V8.4H4.9V0Z" fill="currentColor"/>
+          </svg>
+        </button>
+      )}
+    </div>
+  )
+}
+
+function Gutters({ children }) {
+  return <div className="px-5 md:px-8">{children}</div>
+}
+
+
+function FadeBetween({ children, currentSegment }) {
+  let segments = React.Children.toArray(children).reduce((memo, child) => {
+    memo[child.props.for] = child.props.children
+
+    return memo
+  }, {})
+
+  const transitions = useTransition(currentSegment, (i) => i, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+  })
+
+  return (
+    <div className="relative w-full">
+      {transitions.map(({ item, props, key }) => {
+        return (
+          <animated.div className="absolute w-full" style={props} key={key}>
+            <div className="flex justify-center">{segments[item]}</div>
+          </animated.div>
+        )
+      })}
+    </div>
+  )
+}
+
+function State() {}
+
+
+function Text({ children, color }) {
+  let styles = {
+    "light-gray": "text-gray-500",
+    "dark-gray": "text-gray-700",
+  }
+
+  if (styles[color] === undefined) {
+    throw new Error("<Text> requires a color.")
+  }
+
+  return (
+    <p className={`${styles[color]} md:text-lg max-w-measure`}>{children}</p>
+  )
+}
+
+function AspectRatio({ ratio, children }) {
+  return (
+    <div
+      className="relative"
+      style={{ paddingBottom: `${(1 / ratio) * 100}%` }}
+    >
+      <div className="absolute inset-0 w-full h-full">{children}</div>
     </div>
   )
 }
