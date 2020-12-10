@@ -68,6 +68,18 @@ export default function Home() {
                   Get Started
                 </a>
               </NextLink>
+              <NextLink href="/docs/tutorial">
+                <a className="group w-full sm:w-auto flex-none text-violet-700 text-lg leading-6 font-semibold flex items-center justify-center py-3 px-6 border border-transparent rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-violet-700 focus:outline-none transition-colors duration-200">
+                  <span className="group-hover:text-violet-500">
+                    Start the Tutorial
+                  </span>
+                  <span>
+                    <svg className="h5 w-5 ml-2 group-hover:text-violet-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </a>
+              </NextLink>
               {/* <NpmInstallButton /> */}
             </div>
           </div>
