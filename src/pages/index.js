@@ -21,10 +21,10 @@ export default function Home() {
   let isMounted = useIsMountedRef();
 
   let segments = {
-    createServer: { start: 0, end: 5 },
-    useDatabase: { start: 5, end: 10 },
-    seedFactories: { start: 10, end: 15 },
-    writeTests: { start: 15, end: 31 },
+    apiDescription: { start: 0, end: 31.17 },
+    apiBuild: { start: 31.17, end: 63.16 },
+    apiRun: { start: 63.16, end: 141.19 },
+    apiGrow: { start: 141.19, end: 175.14 },
   }
   let videoPlayer = useRef()
   let [currentTime, setCurrentTime] = useState(0)
@@ -45,6 +45,7 @@ export default function Home() {
   }
 
   async function pauseVideo() {
+    console.log('pause')
     await videoPlayer.current.player.pause()
     if (isMounted.current) {
       setPlayerState("paused")
@@ -140,28 +141,6 @@ export default function Home() {
         {/* <Hero /> */}
       </header>
 
-      {/* <div className="md:px-8">
-        <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
-          <div className="relative" style={{paddingBottom: '56.25%'}}>
-            <div className="absolute inset-0 w-full h-full">
-              <button className="absolute inset-0 z-10 w-full focus:outline-none" />
-              <div data-vimeo-initialized="true">
-                <div style={{padding: '56.25% 0 0 0', position: 'relative'}}>
-                  <iframe ref={video1}
-                  src="https://player.vimeo.com/video/489238512?muted=1&autoplay=1&controls=0&loop=1"
-                  allow="autoplay;fullscreen"
-                  allowFullScreen
-                  style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%'}} 
-                  title="Homepage hero"
-                  data-ready="true"
-                  frameBorder={0} 
-                />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
 
 
 <div className="mt-16 md:mt-20 2xl:mt-24"></div>
@@ -176,7 +155,7 @@ export default function Home() {
         }
       />
       <Vimeo
-        video="489238512"
+        video="489696849"
         controls={false}
         autoplay={true}
         muted={true}
@@ -198,32 +177,32 @@ export default function Home() {
     <div className="flex -mx-4">
       <div className="w-1/4 px-4">
         <VideoSegmentProgress
-          start={segments.createServer.start}
-          end={segments.createServer.end}
+          start={segments.apiDescription.start}
+          end={segments.apiDescription.end}
           current={currentTime}
           paused={playerState === "paused"}
         />
       </div>
       <div className="w-1/4 px-4">
         <VideoSegmentProgress
-          start={segments.useDatabase.start}
-          end={segments.useDatabase.end}
+          start={segments.apiBuild.start}
+          end={segments.apiBuild.end}
           current={currentTime}
           paused={playerState === "paused"}
         />
       </div>
       <div className="w-1/4 px-4">
         <VideoSegmentProgress
-          start={segments.seedFactories.start}
-          end={segments.seedFactories.end}
+          start={segments.apiRun.start}
+          end={segments.apiRun.end}
           current={currentTime}
           paused={playerState === "paused"}
         />
       </div>
       <div className="w-1/4 px-4">
         <VideoSegmentProgress
-          start={segments.writeTests.start}
-          end={segments.writeTests.end}
+          start={segments.apiGrow.start}
+          end={segments.apiGrow.end}
           current={currentTime}
           paused={playerState === "paused"}
         />
@@ -231,14 +210,14 @@ export default function Home() {
     </div>
 
     <div className="mt-8 md:hidden">
-      <p className="font-medium text-white">
-        {currentSegment === "createServer"
-          ? "Create a Server"
-          : currentSegment === "useDatabase"
-          ? "Use the database"
-          : currentSegment === "seedFactories"
-          ? "Seed with factories"
-          : "Write UI tests"}
+      <p className="font-medium text-gray-400">
+        {currentSegment === "apiDescription"
+          ? "Describe your API"
+          : currentSegment === "apiBuild"
+          ? "Build your API"
+          : currentSegment === "apiRun"
+          ? "Run your API"
+          : "Grow your API"}
       </p>
     </div>
 
@@ -247,24 +226,24 @@ export default function Home() {
         <div className="w-1/4 px-4">
           <button
             onClick={async (e) => {
-              await seekVideo(segments.createServer.start)
+              await seekVideo(segments.apiDescription.start)
               await playVideo()
             }}
-            className={`text-center hover:text-white block w-full focus:outline-none ${
-              currentSegment === "createServer"
-                ? "text-white"
+            className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
+              currentSegment === "apiDescription"
+                ? "text-violet-500"
                 : "text-gray-700"
             }`}
           >
-            Create a server
+            Describe your API
           </button>
 
-          {currentSegment === "createServer" && (
+          {currentSegment === "apiDescription" && (
             <VideoSegmentControls
               state={playerState}
               play={playVideo}
               pause={pauseVideo}
-              reset={(e) => seekVideo(segments.createServer.start)}
+              reset={(e) => seekVideo(segments.apiDescription.start)}
             />
           )}
         </div>
@@ -272,23 +251,23 @@ export default function Home() {
         <div className="w-1/4 px-4">
           <button
             onClick={async (e) => {
-              await seekVideo(segments.useDatabase.start)
+              await seekVideo(segments.apiBuild.start)
               await playVideo()
             }}
-            className={`text-center hover:text-white block w-full focus:outline-none ${
-              currentSegment === "useDatabase"
-                ? "text-white"
+            className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
+              currentSegment === "apiBuild"
+                ? "text-violet-500"
                 : "text-gray-700"
             }`}
           >
-            Use the database
+            Build your API
           </button>
-          {currentSegment === "useDatabase" && (
+          {currentSegment === "apiBuild" && (
             <VideoSegmentControls
               state={playerState}
               play={playVideo}
               pause={pauseVideo}
-              reset={(e) => seekVideo(segments.useDatabase.start)}
+              reset={(e) => seekVideo(segments.apiBuild.start)}
             />
           )}
         </div>
@@ -296,46 +275,46 @@ export default function Home() {
         <div className="w-1/4 px-4">
           <button
             onClick={async (e) => {
-              await seekVideo(segments.seedFactories.start)
+              await seekVideo(segments.apiRun.start)
               await playVideo()
             }}
-            className={`block text-center hover:text-white w-full focus:outline-none ${
-              currentSegment === "seedFactories"
-                ? "text-white"
+            className={`block text-center hover:text-violet-500 w-full focus:outline-none ${
+              currentSegment === "apiRun"
+                ? "text-violet-500"
                 : "text-gray-700"
             }`}
           >
-            Seed with factories
+            Run your API
           </button>
-          {currentSegment === "seedFactories" && (
+          { currentSegment === "apiRun" && (
             <VideoSegmentControls
               state={playerState}
               play={playVideo}
               pause={pauseVideo}
-              reset={(e) => seekVideo(segments.seedFactories.start)}
+              reset={(e) => seekVideo(segments.apiRun.start)}
             />
           )}
         </div>
         <div className="w-1/4 px-4">
           <button
             onClick={async (e) => {
-              await seekVideo(segments.writeTests.start)
+              await seekVideo(segments.apiGrow.start)
               await playVideo()
             }}
-            className={`text-center hover:text-white block w-full focus:outline-none ${
-              currentSegment === "writeTests"
-                ? "text-white"
+            className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
+              currentSegment === "apiGrow"
+                ? "text-violet-500"
                 : "text-gray-700"
             }`}
           >
-            Write UI tests
+            Grow your API
           </button>
-          {currentSegment === "writeTests" && (
+          {currentSegment === "apiGrow" && (
             <VideoSegmentControls
               state={playerState}
               play={playVideo}
               pause={pauseVideo}
-              reset={(e) => seekVideo(segments.writeTests.start)}
+              reset={(e) => seekVideo(segments.apiGrow.start)}
             />
           )}
         </div>
@@ -344,7 +323,7 @@ export default function Home() {
 
     <div className="h-40 mt-3 overflow-hidden md:h-32 md:mt-10 md:text-center md:flex md:justify-center">
       <FadeBetween currentSegment={currentSegment}>
-        <State for="createServer">
+        <State for="apiDescription">
           <Text color="light-gray">
             Mirage runs alongside the rest of your frontend
             JavaScript code — no new server processes or terminal
@@ -352,7 +331,7 @@ export default function Home() {
             write UI code that's ready for the network.
           </Text>
         </State>
-        <State for="useDatabase">
+        <State for="apiBuild">
           <Text color="light-gray">
             Mirage uses an in-memory database to maintain the
             referential integrity of your application data. This
@@ -361,7 +340,7 @@ export default function Home() {
             without ever leaving your frontend codebase.
           </Text>
         </State>
-        <State for="seedFactories">
+        <State for="apiRun">
           <Text color="light-gray">
             Use factories to quickly put your server into any state
             you need. No more waiting on your backend team or
@@ -370,7 +349,7 @@ export default function Home() {
             graphs of relational data.
           </Text>
         </State>
-        <State for="writeTests">
+        <State for="apiGrow">
           <Text color="light-gray">
             Love high-level testing but hate slow, flaky end-to-end
             infrastructure? Mirage lets you write UI tests that
@@ -453,7 +432,7 @@ function VideoSegmentProgress({ start, end, current, paused }) {
   const props = useSpring({
     to: {
       width: paused ? `${progress}%` : progress > 0 ? "100%" : "0%",
-      backgroundColor: progress === 100 ? "#2B2F31" : "#05C77E",
+      backgroundColor: progress === 100 ? "#2B2F31" : "#7C3AED",
     },
     immediate: didJump,
     config(key) {
@@ -487,7 +466,7 @@ function VideoSegmentControls({ state, play, pause, reset }) {
     <div className="flex items-center justify-center mt-2 ">
       <button
         className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
-        onClick={reset}
+        onClick={() => reset}
       >
         {/* <ReplayIcon className="w-4 h-4" /> */}
         <svg className="w-4 h-4" viewBox="0 0 20 20">
@@ -499,7 +478,7 @@ function VideoSegmentControls({ state, play, pause, reset }) {
       {state === "paused" ? (
         <button
           className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
-          onClick={play}
+          onClick={() => play}
         >
           {/* <PlayIcon className="w-3 h-3" /> */}
           <svg className="w-3 h-3" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -509,7 +488,7 @@ function VideoSegmentControls({ state, play, pause, reset }) {
       ) : (
         <button
           className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
-          onClick={pause}
+          onClick={() => pause}
         >
           {/* <PauseIcon className="w-3 h-3" /> */}
           <svg className="w-3 h-3" width="7" height="9" viewBox="0 0 7 9" fill="none" xmlns="http://www.w3.org/2000/svg">
