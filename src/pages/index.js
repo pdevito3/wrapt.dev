@@ -45,7 +45,6 @@ export default function Home() {
   }
 
   async function pauseVideo() {
-    console.log('pause')
     await videoPlayer.current.player.pause()
     if (isMounted.current) {
       setPlayerState("paused")
@@ -77,7 +76,7 @@ export default function Home() {
 
       {/* <Banner /> */}
       <header className="relative z-10 max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl mx-auto">
-        <div className="px-4 sm:px-6 md:px-8 mb-14 sm:mb-20 xl:mb-8">
+        <div className="px-4 sm:px-6 md:px-8">
           <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="flex flex-1 items-center space-x-5 max-w-lg">
               <p className="text-violet-500 w-1/2">Wrapt SVG</p>
@@ -106,7 +105,7 @@ export default function Home() {
             </div>
           </div>
           {/* <Logo className="w-auto h-7 sm:h-8" /> */}
-          <div className="text-center w-full">
+          <div className="text-center w-auto md:w-full">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-gray-900 mt-10 mb-8 sm:mt-14 sm:mb-10">
               Skip the boilerplate and
               <span className="text-violet-700 font-semibold whitespace-pre-wrap"> focus on your business logic.</span>
@@ -116,7 +115,7 @@ export default function Home() {
                 Scaffold an entire .NET 5 Web API with a simple yaml or json file so you can focus on the high value features in your web app.
               </p>
             </div>
-            <div className="flex items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <div className="flex flex-wrap space-y-4 sm:space-y-0 sm:space-x-4 text-center justify-center">
               <NextLink href="/docs/how-it-works">
                 <a className="w-full sm:w-auto flex-none bg-violet-700 hover:bg-violet-500 text-white text-lg leading-6 font-semibold py-3 px-6 border border-transparent rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-violet-700 focus:outline-none transition-colors duration-200">
                   Get Started
@@ -141,233 +140,229 @@ export default function Home() {
         {/* <Hero /> */}
       </header>
 
-
-
-<div className="mt-16 md:mt-20 2xl:mt-24"></div>
-
-<div className="md:px-8">
-  <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
-    <AspectRatio ratio={16 / 9}>
-      <button
-        className="absolute inset-0 z-10 w-full focus:outline-none"
-        onClick={() =>
-          playerState === "paused" ? playVideo() : pauseVideo()
-        }
-      />
-      <Vimeo
-        video="489696849"
-        controls={false}
-        autoplay={true}
-        muted={true}
-        loop={true}
-        responsive={true}
-        onTimeUpdate={handleTimeUpdate}
-        ref={videoPlayer}
-      />
-    </AspectRatio>
-  </div>
-</div>
-
-
-
-<div className="mt-12"></div>
-
-<Gutters>
-  <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
-    <div className="flex -mx-4">
-      <div className="w-1/4 px-4">
-        <VideoSegmentProgress
-          start={segments.apiDescription.start}
-          end={segments.apiDescription.end}
-          current={currentTime}
-          paused={playerState === "paused"}
-        />
-      </div>
-      <div className="w-1/4 px-4">
-        <VideoSegmentProgress
-          start={segments.apiBuild.start}
-          end={segments.apiBuild.end}
-          current={currentTime}
-          paused={playerState === "paused"}
-        />
-      </div>
-      <div className="w-1/4 px-4">
-        <VideoSegmentProgress
-          start={segments.apiRun.start}
-          end={segments.apiRun.end}
-          current={currentTime}
-          paused={playerState === "paused"}
-        />
-      </div>
-      <div className="w-1/4 px-4">
-        <VideoSegmentProgress
-          start={segments.apiGrow.start}
-          end={segments.apiGrow.end}
-          current={currentTime}
-          paused={playerState === "paused"}
-        />
-      </div>
-    </div>
-
-    <div className="mt-8 md:hidden">
-      <p className="font-medium text-gray-400">
-        {currentSegment === "apiDescription"
-          ? "Describe your API"
-          : currentSegment === "apiBuild"
-          ? "Build your API"
-          : currentSegment === "apiRun"
-          ? "Run your API"
-          : "Grow your API"}
-      </p>
-    </div>
-
-    <div className="hidden mt-3 md:block">
-      <div className="flex -mx-4">
-        <div className="w-1/4 px-4">
-          <button
-            onClick={async (e) => {
-              await seekVideo(segments.apiDescription.start)
-              await playVideo()
-            }}
-            className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
-              currentSegment === "apiDescription"
-                ? "text-violet-500"
-                : "text-gray-700"
-            }`}
-          >
-            Describe your API
-          </button>
-
-          {currentSegment === "apiDescription" && (
-            <VideoSegmentControls
-              state={playerState}
-              play={playVideo}
-              pause={pauseVideo}
-              reset={(e) => seekVideo(segments.apiDescription.start)}
+    <div className="hidden md:block">
+      <div className="md:px-8 mt-16 md:mt-20 2xl:mt-24">
+        <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
+          <AspectRatio ratio={16 / 9}>
+            <button
+              className="absolute inset-0 z-10 w-full focus:outline-none"
+              onClick={() =>
+                playerState === "paused" ? playVideo() : pauseVideo()
+              }
             />
-          )}
-        </div>
-
-        <div className="w-1/4 px-4">
-          <button
-            onClick={async (e) => {
-              await seekVideo(segments.apiBuild.start)
-              await playVideo()
-            }}
-            className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
-              currentSegment === "apiBuild"
-                ? "text-violet-500"
-                : "text-gray-700"
-            }`}
-          >
-            Build your API
-          </button>
-          {currentSegment === "apiBuild" && (
-            <VideoSegmentControls
-              state={playerState}
-              play={playVideo}
-              pause={pauseVideo}
-              reset={(e) => seekVideo(segments.apiBuild.start)}
+            <Vimeo
+              video="489696849"
+              controls={false}
+              autoplay={true}
+              muted={true}
+              loop={true}
+              responsive={true}
+              onTimeUpdate={handleTimeUpdate}
+              ref={videoPlayer}
             />
-          )}
-        </div>
-
-        <div className="w-1/4 px-4">
-          <button
-            onClick={async (e) => {
-              await seekVideo(segments.apiRun.start)
-              await playVideo()
-            }}
-            className={`block text-center hover:text-violet-500 w-full focus:outline-none ${
-              currentSegment === "apiRun"
-                ? "text-violet-500"
-                : "text-gray-700"
-            }`}
-          >
-            Run your API
-          </button>
-          { currentSegment === "apiRun" && (
-            <VideoSegmentControls
-              state={playerState}
-              play={playVideo}
-              pause={pauseVideo}
-              reset={(e) => seekVideo(segments.apiRun.start)}
-            />
-          )}
-        </div>
-        <div className="w-1/4 px-4">
-          <button
-            onClick={async (e) => {
-              await seekVideo(segments.apiGrow.start)
-              await playVideo()
-            }}
-            className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
-              currentSegment === "apiGrow"
-                ? "text-violet-500"
-                : "text-gray-700"
-            }`}
-          >
-            Grow your API
-          </button>
-          {currentSegment === "apiGrow" && (
-            <VideoSegmentControls
-              state={playerState}
-              play={playVideo}
-              pause={pauseVideo}
-              reset={(e) => seekVideo(segments.apiGrow.start)}
-            />
-          )}
+          </AspectRatio>
         </div>
       </div>
+
+      <Gutters>
+        <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
+          <div className="flex -mx-4">
+            <div className="w-1/4 px-4">
+              <VideoSegmentProgress
+                start={segments.apiDescription.start}
+                end={segments.apiDescription.end}
+                current={currentTime}
+                paused={playerState === "paused"}
+              />
+            </div>
+            <div className="w-1/4 px-4">
+              <VideoSegmentProgress
+                start={segments.apiBuild.start}
+                end={segments.apiBuild.end}
+                current={currentTime}
+                paused={playerState === "paused"}
+              />
+            </div>
+            <div className="w-1/4 px-4">
+              <VideoSegmentProgress
+                start={segments.apiRun.start}
+                end={segments.apiRun.end}
+                current={currentTime}
+                paused={playerState === "paused"}
+              />
+            </div>
+            <div className="w-1/4 px-4">
+              <VideoSegmentProgress
+                start={segments.apiGrow.start}
+                end={segments.apiGrow.end}
+                current={currentTime}
+                paused={playerState === "paused"}
+              />
+            </div>
+          </div>
+
+          <div className="mt-2 md:mt-8 md:hidden">
+            <p className="font-medium text-gray-400">
+              {currentSegment === "apiDescription"
+                ? "Describe your API"
+                : currentSegment === "apiBuild"
+                ? "Build your API"
+                : currentSegment === "apiRun"
+                ? "Run your API"
+                : "Grow your API"}
+            </p>
+          </div>
+
+          <div className="hidden mt-3 md:block">
+            <div className="flex -mx-4">
+              <div className="w-1/4 px-4">
+                <button
+                  onClick={async (e) => {
+                    await seekVideo(segments.apiDescription.start)
+                    await playVideo()
+                  }}
+                  className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
+                    currentSegment === "apiDescription"
+                      ? "text-violet-500"
+                      : "text-gray-700"
+                  }`}
+                >
+                  Describe your API
+                </button>
+
+                {currentSegment === "apiDescription" && (
+                  <VideoSegmentControls
+                    state={playerState}
+                    play={playVideo}
+                    pause={pauseVideo}
+                    reset={(e) => seekVideo(segments.apiDescription.start)}
+                  />
+                )}
+              </div>
+
+              <div className="w-1/4 px-4">
+                <button
+                  onClick={async (e) => {
+                    await seekVideo(segments.apiBuild.start)
+                    await playVideo()
+                  }}
+                  className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
+                    currentSegment === "apiBuild"
+                      ? "text-violet-500"
+                      : "text-gray-700"
+                  }`}
+                >
+                  Build your API
+                </button>
+                {currentSegment === "apiBuild" && (
+                  <VideoSegmentControls
+                    state={playerState}
+                    play={playVideo}
+                    pause={pauseVideo}
+                    reset={(e) => seekVideo(segments.apiBuild.start)}
+                  />
+                )}
+              </div>
+
+              <div className="w-1/4 px-4">
+                <button
+                  onClick={async (e) => {
+                    await seekVideo(segments.apiRun.start)
+                    await playVideo()
+                  }}
+                  className={`block text-center hover:text-violet-500 w-full focus:outline-none ${
+                    currentSegment === "apiRun"
+                      ? "text-violet-500"
+                      : "text-gray-700"
+                  }`}
+                >
+                  Run your API
+                </button>
+                { currentSegment === "apiRun" && (
+                  <VideoSegmentControls
+                    state={playerState}
+                    play={playVideo}
+                    pause={pauseVideo}
+                    reset={(e) => seekVideo(segments.apiRun.start)}
+                  />
+                )}
+              </div>
+              <div className="w-1/4 px-4">
+                <button
+                  onClick={async (e) => {
+                    await seekVideo(segments.apiGrow.start)
+                    await playVideo()
+                  }}
+                  className={`text-center hover:text-violet-500 block w-full focus:outline-none ${
+                    currentSegment === "apiGrow"
+                      ? "text-violet-500"
+                      : "text-gray-700"
+                  }`}
+                >
+                  Grow your API
+                </button>
+                {currentSegment === "apiGrow" && (
+                  <VideoSegmentControls
+                    state={playerState}
+                    play={playVideo}
+                    pause={pauseVideo}
+                    reset={(e) => seekVideo(segments.apiGrow.start)}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+              
+
+
+          <div className="h-40 mt-3 overflow-hidden md:h-36 md:mt-10 md:text-center md:flex md:justify-center lg:h-32">
+            <FadeBetween currentSegment={currentSegment}>
+              <State for="apiDescription">
+                <Text color="light-gray">
+                  In order to scaffold out a new API, we need to build a simple 
+                  yaml or json file to describe what we want our API to 
+                  look like. This files is just some basic project info
+                  (project name, database info), and a description of your entities.
+                  You can also provide optional info like environment information 
+                  or a swagger layout.
+                </Text>
+              </State>
+              <State for="apiBuild">
+                <Text color="light-gray">
+                  Next, we can write single Craftsman CLI command (the 
+                  workhorse behind the  Wrapt framework) to build our 
+                  API for us. The only information this command needs 
+                  is the file path for our API description.
+                </Text>
+              </State>
+              <State for="apiRun">
+                <Text color="light-gray">
+                  Once we've built our project, it's ready for use. 
+                  We now have a well organized project that 
+                  has a full complement of robust HTTP endpoints and 
+                  all of the boilerplate eliminated for us.
+                </Text>
+              </State>
+              <State for="apiGrow">
+                <Text color="light-gray">
+                  What we've built so far is a great starting point, 
+                  but we still have some work to do to grow our API 
+                  to meet our exact business needs. We can now go 
+                  into our project and modify it however we normally 
+                  would by hand and, if we have another requirement 
+                  come up with lots of boilerplate (i.e. adding a new 
+                  entity or property), we can use the Craftsman API 
+                  to speed our work along!
+                </Text>
+              </State>
+            </FadeBetween>
+          </div>
+        </div>
+      </Gutters>
     </div>
 
-    <div className="h-40 mt-3 overflow-hidden md:h-32 md:mt-10 md:text-center md:flex md:justify-center">
-      <FadeBetween currentSegment={currentSegment}>
-        <State for="apiDescription">
-          <Text color="light-gray">
-            Mirage runs alongside the rest of your frontend
-            JavaScript code — no new server processes or terminal
-            windows needed. Use the devtools you know and love to
-            write UI code that's ready for the network.
-          </Text>
-        </State>
-        <State for="apiBuild">
-          <Text color="light-gray">
-            Mirage uses an in-memory database to maintain the
-            referential integrity of your application data. This
-            lets you build out fully dynamic features, even ones
-            that depend on data-fetching and persistence logic,
-            without ever leaving your frontend codebase.
-          </Text>
-        </State>
-        <State for="apiRun">
-          <Text color="light-gray">
-            Use factories to quickly put your server into any state
-            you need. No more waiting on your backend team or
-            staging environment just to toggle between dynamic
-            application states — even ones that rely on complex
-            graphs of relational data.
-          </Text>
-        </State>
-        <State for="apiGrow">
-          <Text color="light-gray">
-            Love high-level testing but hate slow, flaky end-to-end
-            infrastructure? Mirage lets you write UI tests that
-            verify complete user flows and stress hard-to-test
-            application states like failed network requests, all
-            without running anything other than your frontend app in
-            either node or the browser.
-          </Text>
-        </State>
-      </FadeBetween>
-    </div>
-  </div>
-</Gutters>
-
-
-      
-      <body>
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-24 lg:px-8">
+      <div>
+        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-extrabold text-gray-900">No More Boilerplate</h2>
             <p className="mt-4 text-lg text-gray-500">Wrapt Web APIs eliminate the tedium so you can hit the ground running and get your applications deployed quickly.</p>
@@ -407,7 +402,7 @@ export default function Home() {
             /> */}
           </div>
         </div>
-      </body>
+      </div>
     </div>
   )
 }
@@ -463,36 +458,36 @@ function VideoSegmentProgress({ start, end, current, paused }) {
 
 function VideoSegmentControls({ state, play, pause, reset }) {
   return (
-    <div className="flex items-center justify-center mt-2 ">
+    <div className="flex items-center justify-center mt-2 space-x-4 md:space-x-2">
       <button
-        className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
-        onClick={() => reset}
+        className="text-gray-600 focus:outline-none hover:text-gray-300"
+        onClick={reset}
       >
         {/* <ReplayIcon className="w-4 h-4" /> */}
-        <svg className="w-4 h-4" viewBox="0 0 20 20">
-          <g id="Page-1" stroke="none" stroke-width="1" fill-rule="evenodd">
+        <svg className="w-5 h-5 md:w-4 md:h-4" viewBox="0 0 20 20">
+          <g id="Page-1" stroke="none" strokeWidth="1" fillRule="evenodd">
             <path fill='currentColor' d="M14.6568542,15.6568542 C13.209139,17.1045695 11.209139,18 9,18 C4.581722,18 1,14.418278 1,10 C1,5.581722 4.581722,2 9,2 C13.418278,2 17,5.581722 17,10 L15,10 C15,6.6862915 12.3137085,4 9,4 C5.6862915,4 3,6.6862915 3,10 C3,13.3137085 5.6862915,16 9,16 C10.6568542,16 12.1568542,15.3284271 13.2426407,14.2426407 L14.6568542,15.6568542 L14.6568542,15.6568542 Z M12,10 L20,10 L16,14 L12,10 L12,10 Z"></path>
           </g>
         </svg>
       </button>
       {state === "paused" ? (
         <button
-          className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
-          onClick={() => play}
+          className="text-gray-600 focus:outline-none hover:text-gray-300"
+          onClick={play}
         >
           {/* <PlayIcon className="w-3 h-3" /> */}
-          <svg className="w-3 h-3" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0L12 6L0 12V0Z" fill="currentColor"/>
+          <svg className="w-5 h-5 md:w-3 md:h-3" width="12" height="12" viewBox="0 0 12 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M0 0L12 6L0 12V0Z" fill="currentColor"/>
           </svg>
         </button>
       ) : (
         <button
-          className="px-px mx-1 text-gray-600 focus:outline-none hover:text-gray-300"
-          onClick={() => pause}
+          className="text-gray-600 focus:outline-none hover:text-gray-300"
+          onClick={pause}
         >
           {/* <PauseIcon className="w-3 h-3" /> */}
-          <svg className="w-3 h-3" width="7" height="9" viewBox="0 0 7 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H2.1V8.4H0V0ZM4.9 0H7V8.4H4.9V0Z" fill="currentColor"/>
+          <svg className="w-5 h-5 md:w-3 md:h-3" width="7" height="9" viewBox="0 0 7 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M0 0H2.1V8.4H0V0ZM4.9 0H7V8.4H4.9V0Z" fill="currentColor"/>
           </svg>
         </button>
       )}
@@ -501,7 +496,7 @@ function VideoSegmentControls({ state, play, pause, reset }) {
 }
 
 function Gutters({ children }) {
-  return <div className="px-5 md:px-8">{children}</div>
+  return <div className="px-5 mt-12 md:px-8">{children}</div>
 }
 
 
