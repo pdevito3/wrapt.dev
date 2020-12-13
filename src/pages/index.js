@@ -390,11 +390,15 @@ export default function Home() {
             />
             <FeatureBlock 
               title={'Flexible Database Options'} 
-              details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-relase, but will be added with 1st party Wrapt support as soon as it is ready for .NET 5."} 
+              details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-release, but will be added with 1st party Wrapt support as soon as it is ready for .NET 5."} 
             />
             <FeatureBlock 
               title={'Fluent Validation'} 
               details={'Easily validate your HTTP endpoints using the powerful Fluent Validation library.'}
+            />
+            <FeatureBlock 
+              title={'API Versioning'} 
+              details={'Built in API versioning, so your API can grow with your changing needs.'}
             />
             {/* <FeatureBlock 
               title={'Serilog'} 
