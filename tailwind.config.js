@@ -188,6 +188,7 @@ module.exports = {
     require('@tailwindcss/forms'),
     require('@tailwindcss/ui'),
     require('@tailwindcss/typography'),
+    require('tailwindcss-question-mark'),
     function ({ addUtilities, theme }) {
       const shadows = theme('boxShadow')
       addUtilities(

@@ -5068,6 +5068,11 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
+tailwindcss-question-mark@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/tailwindcss-question-mark/-/tailwindcss-question-mark-0.1.0.tgz#8032b0b4a8b43561b89542644edb9f75d91f3384"
+  integrity sha512-LMmAM9nT8CaaBt6XmLMuCTbPDAjatgGX1BUoMNGGUNBVIEf5DJfHYQ72E8NLwYNVgiad4dUxXRrcWECx5x3rrA==
+
 tailwindcss@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-2.0.1.tgz#8d336917819341d1018208e8b3ed8cbc46e6b643"
