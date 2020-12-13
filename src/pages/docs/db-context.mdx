@@ -20,8 +20,11 @@ These are the valid options for the `Provider` property:
 - Postgres
 - MySQL (Coming Soon)
 
+> MYSQL USERS: You can still add MySql to your project manually. This is because, as of writing this, the MySql library is 
+currently in pre-release for .NET 5, so you'll either want to add the prerelease or drop back to .NET Core 3.1 until it's ready.
+
 ## Example
-In this example, we are creating a Sql Server datbase with a database name of `VetClinic` and a DbContext of `VetClinicDbContext`.
+In this example, we are creating a Sql Server database with a database name of `VetClinic` and a DbContext of `VetClinicDbContext`.
 ```yaml
 DbContext:
   ContextName: VetClinicDbContext

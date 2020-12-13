@@ -384,14 +384,22 @@ export default function Home() {
               title={'Built in Swagger Documentation'} 
               details={'Providing detailed documentation for how your API works is critical. Wrapt Web APIs will set up reliable Swagger documentation so your users and dev team know how your API works.'} 
             />
-            {/* <FeatureBlock 
-              title={'Fluent Validation'} 
-              details={'test'}
+            <FeatureBlock 
+              title={'Multi-Environment Support'} 
+              details={"Built in support to scaffold out as many environments as you'd like."} 
             />
             <FeatureBlock 
+              title={'Flexible Database Options'} 
+              details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-relase, but will be added with 1st party Wrapt support as soon as it is ready for .NET 5."} 
+            />
+            <FeatureBlock 
+              title={'Fluent Validation'} 
+              details={'Easily validate your HTTP endpoints using the powerful Fluent Validation library.'}
+            />
+            {/* <FeatureBlock 
               title={'Serilog'} 
               details={'Magna a vel sagittis aliquam eu amet. Et lorem auctor quam nunc odio. Sed bibendum.'} 
-            /> */}
+            />  */}
           </div>
         </div>
       </div>
