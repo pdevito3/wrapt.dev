@@ -27,7 +27,7 @@ function TableOfContents({ tableOfContents, currentSection }) {
   }
 
   return (
-    <div className="md:fixed">
+    <div className="md:fixed pr-2">
       <h5 className="text-gray-900 uppercase tracking-wide font-semibold mb-3 text-sm lg:text-xs">
         On this page
       </h5>
@@ -83,6 +83,22 @@ function TableOfContents({ tableOfContents, currentSection }) {
           )
         })}
       </ul>
+    
+      <div class="mt-5 px-4 py-2 bg-white rounded-lg shadow space-y-2 border">
+        <p className="text-gray-800 text-lg font-medium">
+          👀 Docs Feedback
+        </p>
+        <p className="text-gray-500">
+          <span>
+            See something missing or light in content in the docs? 
+          </span>
+          {' '}
+          <a href="https://github.com/pdevito3/wrapt.dev/issues" target="_blank" className="font-medium underline cursor-pointer text-violet-500">Let me know</a> 
+          <span>
+            ! I want the Wrapt docs to be as through and helpful as possible!
+          </span>
+        </p>
+      </div>
     </div>
   )
 }
