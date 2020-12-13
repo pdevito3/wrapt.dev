@@ -99,6 +99,23 @@ module.exports = {
             'tbody code': {
               fontSize: theme('fontSize.xs')[0],
             },
+            blockquote: {
+              color: theme('colors.gray.700'),
+              "padding": ".75rem",
+              "background-color": theme('colors.gray.50'),
+              "margin-bottom": '1.5rem',
+              "border-color": theme('colors.gray.300'),
+              "border-width": "1px 1px 1px 4px",
+              "border-radius": theme('borderRadius.rounded'),
+              "font-size": theme('fontSize.normal'),
+              "line-height": "1.25rem",
+              'font-style': 'normal',
+              quotes: 'none'
+            },          
+            'blockquote p': {
+              "marginBottom": ".15em",
+              "marginTop": ".15em",
+            }
           },
         },
       }),

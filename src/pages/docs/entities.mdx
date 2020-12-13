@@ -96,7 +96,7 @@ Entities:
 ```
 
 If we wanted to return the product in our responses, we could add an additional `Product` property of type `Product` that links to the primary key of `ProductId` in our `Product` entity:
-> If possible, we recommend that you avoid returning the foreign key object directly in an entity response like this. Instead, have your front end call each necessary endpoint or build a domain object that build this out separately.
+> If possible, it is recommended that you avoid returning the foreign key object directly in an entity response like this. Instead, have your front end call each necessary endpoint or build a domain object that build this out separately.
 
 ```yaml
 Entities:
