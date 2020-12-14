@@ -353,8 +353,29 @@ export default function Home() {
       </Gutters>
     </div>
 
-      <div>
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+    <div class="relative py-8 bg-white overflow-hidden">
+        <div class="hidden lg:block lg:absolute lg:inset-y-0 lg:h-full lg:w-full">
+          <div class="relative h-full text-lg max-w-prose mx-auto" aria-hidden="true">
+            <svg class="absolute top-12 left-full transform translate-x-72" width="404" height="384" fill="none" viewBox="0 0 404 384">
+              <defs>
+                <pattern id="74b3fd99-0a6f-4271-bef2-e80eeafdf357" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="4" height="4" class="text-gray-200" fill="currentColor" />
+                </pattern>
+              </defs>
+              <rect width="404" height="384" fill="url(#74b3fd99-0a6f-4271-bef2-e80eeafdf357)" />
+            </svg>
+            <svg class="absolute bottom-12 right-full transform -translate-x-72" width="404" height="384" fill="none" viewBox="0 0 404 384">
+              <defs>
+                <pattern id="d3eb07ae-5182-43e6-857d-35c643af9034" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="4" height="4" class="text-gray-200" fill="currentColor" />
+                </pattern>
+              </defs>
+              <rect width="404" height="384" fill="url(#d3eb07ae-5182-43e6-857d-35c643af9034)" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 bg-white z-50">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-extrabold text-gray-900">No More Boilerplate</h2>
             <p className="mt-4 text-lg text-gray-500">Wrapt Web APIs eliminate the tedium so you can hit the ground running and get your applications deployed quickly.</p>
@@ -389,16 +410,16 @@ export default function Home() {
               details={"Built in support to scaffold out as many environments as you'd like."} 
             />
             <FeatureBlock 
-              title={'Flexible Database Options'} 
-              details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-release, but will be added with 1st party Wrapt support as soon as it is ready for .NET 5."} 
-            />
-            <FeatureBlock 
               title={'Fluent Validation'} 
               details={'Easily validate your HTTP endpoints using the powerful Fluent Validation library.'}
             />
             <FeatureBlock 
               title={'API Versioning'} 
               details={'Built in API versioning, so your API can grow with your changing needs.'}
+            />
+            <FeatureBlock 
+              title={'Flexible Database Options'} 
+              details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-release, but will be added with 1st party Wrapt support as soon as it is ready for .NET 5."} 
             />
             {/* <FeatureBlock 
               title={'Serilog'} 
