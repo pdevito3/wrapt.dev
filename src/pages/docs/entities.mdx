@@ -15,6 +15,8 @@ An list of database entities in your project. These entities are added as dbsets
 | Properties | Yes      | A list of properties assigned to your entity described in the [entity properties ](#entity-properties) section.| *None*                           |
 | Plural     | No       | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`) | Entity Name appended with an `s` |
 | Lambda     | No       | The value to use in lambda expressions for this entity. | First letter of the entity name. |
+| TableName  | No       | The name of the table in the database. | Same as the singular `Name`. |
+| Schema     | No       | The schema to use in the database. | *None*, which will equate to `dbo` in SqlServer, `public` in Postgres, or `mydb` in MySQL |
 
 ### Properties
 
