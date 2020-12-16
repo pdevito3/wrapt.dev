@@ -387,11 +387,11 @@ export default function Home() {
             />
             <FeatureBlock 
               title={'Clean Architecture'} 
-              details={'No need to learn a custom organizational structure — Wrapt Web APIs follow best in class practices with Clean Architecture to optimize for flexibility and scalability. '} 
+              details={'No need to learn a custom organizational structure — Wrapt Web APIs follow best in class practices with Clean Architecture to optimize for flexibility and scalability.'} 
             />
             <FeatureBlock 
               title={'Filtering, Sorting, and Pagination'} 
-              details={'Not only will pagination metadata be returned will all your GET collection requests, but complex filtering and sorting is baked right into your repositories as well. '} 
+              details={'Not only will pagination metadata be returned with all your GET collection requests, but complex filtering and sorting is baked right into your repositories as well.'} 
             />
             <FeatureBlock 
               title={'Unit and Integration Tests '} 
