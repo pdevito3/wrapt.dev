@@ -12,12 +12,13 @@ description: Learn how to get up and running with Wrapt.
 1. To start, you'll need install the [Foundation API Template](https://github.com/pdevito3/foundation.api). This is the base template that our CLI will use when creating a new Web API.
 
    ```shell
-   dotnet new --install Foundation.Api::0.3.0
+   dotnet new -i Foundation.Api
    ```
 
-   > Note that on the off chance that you have another dotnet template on your machine with a `foundation` short name, you will need to uninstall that template before using 
+   > On the off chance that you have another dotnet template on your machine with a `foundation` short name, you will need to uninstall that template before using 
    a `craftsman new:api` command. To get the uninstall command run `dotnet new -u` and find the uninstall command listed for your foundation template.
 
+   > If you have issues installing it, you may need to specify the latest Foundation version. See the [nuget package page](https://nuget.org/packages/Foundation.Api) for the most up to date install command.
 2. Install the `Craftsman` tool globally. This is going to be the workhorse behind all of our commands. 
 
    ```shell
