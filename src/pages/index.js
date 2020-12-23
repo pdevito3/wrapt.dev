@@ -380,51 +380,54 @@ export default function Home() {
             <h2 className="text-3xl font-extrabold text-gray-900">No More Boilerplate</h2>
             <p className="mt-4 text-lg text-gray-500">Wrapt Web APIs eliminate the tedium so you can hit the ground running and get your applications deployed quickly.</p>
           </div>
-          <div className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-12 lg:grid-cols-3 lg:gap-x-8">
+          <div className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-6 lg:grid-cols-3 lg:gap-x-8">
             <FeatureBlock 
               title={'Automated HTTP Endpoint Generation'} 
-              details={'Every entity will have GET, POST, PUT, PATCH, and DELETE endpoints automatically generated for you so you can hit the ground running right away.'} 
+              // details={'Every entity will have GET, POST, PUT, PATCH, and DELETE endpoints automatically generated for you so you can hit the ground running right away.'} 
             />
             <FeatureBlock 
               title={'Clean Architecture'} 
-              details={'No need to learn a custom organizational structure — Wrapt Web APIs follow best in class practices with Clean Architecture to optimize for flexibility and scalability.'} 
+              // details={'No need to learn a custom organizational structure — Wrapt Web APIs follow best in class practices with Clean Architecture to optimize for flexibility and scalability.'} 
             />
             <FeatureBlock 
               title={'Filtering, Sorting, and Pagination'} 
-              details={'Not only will pagination metadata be returned with all your GET collection requests, but complex filtering and sorting is baked right into your repositories as well.'} 
+              // details={'Not only will pagination metadata be returned with all your GET collection requests, but complex filtering and sorting is baked right into your repositories as well.'} 
             />
             <FeatureBlock 
               title={'Unit and Integration Tests '} 
-              details={'Web APIs generated with Wrapt will scaffold out unit and integration tests for you automatically, so you can make updates with confidence.'} 
+              // details={'Web APIs generated with Wrapt will scaffold out unit and integration tests for you automatically, so you can make updates with confidence.'} 
             />
             <FeatureBlock 
               title={'Quick Add Commands'} 
-              details={"Craftsman CLI commands allow you to add new entities, properties, and more to your projects in seconds. No more jumping around to make sure your addition is in all the right spots."} 
+              // details={"Craftsman CLI commands allow you to add new entities, properties, and more to your projects in seconds. No more jumping around to make sure your addition is in all the right spots."} 
             />
             <FeatureBlock 
-              title={'Built in Swagger Documentation'} 
-              details={'Providing detailed documentation for how your API works is critical. Wrapt Web APIs will set up reliable Swagger documentation so your users and dev team know how your API works.'} 
+              title={'Enhanced Swagger Documentation'} 
+              // details={"Wrapt Web APIs will not only set up the basic Swagger scaffolding that comes with .NET 5, but can also provide detailed documentation for your endpoint's operations.""} 
             />
             <FeatureBlock 
               title={'Multi-Environment Support'} 
-              details={"Built in support to scaffold out as many environments as you'd like."} 
+              // details={"Built in support to scaffold out as many environments as you'd like."} 
             />
             <FeatureBlock 
               title={'Fluent Validation'} 
-              details={'Easily validate your HTTP endpoints using the powerful Fluent Validation library.'}
+              // details={'Easily validate your HTTP endpoints using the powerful Fluent Validation library.'}
             />
             <FeatureBlock 
               title={'API Versioning'} 
-              details={'Built in API versioning, so your API can grow with your changing needs.'}
+              // details={'Built in API versioning, so your API can grow with your changing needs.'}
             />
             <FeatureBlock 
               title={'Flexible Database Options'} 
-              details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-release, but will be added with 1st party Wrapt support as soon as it is ready for .NET 5."} 
+              // details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-release, but will be added with 1st party Wrapt support as soon as it is ready for .NET 5."} 
             />
-            {/* <FeatureBlock 
-              title={'Serilog'} 
-              details={'Magna a vel sagittis aliquam eu amet. Et lorem auctor quam nunc odio. Sed bibendum.'} 
-            />  */}
+            <FeatureBlock 
+              title={'Serilog Logging'} 
+              // details={'Serilog is built into all Wrapt APIs for built in '} 
+            />  
+            <FeatureBlock 
+              title={'Customizable Response Wrapper'} 
+            />  
           </div>
         </div>
       </div>

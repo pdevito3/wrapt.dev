@@ -6,7 +6,9 @@ import FileRequirementPill from 'src/components/FileRequirementPill'
 
 ## Swagger <FileRequirementPill padLeft={"sm"} type={"optional"} />
 
-If desired, you can add a basic swagger configuration using the `SwaggerConfig` option. This will scaffold out a bare bones swagger pager using [NSwag](https://github.com/RicoSuter/NSwag), which you can update to use any additional features you wish. 
+If desired, you can add a basic swagger configuration using the `SwaggerConfig` option. This will scaffold out a bare bones swagger page using [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore#getting-started), which you can update to use any additional features you wish. 
+
+Of note, you can scaffold out detailed swagger comments for each of your endpoints using the [AddSwaggerComments property](#AddSwaggerComments-property).
 
 To get to your swagger page, you can go to `/swagger`.
 
@@ -17,6 +19,11 @@ To get to your swagger page, you can go to `/swagger`.
 | Title       | Yes      | The title of the swagger document    | *None*  |
 | Description | No       | The description for your swagger doc | *None*  |
 | ApiContact  | No       | The primary contact for the API      | *None*  |
+| SwaggerEndpointUrl  | No       | The url to use for the swagger documentation.     | /swagger/v1/swagger.json  |
+| SwaggerEndpointName  | No       | The name to use on the main swagger documentation page.     | *None*  |
+| LicenseName | No       | The name of the license on the swagger documentation. | *None*  |
+| LicenseUrl | No       | The url of the license on the swagger documentation. | *None*  |
+| AddSwaggerComments | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint. Please see the notes below for information on this usage. | false  |
 
 ### ApiContact Properties
 
@@ -26,17 +33,39 @@ To get to your swagger page, you can go to `/swagger`.
 | Email | No       | The email of the contact    | *None*  |
 | Url   | No       | The website for the contact | *None*  |
 
+### AddSwaggerComments Property
+If set to `true`, Craftsman will scaffold out detailed comments on using each endpoint. The largest impact is on the details of using the GET list/collection endpoint and will discuss how to use pagination, filters, and sorting. 
 
+#### Manual Intervention Required
+If you are using this setting, you will have to manually add `XML documentation` and `1591` exception suppression to your WebApi project. This is not done for you automatically because of the current absolute path 
+requirement. I don't want to presume this path for you and it could affect your deployment strategies, so this must be done manually to whatever specifications meet your needs. There are discussions on 
+creating a more flexible xml documentation target in [this github issue](https://github.com/dotnet/project-system/issues/368) if you'd like to track the progress.
+
+To implement these updates:
+
+1) Right click the `WebApi` project and select `Properties`
+
+2) Go to the `Build` tab
+
+3) Check the `XML Documentation` box and, if desired, update the url
+
+4) Add the `1591` code to the suppression warnings input. Generally this would make your input read as `1701;1702;1591;`
+
+5) If you'd like to  add comments to the parameters directly (these are not scaffolded for you in Craftsman), you'll need to do the same for the `Application` project as well
 
 ## Example
 
 ```yaml
 SwaggerConfig:
-  Title: MySwaggerDoc
-  Description: This is the official swagger doc for my amazing company.
+  Title: Carbon Kitchen API
+  Description: Manage everything in your kitchen!
+  SwaggerEndpointName: Carbon Kitchen API
+  LicenseName: MIT
+  LicenseUrl: https://carbonkitchen.com/license
+  AddSwaggerComments: false
   ApiContact: 
-    Name: Paul
-    Email: paul@example.com
-    Url: https://www.mywebsite.com
+    Name: Carbon Kitchen Support
+    Email: support@carbonkitchen.com
+    Url: https://www.carbonkitchen.com/support
 ```
 
