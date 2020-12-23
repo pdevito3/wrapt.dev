@@ -112,10 +112,13 @@
   margin-right: 1rem;
   flex: auto;
   min-width: 0;
+  border: none !important;
 }
 
 .DocSearch-Input:focus {
   outline: 2px dotted transparent;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .DocSearch-Input::-webkit-search-cancel-button,
