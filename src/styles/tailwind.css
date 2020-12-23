@@ -3,6 +3,7 @@
 /*! purgecss start ignore */
 @import url('https://rsms.me/inter/inter.css');
 @import 'prism.css';
+@import 'docsearch.css';
 /*! purgecss end ignore */
 
 @import "tailwindcss/components";

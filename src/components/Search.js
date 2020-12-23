@@ -1,10 +1,27 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
+import { DocSearchModal, useDocSearchKeyboardEvents } from '@docsearch/react'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import Link from 'next/link'
+import { createPortal } from 'react-dom'
 
 const ACTION_KEY_DEFAULT = ['Ctrl ', 'Control']
 const ACTION_KEY_APPLE = ['⌘', 'Command']
 
+function Hit({ hit, children }) {
+  return (
+    <Link href={hit.url}>
+      <a>{children}</a>
+    </Link>
+  )
+}
+
 function Search() {
+  const router = useRouter()
   const [actionKey, setActionKey] = useState()
+  const [isOpen, setIsOpen] = useState(false)
+  const searchButtonRef = useRef()
+  const [initialQuery, setInitialQuery] = useState(null)
   
   useEffect(() => {
     if (typeof navigator !== 'undefined') {
@@ -16,9 +33,39 @@ function Search() {
     }
   }, [])
 
+  const onOpen = useCallback(() => {
+    setIsOpen(true)
+  }, [setIsOpen])
+
+  const onClose = useCallback(() => {
+    setIsOpen(false)
+  }, [setIsOpen])
+
+  const onInput = useCallback(
+    (e) => {
+      setIsOpen(true)
+      setInitialQuery(e.key)
+    },
+    [setIsOpen, setInitialQuery]
+  )
+
+  useDocSearchKeyboardEvents({
+    isOpen,
+    onOpen,
+    onClose,
+    onInput,
+    searchButtonRef,
+  })
+  
   return (
+    <>
+      <Head>
+        <link rel="preconnect" href="https://BH4D9OD16A-dsn.algolia.net" crossOrigin="true" />
+      </Head>
       <button 
         type="button"
+        ref={searchButtonRef}
+        onClick={onOpen}
         className="group form-input border shadow-sm hover:text-gray-600 hover:border-gray-300 transition duration-150 ease-in-out pointer flex items-center bg-gray-50 text-left w-full text-gray-500 rounded-lg text-sm align-middle"
       >
         <svg width="1em" height="1em" className="mr-3 align-middle text-gray-600 flex-shrink-0 group-hover:text-gray-700" style={{marginBottom: 2}} viewBox="0 0 20 20">
@@ -42,6 +89,45 @@ function Search() {
           </span>
         )}
      </button>
+     {isOpen &&
+        createPortal(
+          <DocSearchModal
+            initialQuery={initialQuery}
+            initialScrollY={window.scrollY}
+            searchParameters={{
+              // facetFilters: 'version:v2',
+              distinct: 1,
+            }}
+            onClose={onClose}
+            indexName="wrapt"
+            apiKey="6f27d54591339cbb9983fc5344626dff"
+            appId="BH4D9OD16A"
+            navigator={{
+              navigate({ suggestionUrl }) {
+                setIsOpen(false)
+                router.push(suggestionUrl)
+              },
+            }}
+            hitComponent={Hit}
+            transformItems={(items) => {
+              return items.map((item) => {
+                // We transform the absolute URL into a relative URL to
+                // leverage Next's preloading.
+                const a = document.createElement('a')
+                a.href = item.url
+
+                const hash = a.hash === '#content-wrapper' ? '' : a.hash
+
+                return {
+                  ...item,
+                  url: `${a.pathname}${hash}`,
+                }
+              })
+            }}
+          />,
+          document.body
+        )}
+    </>
   )
 }
 
