@@ -84,7 +84,7 @@ function TableOfContents({ tableOfContents, currentSection }) {
         })}
       </ul>
     
-      <div class="mt-5 px-4 py-2 bg-white rounded-lg shadow space-y-2 border">
+      <div className="mt-5 px-4 py-2 bg-white rounded-lg shadow space-y-2 border">
         <p className="text-gray-800 text-lg font-medium">
           👀 Docs Feedback
         </p>
@@ -95,7 +95,17 @@ function TableOfContents({ tableOfContents, currentSection }) {
           {' '}
           <a href="https://github.com/pdevito3/wrapt.dev/issues" target="_blank" className="font-medium underline cursor-pointer text-violet-500">Let me know</a> 
           <span>
-            ! I want the Wrapt docs to be as through and helpful as possible!
+            ! I want the Wrapt docs to be as through and helpful as possible! 
+          </span>
+        </p>
+        <p className="text-gray-500">
+          <span>
+            If you'd like to request a new feature, you can submit a 
+          </span>
+          {' '}
+          <a href="https://github.com/pdevito3/craftsman/issues" target="_blank" className="font-medium underline cursor-pointer text-violet-500">new Craftsman issue</a> 
+          <span>
+            .
           </span>
         </p>
       </div>
@@ -190,7 +200,7 @@ export function ContentsLayout({ children, meta, classes, tableOfContents }) {
         <PageHeader
           title={meta.title}
           description={meta.description}
-          badge={{ key: 'Tailwind CSS version', value: meta.featureVersion }}
+          // badge={{ key: 'Tailwind CSS version', value: meta.featureVersion }}
           border={!classes && meta.headerSeparator !== false}
         />
         <ContentsContext.Provider value={{ registerHeading, unregisterHeading }}>
