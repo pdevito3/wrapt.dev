@@ -28,5 +28,6 @@ export const documentationNav = {
   ],
   'Additional Resources': [
     pages['migrations'],
+    pages['logging'],
   ],
 }

@@ -82,11 +82,11 @@ Wrapt APIs use a custom pagination capability to make working with large dataset
 #### Pagination Requests
 When making a request to your GET collection endpoint, you can pass a `PageNumber` and `PageSize` query string, or exclude them to use the default values. 
 
-To change the default pagination values, go to the `ENTITYParametersDto` class that you'd like to modify and create an override parameter for the property you'd like to change. 
+To change the default pagination values, go to the `ENTITYParametersDto` class that you'd like to modify and create an override parameter for the property you'd like to change. Be sure to set the permission level to `internal` to match the inherited permissions.
 ```csharp
 public class CityParametersDto : BasePaginationParameters
 {
-    public override int DefaultPageSize { get; set; } = 50;
+    internal override int DefaultPageSize { get; set; } = 50;
     public string Filters { get; set; }
     public string SortOrder { get; set; }
 }
