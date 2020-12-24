@@ -10,6 +10,8 @@ import dynamic from 'next/dynamic'
 import { VideoSegmentControls, VideoSegmentProgress } from 'src/components/VideoComponents'
 import { useSpring, animated, useTransition } from "react-spring"
 import ReactPlayer from 'react-player/lazy'
+import { useRanger } from "react-ranger";
+import VideoSlider from "src/components/VideoSlider"
 
 export default function Home() {
   let [searchIsOpen, setSearchIsOpen] = useState()
@@ -39,6 +41,7 @@ export default function Home() {
 
   async function seekVideo(time) {
     await videoPlayer.current.seekTo(time,'seconds')
+    setPlayerState("playing")
     setIsPlaying(true)
     setCurrentTime(time)
   }
@@ -67,6 +70,42 @@ export default function Home() {
     else
       playVideo()
   },[searchIsOpen])
+
+  const { getTrackProps: trackPropsApiDescription, handles: handlesApiDescription } = useRanger({
+    values: [currentTime],
+    onChange: seekVideo,
+    onDrag: seekVideo,
+    min: segments.apiDescription.start,
+    max: segments.apiDescription.end,
+    stepSize: 1,
+  });
+
+  const { getTrackProps: trackPropsApiBuild, handles: handlesApiBuild } = useRanger({
+    values: [currentTime],
+    onChange: seekVideo,
+    onDrag: seekVideo,
+    min: segments.apiBuild.start,
+    max: segments.apiBuild.end,
+    stepSize: 1,
+  });
+
+  const { getTrackProps: trackPropsApiRun, handles: handlesApiRun } = useRanger({
+    values: [currentTime],
+    onChange: seekVideo,
+    onDrag: seekVideo,
+    min: segments.apiRun.start,
+    max: segments.apiRun.end,
+    stepSize: 1,
+  });
+
+  const { getTrackProps: trackPropsApiGrow, handles: handlesApiGrow } = useRanger({
+    values: [currentTime],
+    onChange: seekVideo,
+    onDrag: seekVideo,
+    min: segments.apiGrow.start,
+    max: segments.apiGrow.end,
+    stepSize: 1,
+  });
 
   return (
     <div >
@@ -198,37 +237,17 @@ export default function Home() {
       <Gutters>
         <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
           <div className="flex -mx-4">
-            <div className="w-1/4 px-4">
-              <VideoSegmentProgress
-                start={segments.apiDescription.start}
-                end={segments.apiDescription.end}
-                current={currentTime}
-                paused={playerState === "paused"}
-              />
+            <div className="w-1/4 px-4">              
+              <VideoSlider trackProps={trackPropsApiDescription} handles={handlesApiDescription}/>
             </div>
             <div className="w-1/4 px-4">
-              <VideoSegmentProgress
-                start={segments.apiBuild.start}
-                end={segments.apiBuild.end}
-                current={currentTime}
-                paused={playerState === "paused"}
-              />
+              <VideoSlider trackProps={trackPropsApiBuild} handles={handlesApiBuild}/>
+            </div>
+            <div className="w-1/4 px-4">              
+              <VideoSlider trackProps={trackPropsApiRun} handles={handlesApiRun}/>
             </div>
             <div className="w-1/4 px-4">
-              <VideoSegmentProgress
-                start={segments.apiRun.start}
-                end={segments.apiRun.end}
-                current={currentTime}
-                paused={playerState === "paused"}
-              />
-            </div>
-            <div className="w-1/4 px-4">
-              <VideoSegmentProgress
-                start={segments.apiGrow.start}
-                end={segments.apiGrow.end}
-                current={currentTime}
-                paused={playerState === "paused"}
-              />
+              <VideoSlider trackProps={trackPropsApiGrow} handles={handlesApiGrow}/>
             </div>
           </div>
 
