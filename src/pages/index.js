@@ -9,9 +9,12 @@ import useIsMountedRef from 'src/hooks/useIsMountedRef'
 import dynamic from 'next/dynamic'
 import { VideoSegmentControls, VideoSegmentProgress } from 'src/components/VideoComponents'
 import { useSpring, animated, useTransition } from "react-spring"
-import { Transition } from '@headlessui/react'
+import ReactPlayer from 'react-player/lazy'
+import { useRanger } from "react-ranger";
+import VideoSlider from "src/components/VideoSlider"
 
 export default function Home() {
+  let [searchIsOpen, setSearchIsOpen] = useState()
   let isMounted = useIsMountedRef();
 
   let segments = {
@@ -23,6 +26,7 @@ export default function Home() {
   let videoPlayer = useRef()
   let [currentTime, setCurrentTime] = useState(0)
   let [playerState, setPlayerState] = useState("loading")
+  let [isPlaying, setIsPlaying] = useState(true)
 
   let currentSegment =
     Object.keys(segments).find((name) => {
@@ -30,27 +34,78 @@ export default function Home() {
       return segment.start <= currentTime && segment.end > currentTime
     }) || Object.keys(segments)[0]
 
-  function handleTimeUpdate(event) {
-    setCurrentTime(event.seconds)
+  async function handleTimeUpdate(event) {
+    if(!searchIsOpen)
+      setCurrentTime(event.playedSeconds)
   }
 
   async function seekVideo(time) {
-    await videoPlayer.current.player.setCurrentTime(time)
+    await videoPlayer.current.seekTo(time,'seconds')
+    setPlayerState("playing")
+    setIsPlaying(true)
+    setCurrentTime(time)
   }
 
   async function pauseVideo() {
-    await videoPlayer.current.player.pause()
-    if (isMounted.current) {
       setPlayerState("paused")
-    }
+      setIsPlaying(false)
+    // if (isMounted.current) {
+    //   setPlayerState("paused")
+    //   setIsPlaying(false)
+    // }
   }
 
   async function playVideo() {
-    await videoPlayer.current.player.play()
-    if (isMounted.current) {
-      setPlayerState("playing")
-    }
+    setPlayerState("playing")
+    setIsPlaying(true)
+    // if (isMounted.current) {
+    //   setPlayerState("playing")
+    //   setIsPlaying(true)
+    // }
   }
+
+  React.useEffect(()=>{
+    if(searchIsOpen)
+      pauseVideo()
+    else
+      playVideo()
+  },[searchIsOpen])
+
+  const { getTrackProps: trackPropsApiDescription, handles: handlesApiDescription } = useRanger({
+    values: [currentTime],
+    onChange: seekVideo,
+    onDrag: seekVideo,
+    min: segments.apiDescription.start,
+    max: segments.apiDescription.end,
+    stepSize: 1,
+  });
+
+  const { getTrackProps: trackPropsApiBuild, handles: handlesApiBuild } = useRanger({
+    values: [currentTime],
+    onChange: seekVideo,
+    onDrag: seekVideo,
+    min: segments.apiBuild.start,
+    max: segments.apiBuild.end,
+    stepSize: 1,
+  });
+
+  const { getTrackProps: trackPropsApiRun, handles: handlesApiRun } = useRanger({
+    values: [currentTime],
+    onChange: seekVideo,
+    onDrag: seekVideo,
+    min: segments.apiRun.start,
+    max: segments.apiRun.end,
+    stepSize: 1,
+  });
+
+  const { getTrackProps: trackPropsApiGrow, handles: handlesApiGrow } = useRanger({
+    values: [currentTime],
+    onChange: seekVideo,
+    onDrag: seekVideo,
+    min: segments.apiGrow.start,
+    max: segments.apiGrow.end,
+    stepSize: 1,
+  });
 
   return (
     <div >
@@ -74,7 +129,7 @@ export default function Home() {
           <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="flex flex-1 items-center space-x-5 max-w-lg">
               <p className="text-violet-500 w-1/2">Wrapt SVG</p>
-              {/* <Search /> */}
+              <Search setSearchIsOpen={setSearchIsOpen} />
             </div>
 
             <div className="flex space-x-6 sm:space-x-10">
@@ -144,7 +199,7 @@ export default function Home() {
                 playerState === "paused" ? playVideo() : pauseVideo()
               }
             />
-            <Vimeo
+            {/* <Vimeo
               video="489696849"
               controls={false}
               autoplay={true}
@@ -153,6 +208,27 @@ export default function Home() {
               responsive={true}
               onTimeUpdate={handleTimeUpdate}
               ref={videoPlayer}
+            />             */}
+            <ReactPlayer
+              ref={videoPlayer}
+              className='react-player'
+              url='https://vimeo.com/489696849'
+              playing={isPlaying}
+              width='100%'
+              height='100%'
+              volume={0}
+              muted={false}
+              loop={true}
+              // onSeek={handleTimeUpdate}
+              onProgress={handleTimeUpdate}
+              config={{
+                vimeo: {
+                  autoplay: true,
+                  muted: true,
+                  loop: true,
+                  controls: false
+                }
+              }}
             />
           </AspectRatio>
         </div>
@@ -161,37 +237,17 @@ export default function Home() {
       <Gutters>
         <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
           <div className="flex -mx-4">
-            <div className="w-1/4 px-4">
-              <VideoSegmentProgress
-                start={segments.apiDescription.start}
-                end={segments.apiDescription.end}
-                current={currentTime}
-                paused={playerState === "paused"}
-              />
+            <div className="w-1/4 px-4">              
+              <VideoSlider trackProps={trackPropsApiDescription} handles={handlesApiDescription}/>
             </div>
             <div className="w-1/4 px-4">
-              <VideoSegmentProgress
-                start={segments.apiBuild.start}
-                end={segments.apiBuild.end}
-                current={currentTime}
-                paused={playerState === "paused"}
-              />
+              <VideoSlider trackProps={trackPropsApiBuild} handles={handlesApiBuild}/>
+            </div>
+            <div className="w-1/4 px-4">              
+              <VideoSlider trackProps={trackPropsApiRun} handles={handlesApiRun}/>
             </div>
             <div className="w-1/4 px-4">
-              <VideoSegmentProgress
-                start={segments.apiRun.start}
-                end={segments.apiRun.end}
-                current={currentTime}
-                paused={playerState === "paused"}
-              />
-            </div>
-            <div className="w-1/4 px-4">
-              <VideoSegmentProgress
-                start={segments.apiGrow.start}
-                end={segments.apiGrow.end}
-                current={currentTime}
-                paused={playerState === "paused"}
-              />
+              <VideoSlider trackProps={trackPropsApiGrow} handles={handlesApiGrow}/>
             </div>
           </div>
 
