@@ -60,7 +60,7 @@ function Search() {
   return (
     <>
       <Head>
-        <link rel="preconnect" href="https://BH4D9OD16A-dsn.algolia.net" crossOrigin="true" />
+        <link key="algolia" rel="preconnect" href="https://BH4D9OD16A-dsn.algolia.net" crossOrigin="true" />
       </Head>
       <button 
         type="button"
@@ -93,10 +93,11 @@ function Search() {
         createPortal(
           <DocSearchModal
             initialQuery={initialQuery}
+            renderModal= {true}
             initialScrollY={window.scrollY}
             searchParameters={{
-              // facetFilters: 'version:v2',
               distinct: 1,
+              // hitsPerPage: 5
             }}
             onClose={onClose}
             indexName="wrapt"
@@ -124,6 +125,19 @@ function Search() {
                 }
               })
             }}
+            
+            // transformItems={items => {
+            //   return items.map(item => {
+            //     const url = new URL(item.url)
+            //     return {
+            //       ...item,
+            //       url: item.url
+            //         .replace(url.origin, '')
+            //         .replace('#__next', '')
+            //         .replace('/docs/#', '/docs/overview#'),
+            //     }
+            //   })
+            // }}
           />,
           document.body
         )}
