@@ -16,7 +16,7 @@ function Hit({ hit, children }) {
   )
 }
 
-function Search() {
+function Search({setSearchIsOpen}) {
   const router = useRouter()
   const [actionKey, setActionKey] = useState()
   const [isOpen, setIsOpen] = useState(false)
@@ -32,6 +32,13 @@ function Search() {
       }
     }
   }, [])
+
+  useEffect(()=>{
+    if(setSearchIsOpen !== undefined)
+    {
+      setSearchIsOpen(isOpen)
+    }
+  },[isOpen])
 
   const onOpen = useCallback(() => {
     setIsOpen(true)

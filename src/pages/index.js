@@ -12,6 +12,7 @@ import { useSpring, animated, useTransition } from "react-spring"
 import ReactPlayer from 'react-player/lazy'
 
 export default function Home() {
+  let [searchIsOpen, setSearchIsOpen] = useState()
   let isMounted = useIsMountedRef();
 
   let segments = {
@@ -32,7 +33,8 @@ export default function Home() {
     }) || Object.keys(segments)[0]
 
   async function handleTimeUpdate(event) {
-    setCurrentTime(event.playedSeconds)
+    if(!searchIsOpen)
+      setCurrentTime(event.playedSeconds)
   }
 
   async function seekVideo(time) {
@@ -59,6 +61,13 @@ export default function Home() {
     // }
   }
 
+  React.useEffect(()=>{
+    if(searchIsOpen)
+      pauseVideo()
+    else
+      playVideo()
+  },[searchIsOpen])
+
   return (
     <div >
       <Head>
@@ -81,7 +90,7 @@ export default function Home() {
           <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="flex flex-1 items-center space-x-5 max-w-lg">
               <p className="text-violet-500 w-1/2">Wrapt SVG</p>
-              <Search />
+              <Search setSearchIsOpen={setSearchIsOpen} />
             </div>
 
             <div className="flex space-x-6 sm:space-x-10">
