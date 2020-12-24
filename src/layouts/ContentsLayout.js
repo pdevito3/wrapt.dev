@@ -86,7 +86,7 @@ function TableOfContents({ tableOfContents, currentSection }) {
     
       <div className="mt-5 px-4 py-2 bg-white rounded-lg shadow space-y-2 border">
         <p className="text-gray-800 text-lg font-medium">
-          👀 Docs Feedback
+          👀 Feedback
         </p>
         <p className="text-gray-500">
           <span>
@@ -95,7 +95,7 @@ function TableOfContents({ tableOfContents, currentSection }) {
           {' '}
           <a href="https://github.com/pdevito3/wrapt.dev/issues" target="_blank" className="font-medium underline cursor-pointer text-violet-500">Let me know</a> 
           <span>
-            ! I want the Wrapt docs to be as through and helpful as possible! 
+            ! I want the Wrapt docs to be as thorough and helpful as possible! 
           </span>
         </p>
         <p className="text-gray-500">

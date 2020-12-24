@@ -1,8 +1,11 @@
 ---
 title: New API Command
 shortTitle: New Web API
-description: Scaffolds out API files and projects based on a given template file in a json or yaml format.
+description: Scaffolds out Web API files and projects based on a given template file in a json or yaml format.
 ---
+
+## New API Command
+This command can scaffolds out Web API files and projects based on a given template file in a json or yaml format.
 
 ## The Command
 
@@ -45,7 +48,7 @@ First, you need to start with a name for your API:
 SolutionName: VetClinic.Api
 ```
 
-Then, let's layout the database context:
+Then, let's lay out the database context:
 
 ```yaml
 SolutionName: VetClinic.Api
@@ -117,20 +120,20 @@ And that's it! Now that we've laid out what we want our API to look like, let's 
 
 ### Using the Command
 
-1. To actually create our API, you'll want to `cd` into whatever directory you want to add your project to:
+1. To actually create your API, we'll want to `cd` into whatever directory you want to add your project to:
 
   ```shell
   cd C:\MyFull\RepoPath\Here
   ```
 
-2. Then, let's make sure that our `Foundation.Api` template and `Craftsman` CLI are up to date:
+2. Then, let's make sure that your `Foundation.Api` template and `Craftsman` CLI are up to date:
 
   ```shell
   dotnet new foundation.api --update-apply
   dotnet tool update -g craftsman
   ```
 
-3. Then we just need to add our `yaml` or `json` path to our `craftsman new:api` command:
+3. Then you just need to add your `yaml` or `json` path to your `craftsman new:api` command:
 
   ```shell
   craftsman new:api C:\Users\Paul\Documents\ApiConfigs\VetClinic.yaml
