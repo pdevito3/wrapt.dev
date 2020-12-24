@@ -199,16 +199,6 @@ export default function Home() {
                 playerState === "paused" ? playVideo() : pauseVideo()
               }
             />
-            {/* <Vimeo
-              video="489696849"
-              controls={false}
-              autoplay={true}
-              muted={true}
-              loop={true}
-              responsive={true}
-              onTimeUpdate={handleTimeUpdate}
-              ref={videoPlayer}
-            />             */}
             <ReactPlayer
               ref={videoPlayer}
               className='react-player'
@@ -219,7 +209,6 @@ export default function Home() {
               volume={0}
               muted={false}
               loop={true}
-              // onSeek={handleTimeUpdate}
               onProgress={handleTimeUpdate}
               config={{
                 vimeo: {
@@ -238,16 +227,16 @@ export default function Home() {
         <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
           <div className="flex -mx-4">
             <div className="w-1/4 px-4">              
-              <VideoSlider trackProps={trackPropsApiDescription} handles={handlesApiDescription}/>
+              <VideoSlider trackProps={trackPropsApiDescription} handles={handlesApiDescription} isActive={currentSegment==="apiDescription"}/>
             </div>
             <div className="w-1/4 px-4">
-              <VideoSlider trackProps={trackPropsApiBuild} handles={handlesApiBuild}/>
+              <VideoSlider trackProps={trackPropsApiBuild} handles={handlesApiBuild} isActive={currentSegment==="apiBuild"}/>
             </div>
             <div className="w-1/4 px-4">              
-              <VideoSlider trackProps={trackPropsApiRun} handles={handlesApiRun}/>
+              <VideoSlider trackProps={trackPropsApiRun} handles={handlesApiRun} isActive={currentSegment==="apiRun"}/>
             </div>
             <div className="w-1/4 px-4">
-              <VideoSlider trackProps={trackPropsApiGrow} handles={handlesApiGrow}/>
+              <VideoSlider trackProps={trackPropsApiGrow} handles={handlesApiGrow} isActive={currentSegment==="apiGrow"}/>
             </div>
           </div>
 

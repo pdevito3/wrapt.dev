@@ -1,6 +1,6 @@
 import React from 'react'
 
-function VideoSlider({ trackProps, handles}) {
+function VideoSlider({ trackProps, handles, isActive}) {
   return (
     <div
       {...trackProps()}
@@ -10,7 +10,7 @@ function VideoSlider({ trackProps, handles}) {
         <button
           key={Math.random()}
           {...getHandleProps()}
-          className="h-5 w-5 rounded-full bg-violet-400 shadow focus:bg-violet-500 hover:bg-violet-500"
+          className={`h-5 w-5 rounded-full bg-violet-400 shadow focus:bg-violet-500 hover:bg-violet-500 ${!isActive ? "hidden" : "block"}`}
         />
       ))}
     </div>
