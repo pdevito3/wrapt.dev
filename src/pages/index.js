@@ -9,7 +9,7 @@ import useIsMountedRef from 'src/hooks/useIsMountedRef'
 import dynamic from 'next/dynamic'
 import { VideoSegmentControls, VideoSegmentProgress } from 'src/components/VideoComponents'
 import { useSpring, animated, useTransition } from "react-spring"
-import { Transition } from '@headlessui/react'
+import ReactPlayer from 'react-player/lazy'
 
 export default function Home() {
   let isMounted = useIsMountedRef();
@@ -23,6 +23,7 @@ export default function Home() {
   let videoPlayer = useRef()
   let [currentTime, setCurrentTime] = useState(0)
   let [playerState, setPlayerState] = useState("loading")
+  let [isPlaying, setIsPlaying] = useState(true)
 
   let currentSegment =
     Object.keys(segments).find((name) => {
@@ -30,26 +31,32 @@ export default function Home() {
       return segment.start <= currentTime && segment.end > currentTime
     }) || Object.keys(segments)[0]
 
-  function handleTimeUpdate(event) {
-    setCurrentTime(event.seconds)
+  async function handleTimeUpdate(event) {
+    setCurrentTime(event.playedSeconds)
   }
 
   async function seekVideo(time) {
-    await videoPlayer.current.player.setCurrentTime(time)
+    await videoPlayer.current.seekTo(time,'seconds')
+    setIsPlaying(true)
+    setCurrentTime(time)
   }
 
   async function pauseVideo() {
-    await videoPlayer.current.player.pause()
-    if (isMounted.current) {
       setPlayerState("paused")
-    }
+      setIsPlaying(false)
+    // if (isMounted.current) {
+    //   setPlayerState("paused")
+    //   setIsPlaying(false)
+    // }
   }
 
   async function playVideo() {
-    await videoPlayer.current.player.play()
-    if (isMounted.current) {
-      setPlayerState("playing")
-    }
+    setPlayerState("playing")
+    setIsPlaying(true)
+    // if (isMounted.current) {
+    //   setPlayerState("playing")
+    //   setIsPlaying(true)
+    // }
   }
 
   return (
@@ -144,7 +151,7 @@ export default function Home() {
                 playerState === "paused" ? playVideo() : pauseVideo()
               }
             />
-            <Vimeo
+            {/* <Vimeo
               video="489696849"
               controls={false}
               autoplay={true}
@@ -153,6 +160,27 @@ export default function Home() {
               responsive={true}
               onTimeUpdate={handleTimeUpdate}
               ref={videoPlayer}
+            />             */}
+            <ReactPlayer
+              ref={videoPlayer}
+              className='react-player'
+              url='https://vimeo.com/489696849'
+              playing={isPlaying}
+              width='100%'
+              height='100%'
+              volume={0}
+              muted={false}
+              loop={true}
+              // onSeek={handleTimeUpdate}
+              onProgress={handleTimeUpdate}
+              config={{
+                vimeo: {
+                  autoplay: true,
+                  muted: true,
+                  loop: true,
+                  controls: false
+                }
+              }}
             />
           </AspectRatio>
         </div>
