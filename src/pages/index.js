@@ -123,7 +123,7 @@ export default function Home() {
         <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file.</title>
       </Head>
 
-      {/* <Banner /> */}
+      <Banner />
       <header className="relative z-10 max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl mx-auto">
         <div className="px-4 sm:px-6 md:px-8">
           <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
