@@ -12,6 +12,8 @@ import { useSpring, animated, useTransition } from "react-spring"
 import ReactPlayer from 'react-player/lazy'
 import { useRanger } from "react-ranger";
 import VideoSlider from "src/components/VideoSlider"
+import LogoNoText from '../components/Logo/LogoNoText';
+import LogoWithText from '../components/Logo/LogoWithText';
 
 export default function Home() {
   let [searchIsOpen, setSearchIsOpen] = useState()
@@ -126,13 +128,14 @@ export default function Home() {
       <Banner />
       <header className="relative z-10 max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl mx-auto">
         <div className="px-4 sm:px-6 md:px-8">
-          <div className="border-b border-gray-200 py-4 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex flex-1 items-center space-x-5 max-w-lg pr-2">
-              <p className="text-violet-500 w-1/2">Wrapt SVG</p>
+          <div className="border-b border-gray-200 py-1 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex flex-1 items-center space-x-10 sm:space-x-15 max-w-2xl pr-2 py-2 sm:py-0">
+              <LogoNoText className={"h-12 w-auto sm:hidden"}  />
+              <LogoWithText className={"h-16 w-auto hidden sm:block"}  />
               <Search setSearchIsOpen={setSearchIsOpen} />
             </div>
 
-            <div className="hidden sm:flex space-x-6 sm:space-x-10">
+            <div className="hidden md:flex space-x-6 sm:space-x-10">
               <NextLink href="/docs/how-it-works">
                 <a className="text-base leading-6 font-medium hover:text-gray-600 transition-colors duration-200">
                   Docs

@@ -2,23 +2,26 @@ import Link from 'next/link'
 import Search from 'src/components/Search'
 import clsx from 'clsx'
 import Router from 'next/router'
+import LogoNoText from './Logo/LogoNoText'
+import LogoWithText from './Logo/LogoWithText'
 // import { Logo } from 'src/components/Logo'
 
 export function Header({ navIsOpen, onNavToggle }) {
   return (
     <>
-      <div className="sticky top-0 z-40 lg:z-50 w-full max-w-8xl bg-white flex items-center justify-center py-3 border-b border-gray-200">
+      <div className="sticky top-0 z-40 lg:z-50 w-full max-w-8xl bg-white flex items-center justify-center py-3 border-b border-gray-200 space-x-2 sm:space-x-5">
         <div className="flex-none pl-4 sm:pl-6 xl:pl-8 flex items-center lg:w-60 xl:w-72">
           <Link href="/">
             <a
-              className="overflow-hidden w-10 md:w-auto"
+              className="overflow-hidden md:w-auto"
               // onContextMenu={(e) => {
               //   e.preventDefault()
               //   Router.push('/brand')
               // }}
             >
               <span className="sr-only">Wrapt home page</span>
-              <p className="text-violet-500">Wrapt SVG</p>
+              <LogoNoText className={"h-10 w-auto sm:hidden"}  />
+              <LogoWithText className={"h-8 w-auto hidden sm:block"}  />
             </a>
           </Link>
         </div>
