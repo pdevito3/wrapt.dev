@@ -3,6 +3,14 @@ import { useState, useEffect, Fragment } from 'react'
 import Router from 'next/router'
 import Head from 'next/head'
 import { Header } from 'src/components/Header'
+import twitterLargeCard from 'src/img/twitter-large-card.jpg'
+import { ResizeObserver } from '@juggle/resize-observer'
+import { Title } from 'src/components/Title'
+// import 'intersection-observer'
+
+if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
+  window.ResizeObserver = ResizeObserver
+}
 
 function MyApp({ Component, pageProps, router }) {
   let [navIsOpen, setNavIsOpen] = useState(false)
@@ -28,17 +36,17 @@ function MyApp({ Component, pageProps, router }) {
 
   return (
     <>
-      {/* <Title suffix="Tailwind CSS">{meta.metaTitle || meta.title}</Title> */}
+      <Title suffix="Wrapt">{meta.metaTitle || meta.title}</Title>
       <Head>
         <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
-        <meta key="twitter:site" name="twitter:site" content="@wrapt" />
+        <meta key="twitter:site" name="twitter:site" content="@pdevito3" />
         <meta key="twitter:description" name="twitter:description" content={description} />
-        {/* <meta
+        <meta
           key="twitter:image"
           name="twitter:image"
           content={`https://wrapt.dev${twitterLargeCard}`}
-        /> */}
-        <meta key="twitter:creator" name="twitter:creator" content="@wrapt" />
+        />
+        <meta key="twitter:creator" name="twitter:creator" content="@pdevito3" />
         <meta
           key="og:url"
           property="og:url"
@@ -46,11 +54,11 @@ function MyApp({ Component, pageProps, router }) {
         />
         <meta key="og:type" property="og:type" content="article" />
         <meta key="og:description" property="og:description" content={description} />
-        {/* <meta
+        <meta
           key="og:image"
           property="og:image"
           content={`https://wrapt.dev${twitterLargeCard}`}
-        /> */}
+        />
       </Head>
       {router.pathname !== '/' && (
         <Header navIsOpen={navIsOpen} onNavToggle={(isOpen) => setNavIsOpen(isOpen)} />

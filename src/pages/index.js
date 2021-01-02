@@ -115,12 +115,12 @@ export default function Home() {
         <meta
           key="twitter:title"
           name="twitter:title"
-          content="Wrapt - Scaffold an entire Web API with a simple yaml or json file."
+          content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
         />
         <meta
           key="og:title"
           property="og:title"
-          content="Wrapt - Scaffold an entire Web API with a simple yaml or json file."
+          content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
         />
         <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file.</title>
       </Head>

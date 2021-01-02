@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 // import twitterSquare from 'src/img/twitter-square.jpg'
 import { Title } from 'src/components/Title'
 import { documentationNav } from 'src/navs/documentation'
+import twitterSquare from '@/img/twitter-square.jpg'
 
 export function DocumentationLayout(props) {
   const router = useRouter()
@@ -19,7 +20,7 @@ export function DocumentationLayout(props) {
         <meta
           key="twitter:image"
           name="twitter:image"
-          // content={`https://wrapt.dev${twitterSquare}`}
+          content={`https://wrapt.dev${twitterSquare}`}
         />
       </Head>
       <SidebarLayout nav={documentationNav} {...props} />
