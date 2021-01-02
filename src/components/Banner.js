@@ -25,7 +25,7 @@ function Banner() {
                   <a
                     href="https://github.com/sponsors/pdevito3"
                     target="_blank"
-                    className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-violet-500 bg-white hover:bg-violet-50"
+                    className="flex items-center justify-center px-4 py-2.5 sm:py-2 border border-transparent rounded-md shadow-sm text-normal sm:text-sm font-medium text-violet-500 bg-white hover:bg-violet-50"
                   >
                     Show your support
                   </a>
