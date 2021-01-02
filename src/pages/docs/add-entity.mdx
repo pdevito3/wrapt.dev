@@ -9,24 +9,24 @@ description: Adds a new entity and all associated files to your project.
 This command can add one or more new entities to your Wrapt project using a formatted yaml or json file. 
 **The input file uses a simplified format from the `new:api` command that only requires a list of one or more entities.**
 
-## The Command
+## Add Entity Command
 
 ```shell
 craftsman add:entity [options] <filepath>
 ```
 
-### Arguments
+### Add Entity Arguments
 | Argument        | Description                                                  |
 | --------------- | ------------------------------------------------------------ |
 | filepath        | The full filepath for the yaml or json file that lists the new entities that you want to add to your API.
 
-### Options
+### Add Entity Options
 | Option          | Description                                                  |
 | --------------- | ------------------------------------------------------------ |
 | -h, --help      | Display help message. No filepath is needed to display the help message.
 
 
-### Example Commands
+### Add Entity Example Commands
 ```shell
 craftsman add:entity -h
 craftsman add:entity C:\fullpath\newentity.yaml
@@ -34,7 +34,7 @@ craftsman add:entity C:\fullpath\newentity.yml
 craftsman add:entity C:\fullpath\newentity.json
 ```
 
-## Example File
+## Add Entity Example File
 
 First, you'll want to create a `yaml` or `json` file that describes the new entity. This is pretty much the same as the 
 file we made for our `new:api` command, but now, the only required section is the `Entities` section. Just create a list of one or more entities, and you're good to go. For example:

@@ -5,16 +5,14 @@ description: Adds a property to an entity along with all associated DTOs.
 ---
 
 ## Add Entity Property Command
-
 This command can add a new property onto an entity using just the CLI. No file required!
 
-## The Command
 
 ```shell
 craftsman add:entity [options] <filepath>
 ```
 
-### Arguments
+### Add Entity Property Arguments
 | Argument         | Required | Type    | Description                                                  |
 | ---------------- | -------- | ------- | ------------------------------------------------------------ |
 | -e, --entity     | Yes      | Text    | Name of the entity to add the property. Must match the name of the entity file (e.g. `Vet.cs` should be `Vet`) |
@@ -25,13 +23,13 @@ craftsman add:entity [options] <filepath>
 | -k, --foreignkey | No       | Text    | When adding an object linked by a foreign key, use this field to enter the name of the property that acts as the foreign key |
 
 
-### Options
+### Add Entity Property Options
 | Option          | Description                                                  |
 | --------------- | ------------------------------------------------------------ |
 | -h, --help      | Display help message. No filepath is needed to display the help message.
 
 
-## Example Commands
+## Add Entity Property Example Commands
 ```shell
 craftsman add:property --entity Vet --name VetName --type string --filter false --sort true
 craftsman add:property -e Vet -n VetName -t string -f false -s true
