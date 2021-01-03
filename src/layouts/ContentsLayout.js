@@ -93,7 +93,7 @@ function TableOfContents({ tableOfContents, currentSection }) {
             See something missing or light in content in the docs? 
           </span>
           {' '}
-          <a href="https://github.com/pdevito3/wrapt.dev/issues" target="_blank" className="font-medium underline cursor-pointer text-violet-500">Let me know</a> 
+          <a href="https://github.com/pdevito3/wrapt.dev/issues" target="_blank" rel="noopener" className="font-medium underline cursor-pointer text-violet-500">Let me know</a> 
           <span>
             ! I want the Wrapt docs to be as thorough and helpful as possible! 
           </span>
@@ -103,7 +103,7 @@ function TableOfContents({ tableOfContents, currentSection }) {
             If you'd like to request a new feature, you can submit a 
           </span>
           {' '}
-          <a href="https://github.com/pdevito3/craftsman/issues" target="_blank" className="font-medium underline cursor-pointer text-violet-500">new Craftsman issue</a> 
+          <a href="https://github.com/pdevito3/craftsman/issues" target="_blank" rel="noopener" className="font-medium underline cursor-pointer text-violet-500">new Craftsman issue</a> 
           <span>
             .
           </span>

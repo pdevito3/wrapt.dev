@@ -147,6 +147,7 @@ export default function Home() {
               </NextLink>
               <a
                 target="_blank"
+                rel="noopener"
                 href="https://github.com/pdevito3/craftsman"
                 className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
               >
