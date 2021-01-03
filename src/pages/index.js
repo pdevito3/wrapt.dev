@@ -202,6 +202,7 @@ export default function Home() {
         <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
           <AspectRatio ratio={16 / 9}>
             <button
+              aria-label="main video action"
               className="absolute inset-0 z-10 w-full focus:outline-none"
               onClick={() =>
                 playerState === "paused" ? playVideo() : pauseVideo()
@@ -264,6 +265,7 @@ export default function Home() {
             <div className="flex -mx-4">
               <div className="w-1/4 px-4">
                 <button
+                  aria-label="play api description video"
                   onClick={async (e) => {
                     await seekVideo(segments.apiDescription.start)
                     await playVideo()
@@ -289,6 +291,7 @@ export default function Home() {
 
               <div className="w-1/4 px-4">
                 <button
+                  aria-label="play api build video"
                   onClick={async (e) => {
                     await seekVideo(segments.apiBuild.start)
                     await playVideo()
@@ -313,6 +316,7 @@ export default function Home() {
 
               <div className="w-1/4 px-4">
                 <button
+                  aria-label="play api run video"
                   onClick={async (e) => {
                     await seekVideo(segments.apiRun.start)
                     await playVideo()
@@ -336,6 +340,7 @@ export default function Home() {
               </div>
               <div className="w-1/4 px-4">
                 <button
+                  aria-label="play api grow video"
                   onClick={async (e) => {
                     await seekVideo(segments.apiGrow.start)
                     await playVideo()
