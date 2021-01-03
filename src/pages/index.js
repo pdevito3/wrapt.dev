@@ -122,6 +122,10 @@ export default function Home() {
           property="og:title"
           content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
         />
+        <meta
+          name="description"
+          content="Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+        />
         <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file.</title>
       </Head>
 
