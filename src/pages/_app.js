@@ -3,9 +3,9 @@ import { useState, useEffect, Fragment } from 'react'
 import Router from 'next/router'
 import Head from 'next/head'
 import { Header } from 'src/components/Header'
-import twitterLargeCard from 'src/img/twitter-large-card.jpg'
 import { ResizeObserver } from '@juggle/resize-observer'
 import { Title } from 'src/components/Title'
+import twitterLargeCard from 'public/img/twitter-large-card.jpg'
 // import 'intersection-observer'
 
 if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
