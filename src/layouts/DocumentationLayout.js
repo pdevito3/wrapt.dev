@@ -22,6 +22,10 @@ export function DocumentationLayout(props) {
           name="twitter:image"
           content={`https://wrapt.dev${'/img/twitter-square.jpg'}`}
         />
+        <meta
+          name="description"
+          content="Documentation for the Wrapt framework. Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+        />
       </Head>
       <SidebarLayout nav={documentationNav} {...props} />
     </>
