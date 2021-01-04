@@ -373,7 +373,7 @@ export default function Home() {
                   yaml or json file to describe what we want our API to 
                   look like. This files is just some basic project info
                   (project name, database info), and a description of your entities.
-                  You can also provide optional info like environment information 
+                  We can also provide optional info like environment information 
                   or a swagger layout.
                 </Text>
               </State>
@@ -401,7 +401,7 @@ export default function Home() {
                   into our project and modify it however we normally 
                   would by hand and, if we have another requirement 
                   come up with lots of boilerplate (i.e. adding a new 
-                  entity or property), we can use the Craftsman API 
+                  entity or property), we can use the Craftsman CLI 
                   to speed our work along!
                 </Text>
               </State>
