@@ -52,7 +52,7 @@ If you'd like to add comments to the parameters directly, you'll need to follow 
 
 3) Go to the `WebApi.ServiceExtensions` and add an additional `IncludeXmlComments` line that includes the new path like so:
 ```csharp
-  c.IncludeXmlComments(string.Format(@"{0}\YourSolutionNameHere.Application.xml", AppDomain.CurrentDomain.BaseDirectory));
+  config.IncludeXmlComments(string.Format(@"{0}\YourSolutionNameHere.Application.xml", AppDomain.CurrentDomain.BaseDirectory));
 ```
 
 4) Add any comments above specific properties however you wish
