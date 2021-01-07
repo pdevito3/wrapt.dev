@@ -24,7 +24,7 @@ To get to your swagger page, you can go to `/swagger`.
 | SwaggerEndpointName  | No       | The name to use on the main swagger documentation page.     | *None*  |
 | LicenseName | No       | The name of the license on the swagger documentation. | *None*  |
 | LicenseUrl | No       | The url of the license on the swagger documentation. | *None*  |
-| AddSwaggerComments | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint. Please see the notes below for information on this usage. | false  |
+| AddSwaggerComments | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint.| false  |
 
 ### ApiContact Properties
 
@@ -37,24 +37,27 @@ To get to your swagger page, you can go to `/swagger`.
 ### AddSwaggerComments Property
 If set to `true`, Craftsman will scaffold out detailed comments on using each endpoint. The largest impact is on the details of using the GET list/collection endpoint and will discuss how to use pagination, filters, and sorting. 
 
-#### Manual Intervention Required
-If you are using this setting, you will have to manually add `XML documentation` and `1591` exception suppression to your WebApi project. This is not done for you automatically because of the current absolute path 
-requirement. I don't want to presume this path for you and it could affect your deployment strategies, so this must be done manually to whatever specifications meet your needs. There are discussions on 
-creating a more flexible xml documentation target in [this github issue](https://github.com/dotnet/project-system/issues/368) if you'd like to track the progress.
+#### Swagger Comments on Parameters
+If you'd like to add comments to the parameters directly, you'll need to follow the steps below on the `Application` project.
 
-To implement these updates:
+1) Double click the `Application.csproj` project to open the properties.
 
-1) Right click the `WebApi` project and select `Properties`
+2) Under the `PropertyGroup` section, add a documentation file line and make sure you have a `1591` item added to `NoWarn:
+```XML
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>YourSolutionNameHere.Application.xml</DocumentationFile>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+```
 
-2) Go to the `Build` tab
+3) Go to the `WebApi.ServiceExtensions` and add an additional `IncludeXmlComments` line that includes the new path like so:
+```csharp
+  c.IncludeXmlComments(string.Format(@"{0}\YourSolutionNameHere.Application.xml", AppDomain.CurrentDomain.BaseDirectory));
+```
 
-3) Check the `XML Documentation` box and, if desired, update the url
+4) Add any comments above specific properties however you wish
 
-4) Add the `1591` code to the suppression warnings input. Generally this would make your input read as `1701;1702;1591;`
-
-5) If you'd like to  add comments to the parameters directly (these are not scaffolded for you in Craftsman), you'll need to do the same for the `Application` project as well
-
-## Example
+## Swagger Example
 
 ```yaml
 SwaggerConfig:
@@ -63,7 +66,7 @@ SwaggerConfig:
   SwaggerEndpointName: Carbon Kitchen API
   LicenseName: MIT
   LicenseUrl: https://carbonkitchen.com/license
-  AddSwaggerComments: false
+  AddSwaggerComments: true
   ApiContact: 
     Name: Carbon Kitchen Support
     Email: support@carbonkitchen.com
