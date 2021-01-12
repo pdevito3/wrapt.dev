@@ -8,24 +8,13 @@ description: Learn how to get up and running with Wrapt.
 - [Visual Studio 2019 16.8.0+](https://visualstudio.microsoft.com/downloads/) or [.Net 5.0 SDK](https://dotnet.microsoft.com/download/dotnet-core/5.0) 
 
 ## Getting Started
-
-1. To start, you'll need install the [Foundation API Template](https://github.com/pdevito3/foundation.api). This is the base template that our CLI will use when creating a new Web API.
-
-   ```shell
-   dotnet new -i Foundation.Api
-   ```
-
-   > On the off chance that you have another dotnet template on your machine with a `foundation` short name, you will need to uninstall that template before using 
-   a `craftsman new:api` command. To get the uninstall command run `dotnet new -u` and find the uninstall command listed for your foundation template.
-
-   > If you have issues installing it, you may need to specify the latest Foundation version. See the [nuget package page](https://nuget.org/packages/Foundation.Api) for the most up to date install command.
-2. Install the `Craftsman` tool globally. This is going to be the workhorse behind all of our commands. 
+1. Install the `Craftsman` tool globally. This is going to be the workhorse behind all of our commands. 
 
    ```shell
    dotnet tool install -g craftsman
    ```
 
-3. Run any of the below for a list of available commands
+2. Run any of the below for a list of available commands
 
    ```shell
    craftsman 
@@ -34,15 +23,10 @@ description: Learn how to get up and running with Wrapt.
    craftsman --help
    ```
 
-4. That's it! Now let's look at [an example](/docs/tutorial) to see it in action.
-
-## Staying Up to Date
-To keep up to date with the latest Craftsman capabilities, first update the Foundation template.
-```shell
-dotnet new foundation.api --update-apply
-```
-
-Then you can update Craftsman:
+3. That's it! Now let's look at [an example](/docs/tutorial) to see it in action.
+updating Craftsman
+## 
+To update to the latest version of Craftsman, you can run:
 ```shell
 dotnet tool update -g craftsman
 ```
