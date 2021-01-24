@@ -14,7 +14,8 @@ description: Learn how to get up and running with Wrapt.
    dotnet tool install -g craftsman
    ```
 
-   > If you are using private NuGet sources do not forget to add the –nuget-source parameter: –nuget-source https://api.nuget.org/v3/index.json
+   > If you are using private NuGet sources you may need to temporarily [disable](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-nuget-disable-source) them to properly install the tool. Unfortunately, the dotnet sdk doesn't 
+   have a `–nuget-source` parameter for `dotnet tool install` commands yet, though I have a [feature request](https://github.com/dotnet/sdk/issues/15477) pending if you'd like to track its progress.`
 
 2. Run any of the below for a list of available commands
 
