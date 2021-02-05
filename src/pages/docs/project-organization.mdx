@@ -74,7 +74,7 @@ http://localhost:5000/api/cities?Filters=name==Atlanta&SortOrder=name
 http://localhost:5000/api/cities?Filters=name==Atlanta&SortOrder=name,-popularityscore
 ```
 #### Updating Filtering and Sorting
-If you'd like to change the pagination and/or sorting, you can updated the `ENTITYParametersDto`.
+If you'd like to change the pagination and/or sorting, you can update the `ENTITYParametersDto`.
 
 ### Pagination
 Wrapt APIs use a custom pagination capability to make working with large dataset as easy as possible.
@@ -118,7 +118,7 @@ if you'd like the rule to be run on both creation (POST calls) and update (PUT, 
 the respective validator class.
 
 The OOTB rules for fluent validation are pretty robust, but if you need to make a custom validation rule, something like 
-the below is a good example [(source)](https://www.locktar.nl/programming/net-core/creating-custom-validators-with-fluentvalidation/) .
+the below is a good example. This comes from a [full write up on this blog](https://www.locktar.nl/programming/net-core/creating-custom-validators-with-fluentvalidation/) .
 
 ```csharp
 public static class CustomValidators

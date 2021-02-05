@@ -3,9 +3,8 @@ title: Entities File Settings
 shortTitle: Entities
 description: Settings for scaffolding out an entity for your Web API.
 ---
-import FileRequirementPill from 'src/components/FileRequirementPill'
 
-## Entities <FileRequirementPill padLeft={"sm"} type={"required"} />
+## Entities
 
 An list of database entities in your project. These entities are added as dbsets to your database context, so they translate 1:1 to tables in your database. 
 
@@ -14,7 +13,7 @@ An list of database entities in your project. These entities are added as dbsets
 | Name       | Required | Description                                                  | Default                          |
 | ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Name       | Yes      | The name of the entity                                       | *None*                           |
-| Properties | Yes      | A list of properties assigned to your entity described in the [entity properties ](#entity-properties) section.| *None*                           |
+| Properties | Yes      | A list of properties assigned to your entity described in the [entity properties](#properties) section.| *None*                           |
 | Plural     | No       | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`) | Entity Name appended with an `s` |
 | Lambda     | No       | The value to use in lambda expressions for this entity. | First letter of the entity name. |
 | TableName  | No       | The name of the table in the database. | Defaulted to the singular `Name`. |

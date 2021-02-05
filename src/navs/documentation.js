@@ -13,13 +13,19 @@ export const documentationNav = {
     pages['project-organization'],
     pages['customizing-wrapt-projects'],
   ],
-  'Template File': [
-    pages['solution-name'],
+  'Templates': [
+    pages['api-template'],
+    // pages['microservice-template'],
+    // pages['add-entity-template'],
+  ],
+  'Template Objects': [
+    pages['authorization-settings'],
     pages['db-context'],
     pages['entities'],
-    pages['swagger'],
     pages['git'],
     pages['multiple-environments'],
+    pages['solution-name'],
+    pages['swagger'],
   ],
   'Commands': [
     pages['add-entity'],
@@ -30,4 +36,10 @@ export const documentationNav = {
     pages['migrations'],
     pages['logging'],
   ],
+  // 'Examples': [
+    // pages['basic-api'],
+    // pages['basic-microservice'],
+    // pages['api-with-auth'],
+    // pages['add-entity'],
+  // ],
 }
