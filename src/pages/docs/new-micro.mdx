@@ -1,0 +1,198 @@
+---
+title: New Micro Command
+shortTitle: New Microservice Project
+description: Scaffolds out files and projects for a new set of microservices based on a given template file in a json or yaml format.
+---
+
+```shell
+craftsman new:micro [options] <filepath>
+```
+
+## New Micro Arguments
+| Argument        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| filepath        | The full filepath for the yaml or json file that describes your microservices using a proper Wrapt format. Details on this file setup can be found on the [api-template page](/docs/micro-template).
+
+## New Api Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+
+
+## New Api Example Commands
+```shell
+craftsman new:micro -h
+craftsman new:micro C:\fullpath\micro.yaml
+craftsman new:micro C:\fullpath\micro.yml
+craftsman new:micro C:\fullpath\micro.json
+```
+
+## New Microservice Example
+
+### New Microservice Template File
+
+To get things started, you're going to need to scaffold out what you want your initial Microservice configuration to look like in a `yaml` or `json` file. 
+
+Don't feel pressured to get this exactly correct from the get go. **This file is NOT meant to be a concrete implementation of your Microservice**, just a starting point that you can build on over time. 
+
+So what's this file look like? For a full list of the configuration option details, you can go to the [microservice template page](/docs/micro-template), but let's go over a basic `yaml` example here:
+
+First, you need to start with a name for your project:
+
+```yaml
+SolutionName: MicroCarbonKitchen
+```
+
+Then, let's lay out the details for each of our microservices. This is a very similar setup to the `new:api` command and has details for everything from the database that you want to use, the entities for the microservice, and more:
+
+```yaml
+SolutionName: MicroCarbonKitchen
+Microservices:
+- ProjectFolderName: Recipes
+  Port: 5467
+  DbContext:
+    ContextName: RecipeDbContext
+    DatabaseName: Recipe
+    Provider: SqlServer
+  Entities:
+  - Name: Recipe
+    Properties:
+    - Name: RecipeId
+      IsPrimaryKey: true
+      Type: int
+      CanFilter: true
+      CanSort: true
+    - Name: Title
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Directions
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: RecipeSourceLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Description
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: ImageLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+  SwaggerConfig:
+    Title: CarbonKitchen Recipe
+    Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at CarbonKitchen.com/dev/docs
+    ApiContact: 
+      Name: CarbonKitchen Recipe
+      Email: devsupport@CarbonKitchen.com
+      Url: https://www.CarbonKitchen.com
+    AddSwaggerComments: true
+  Environments:
+  - EnvironmentName: QA
+    ConnectionString: "Data Source=localhost\\SqlExpress;Initial Catalog=QaDb;Integrated Security=True;MultipleActiveResultSets=True"
+    ProfileName: QA
+  - EnvironmentName: Development
+    Authority: https://localhost:5010
+    Audience: recipes
+    AuthorizationUrl: https://localhost:5010/connect/authorize
+    TokenUrl: https://localhost:5010/connect/token
+  - EnvironmentName: Prod
+    ConnectionString: "Data Source=localhost\\SqlExpress;Initial Catalog=ProdDb;Integrated Security=True;MultipleActiveResultSets=True"
+    ProfileName: Prod
+```
+
+Next, I'm going to establish what gateways I want in my project. This could just be one central gateway or you could create multiple gateways to serve as backends for frontends (BFFs).
+
+```yaml
+SolutionName: MicroCarbonKitchen
+Microservices:
+- ProjectFolderName: Recipes
+  Port: 5467
+  DbContext:
+    ContextName: RecipeDbContext
+    DatabaseName: Recipe
+    Provider: SqlServer
+  Entities:
+  - Name: Recipe
+    Properties:
+    - Name: RecipeId
+      IsPrimaryKey: true
+      Type: int
+      CanFilter: true
+      CanSort: true
+    - Name: Title
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Directions
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: RecipeSourceLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Description
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: ImageLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+  SwaggerConfig:
+    Title: CarbonKitchen Recipe
+    Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at CarbonKitchen.com/dev/docs
+    ApiContact: 
+      Name: CarbonKitchen Recipe
+      Email: devsupport@CarbonKitchen.com
+      Url: https://www.CarbonKitchen.com
+    AddSwaggerComments: true
+  Environments:
+  - EnvironmentName: QA
+    ConnectionString: "Data Source=localhost\\SqlExpress;Initial Catalog=QaDb;Integrated Security=True;MultipleActiveResultSets=True"
+    ProfileName: QA
+  - EnvironmentName: Development
+    Authority: https://localhost:5010
+    Audience: recipes
+    AuthorizationUrl: https://localhost:5010/connect/authorize
+    TokenUrl: https://localhost:5010/connect/token
+  - EnvironmentName: Prod
+    ConnectionString: "Data Source=localhost\\SqlExpress;Initial Catalog=ProdDb;Integrated Security=True;MultipleActiveResultSets=True"
+    ProfileName: Prod
+- GatewayProjectName: CarbonGateway
+  EnvironmentGateways:
+  - EnvironmentName: Development
+    ProfileName: Development
+    GatewayUrl: http://localhost:5050/
+    GatewayResources:
+    - GatewayRoute: /gateway/recipes
+      DownstreamEntityName: recipe
+```
+
+And that's it! Now that we've laid out what we want our microservice to look like, let's [make it](#using-the-new-micro-command)!
+
+### Using the New Micro Command
+
+1. To actually create your microservices, we'll want to `cd` into whatever directory you want to add your project to:
+
+  ```shell
+  cd C:\MyFull\RepoPath\Here
+  ```
+
+2. Then, let's make sure that your `Craftsman` CLI is up to date:
+
+  ```shell
+  dotnet tool update -g craftsman
+  ```
+
+3. Then you just need to add your `yaml` or `json` path to your `craftsman new:micro` command:
+
+  ```shell
+  craftsman new:micro C:\Users\Paul\Documents\ApiConfigs\MicroCarbonKitchen.yaml
+  ```
+
+4. Once you've run this command, your new project should be ready to go!

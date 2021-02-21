@@ -3,10 +3,6 @@ title: Authorization Settings
 description: Authorization settings for the web api or microservice.
 ---
 
-## Authorization Settings 
-
-Authorization settings for the web api or microservice.
-
 ## Authorization Settings Properties
 
 | Name       | Required | Description                                                         | Default                          |
@@ -19,7 +15,7 @@ Authorization settings for the web api or microservice.
 | Name               | Required | Description                                                  | Default                          |
 | ------------------ | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Name               | Yes      | The name of the policy (e.g. `CanReadPatient`). | *None*   |
-| PolicyType         | Yes      | The type of policy that will be used. Currently, this must be of type `scope`. If there is another type that you'd like to use it needs to be added manually for now. Feel free to submit a feature request on the Craftsman github to let me know if something else would be useful. | *None*   |
+| PolicyType         | Yes      | The type of policy that will be used. The only valid policy type at the moment is `scope` to authorize based on a scope. | *None*   |
 | PolicyValue        | Yes      | The value of the policy that is going to be added (e.g. `patients.read`). | *None*   |
 | EndpointEntities   | Yes      | The entity endpoints that this policy restriction should be applied to. | *None*   |
 
@@ -38,6 +34,15 @@ Authorization settings for the web api or microservice.
 * UpdateRecord
 * UpdatePartial
 * DeleteRecord
+
+## Using Non-Scope Policy Types
+At the moment, only scope policies can be scaffolded out in a Wrapt project. With that said, as with any Wrapt project, you can absolutely update it to use additional policies and [authorize by role](https://jakeydocs.readthedocs.io/en/latest/security/authorization/roles.html)
+or [by a claim](https://jakeydocs.readthedocs.io/en/latest/security/authorization/claims.html) as well. If you're adding this manually, make sure you [hit all the right places](/docs/all-about-auth-in-dotnet-core#how-does-wrapt-set-up-auth).
+
+As always, if there enough of a need for these to be supported out of the box, please feel free to submit a feature request on GitHub.
+
+## Learn More About Setting Up Auth
+Authentication and Authorization are a very complex domain to work with. I've made an effort to [consolidate my learning around auth](/docs/all-about-auth-in-dotnet-core) to help myself and others if you'd like to check it out.  
 
 ## Authorization Settings Example
 ```yaml
