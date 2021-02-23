@@ -70,7 +70,7 @@ Wrapt lets you bring whatever Authentication Server you’d like to the table an
     - Updates existing integration test to keep them passing.
     - Adds additional tests to confirm `Unauthorized` and `Forbidden` responses given improper scopes and auth requests (if applicable).
 
-## Example Auth Server Setup
+## Example Authorization Server Setup
 
 Identity Server 4 is a staple of the .NET community that will soon be transitioning to Duende. I'll be using this in the Auth setup example to make sure it is as reproducible as possible, but this should have a comparable setup via other provider UI's like Auth0, Okta, etc. 
 
@@ -267,7 +267,7 @@ using System.Collections.Generic;
 }
 ```
 
-## Example Client Auth Flows
+## Example Client Authorization Flows
 
 ### Example OAuth2 Flow in Postman
 1. Make sure your Authentication Server is properly configured for this client (see [the Duende example above](#example-auth-server-setup) for a sample).
