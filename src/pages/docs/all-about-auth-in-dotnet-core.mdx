@@ -1,0 +1,280 @@
+---
+title: All About Auth in .NET Core
+description: This is a consolidated knowledge base for working with authentication and authorization in .NET Core/.NET 5. This not only covers how wrapt deals with auth, but also touches on everything from defining common jargon around auth and how to set up an authentication server.
+---
+
+import ExamplePostmanClientForAuth from 'src/img/docs/ExamplePostmanClientForAuth.png'
+
+
+## The Basics
+### Difference Between Authentication and Authorization
+When you hear 'Auth', it usually means one of two things: 
+
+1. **Authentication**: are you who you say you are?
+2. **Authorization**: do you have permission to access something?
+
+### Authentication
+Figuring out if you are are you say you are is a very complex process performed by a distinct Authentication Server. There are several providers that you can offload this responsibility to including [Auth0](https://auth0.com), 
+[Okta](https://www.okta.com/), and [Fusion Auth](https://fusionauth.io/) to name a few. Microsoft Azure and AWS also have [Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-whatis) 
+and [AWS Cognito](https://aws.amazon.com/cognito/) respectively as well. Unless you have access to Security SMEs, it is highly recommended that you use a provider like one of these whenever possible. With that said, if you do decide to home roll 
+your Auth Server, [Duende](https://duendesoftware.com/) (previously [Identity Server 4](https://identityserver4.readthedocs.io/en/latest/)), will give you a good foundation.
+
+Regardless, of your choice, **Wrapt Web APIs are built to be authentication provider agnostic**. These docs will lay out what you'll want to consider when setting up your Authentication Server using a variety of providers, but be sure to 
+review your providers documentation as well for specific implementation details.
+
+### Authorization
+Authorization is making sure that you have permissions to do something. In the context of a client application, when a user wants to access the protected endpoints of a web API, it needs to present an Access Token as proof that it has the 
+necessary permissions to access that resource. This Access Token is returned when a user is successfully authenticated by the Authentication Server and will be passed to the Web API to authorize the user for a given set of actions based on the permissions returned in the Access Token.
+
+This Access Token is generally implemented as a [JSON Web Token (JWT)](https://auth0.com/learn/json-web-tokens/) and contains, in part, the permissions that can executed using that token which are expressed as something called `scopes`. When the Access Token is passed along to the 
+API, the API will inspect the `scope` in the token to ensure that the appropriate permissions were granted to call that particular endpoint.
+
+It's also important to note that this Access Token does **not** contain any identity information. This information can be returned in an Identity Token, generally by hitting the user info endpoint (you can check the `well-known` doc of your auth server for this).
+
+### OAuth2 and OpenID Connect
+OAuth2 is a protocol that standardizes authentication communication between apps and services. It defines an access token and how a client application can securely achieve authorization. The access token does **not** have a notion of the user.
+
+OpenId Connect is a simple identity layer on top of the OAuth2 protocol to convey the concept of a user. A client application can request an identity token (next to an access token) and use it to sign in to the client application. This token can then be used to sign into an API.
+
+> Bottom line: OpenId Connect is a protocol on top of OAuth2 that prevents the misuse of OAuth2 for identity authentication. OAuth2 is still what we use for authorization and permissions.
+
+### Additional Auth Jargon, Simplified
+* **Scopes**: scopes define what permissions are being requested or granted to access a particular resource.
+* **Grant Type**: A grant type is part of a request that define what type of authorization flow should be used. A `code` flow is going to be the most secure and recommended option.
+* **Access Token**: Contains proof of permissions for accessing restricted data, generally formatted as a JWT. Note that Access Tokens **do not** contain any information about who made the request other than the user id in the `sub` claim. Auth0 has a good writeup of access tokens [in their docs](https://auth0.com/docs/tokens/access-tokens).
+* **Sub Claim**: This is part of the Access Token and contains the user id associated to the token. If you need to access more information on this user, you would generally hit the `userinfo` endpoint with the access token. 
+
+### Grant Types
+There are 3 main grant types that you'll see in the wild, though there are a handful of other types that should generally be avoided.
+* The `Code` flow (stands for `authorization code`) is going to be your most secure option. This designation means that you are requesting that, once you've been successfully authenticated, 
+the server sends you an authentication code (NOT your JWT). Once you have that auth code, you can then send it back to your auth server to exchange it for your access token. [This video by Okta](https://www.youtube.com/watch?v=996OiexHze0&feature=youtu.be) 
+has a good walkthrough of why this is preferable, but essentially, this flow gives you the best security because the access tokens are transmitted via secure back-channel calls only (and gives you access to refresh tokens).
+* `ClientCredentials` flow is a more simple flow than the `Code` flow which is used for machine to machine workflows.
+* `Implicit` flow is similar to `Code` but sends the JWT immediately back instead of have the intermediary authorization code exchange step. This is less secure than the `Code` flow, but is often used in SPA workflows where 
+teams don't have the resources or capability to add a more secure server exchange. This is not recommended if you can at all avoid it.
+
+## How Does Wrapt Set Up Auth?
+Wrapt lets you bring whatever Authentication Server you’d like to the table and sets up several areas of authorization in your web APIs.
+
+1. JWT Service Registration
+    - Registers the `AddAuthorization` service and configures it to expect JWT tokens from your given identity server.
+    - Adds policies to register the permissions (scopes) used in your API.
+2. Controller Setup
+    - Adds the appropriate `Authorization` and `ProducesResponse` attributes as well as xml comments to your controller endpoints.
+3. Swagger Integration
+    - Adds a `SecurityRequirement` to describe how the token is being returned to swagger. In this case, it's using an OAuth2 scheme and designating the location of the API key.
+    - Adds `SecurityDefinitions` to tell swagger the how your api is protected. This includes the authorization and token urls (the endpoints that should be hit to authorize the request and retrieve a refresh token respectively). It also includes all the scopes (permissions) that the user can select in swagger.
+    - Adds additional SwaggerUI configuration. This will populate the clientid and client secret for your users automatically when using swagger. There is also a config setting to ensure that PKCE security is used
+4. Integration Testing
+    - Adds auth into your `WebHostFactory`.
+    - Updates existing integration test to keep them passing.
+    - Adds additional tests to confirm `Unauthorized` and `Forbidden` responses given improper scopes and auth requests (if applicable).
+
+## Example Auth Server Setup
+
+Identity Server 4 is a staple of the .NET community that will soon be transitioning to Duende. I'll be using this in the Auth setup example to make sure it is as reproducible as possible, but this should have a comparable setup via other provider UI's like Auth0, Okta, etc. 
+
+**This is not an exhaustive walkthrough** as there are too many business specific needs that come into play, but this will give you a base to work from. Let's get an initial setup going:
+
+1. Install the appropriate `dotnet` templates
+
+    ```bash
+    dotnet new --install Duende.IdentityServer.Templates
+    #OR
+    dotnet new --install IdentityServer4.Templates
+    ```
+
+2. Create the auth server
+
+    ```bash
+    dotnet new isinmem -n MyAuthServerProjectName
+    #OR
+    dotnet new is4inmem -n MyAuthServerProjectName
+    ```
+
+    > Note, you can check your auth server config at [`https://localhost:5010/.well-known/openid-configuration`](https://localhost:5010/.well-known/openid-configuration) where [`localhost:5010/`](https://localhost:5010/.well-known/openid-configuration) is your domain.
+
+3. Open the project and go to `Config.cs`. This is where your auth server configuration lives.
+4. Make sure you have [Identity Resources](https://docs.duendesoftware.com/identityserver/v5/fundamentals/resources/identity/) available. These are a list of claims that can be associated to the user using the `scope` parameter:
+
+    ```csharp
+    public static IEnumerable<IdentityResource> IdentityResources =>
+    	new IdentityResource[]
+    	{
+    	    new IdentityResources.OpenId(), // when openid is requested the subjectid/userid will be returned
+    	    new IdentityResources.Profile(), // when profile is requested the given name and family name will be returned
+    	};
+    ```
+
+5. Add [Api Resources](https://docs.duendesoftware.com/identityserver/v5/fundamentals/resources/api_resources/). These define API in whatever organization your business has set up. This could be a single monolithic API, or a suite of smaller APIs. 
+This Resource should include the scopes allowed by this resource. In relation to Wrapt projects. This can generally map 1:1 to the `WebAPI` projects generated with Craftsman.
+  ```csharp
+    public static readonly IEnumerable<ApiResource> GetApiResources()
+    { 
+        return new List<ApiResource>
+        {
+            new ApiResource("invoice", "Invoice API")
+            {
+                Scopes = { "invoice.read", "invoice.pay", "manage", "enumerate" }
+            },
+            
+            new ApiResource("customer", "Customer API")
+            {
+                Scopes = { "customer.read", "customer.contact", "manage", "enumerate" }
+            }
+        };
+    }
+  ```
+
+6. Add [Api Scopes](https://docs.duendesoftware.com/identityserver/v5/fundamentals/resources/api_scopes/). These scopes are the permissions that the client can request.
+
+    ```csharp
+    public static IEnumerable<ApiScope> GetApiScopes()
+    {
+        return new List<ApiScope>
+        {
+            // invoice API specific scopes
+            new ApiScope(name: "invoice.read",   displayName: "Reads your invoices."),
+            new ApiScope(name: "invoice.pay",    displayName: "Pays your invoices."),
+
+            // customer API specific scopes
+            new ApiScope(name: "customer.read",    displayName: "Reads you customers information."),
+            new ApiScope(name: "customer.contact", displayName: "Allows contacting one of your customers."),
+
+            // shared scopes
+            new ApiScope(name: "manage",    displayName: "Provides administrative access.")
+            new ApiScope(name: "enumerate", displayName: "Allows enumerating data.")
+        };
+    }
+    ```
+
+7. Set up the [client(s)](https://docs.duendesoftware.com/identityserver/v5/fundamentals/clients/) that can request access tokens from your auth server. As far as each property of the client:
+
+    ```csharp
+    public static IEnumerable<Client> Clients =>
+      new Client
+          {
+              ClientId = "Swagger",
+              ClientName = "Swagger UI",
+              ClientSecrets = {new Secret("secret".Sha256())}, // change this to a GUID
+
+              AllowedGrantTypes = GrantTypes.Code,
+              AllowOfflineAccess = true,
+              RequirePkce = true,
+              RequireClientSecret = false,
+
+              RedirectUris = {"https://localhost:5000/swagger/oauth2-redirect.html"}, // If you have a base path for your Swagger UI, then also include it in your redirect URI (i.e. if you have the Swagger UI on /swagger, your redirect URI should be /swagger/oauth2-redirect.html). 
+              PostLogoutRedirectUris = { "http://localhost:5000/" },
+              FrontChannelLogoutUri =    "http://localhost:5000/signout-oidc",
+              AllowedCorsOrigins = {"https://localhost:5000"},
+              AllowedScopes = { "recipes.read", "recipes.add", "recipes.update", "recipes.delete", "openid", "profile" },
+          },
+          new Client
+          {
+              ClientId = "Postman",
+              ClientName = "Postman UI",
+              ClientSecrets = {new Secret("secret".Sha256())}, // change this to a GUID
+
+              AllowedGrantTypes = GrantTypes.Code,
+              AllowOfflineAccess = true,
+              RequirePkce = true,
+              RequireClientSecret = false,
+
+              RedirectUris = { "https://oauth.pstmn.io/v1/callback" },
+              AllowedScopes = { "recipes.read", "recipes.add", "recipes.update", "recipes.delete", "openid", "profile" },
+          }
+      };
+    ```
+
+    > Note, if you require a PKCE flow, you shouldn't need to deal with the client secret
+
+8. So something like this could be a complete `Config.cs` file:
+
+```csharp
+// Copyright (c) Duende Software. All rights reserved.
+// See LICENSE in the project root for license information.
+
+
+using Duende.IdentityServer.Models;
+using System.Collections.Generic;
+{
+    public static class Config
+    {
+        public static IEnumerable<IdentityResource> IdentityResources =>
+            new IdentityResource[]
+            {
+                new IdentityResources.OpenId(), // when openid is requested the subjectid/userid will be returned
+                new IdentityResources.Profile(), // when profile is requested the given name and family name will be returned
+            };
+
+        public static IEnumerable<ApiResource> ApiResources =>
+            new ApiResource[]
+            {
+                new ApiResource("patients", "Patients API")
+                {
+                    Scopes = { "patients.read", "patients.add", "patients.update", "patients.delete" }
+                }
+            };
+
+        // allow access to identity information. client level rules of who can access what (e.g. read:sample, read:order, create:order, read:report)
+        // this will be in the audience claim and will be checked by the jwt middleware to grant access or not
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new ApiScope[]
+            {
+                new ApiScope("patients.read", "CanReadPatients"),
+                new ApiScope("patients.add", "CanAddPatients"),
+                new ApiScope("patients.update", "CanUpdatePatients"),
+                new ApiScope("patients.delete", "CanDeletePatients"),
+            };
+
+        // clients that have access to each scope
+        public static IEnumerable<Client> Clients =>
+            new Client[]
+            {
+                new Client
+                {
+                    ClientId = "Swagger",
+                    ClientName = "Swagger UI",
+                    ClientSecrets = {new Secret("00a2b0f0-0cf1-468c-b813-c840493dcd92".Sha256())},
+
+                    AllowedGrantTypes = GrantTypes.Code,
+                    AllowOfflineAccess = true,
+                    RequirePkce = true,
+                    RequireClientSecret = false,
+
+                    RedirectUris = {"https://localhost:5000/swagger/oauth2-redirect.html"},
+                    PostLogoutRedirectUris = { "http://localhost:5000/" },
+                    FrontChannelLogoutUri =    "http://localhost:5000/signout-oidc",
+                    AllowedCorsOrigins = {"https://localhost:5000"},
+                    AllowedScopes = { "patients.read", "patients.add", "patients.update", "patients.delete", "openid", "profile" },
+                },
+                new Client
+                {
+                    ClientId = "Postman",
+                    ClientName = "Postman UI",
+                    ClientSecrets = {new Secret("8ca8b72b-bdd5-4148-be99-c2dfcda22e34".Sha256())},
+
+                    AllowedGrantTypes = GrantTypes.Code,
+                    AllowOfflineAccess = true,
+                    RequirePkce = true,
+                    RequireClientSecret = false,
+
+                    RedirectUris = { "https://oauth.pstmn.io/v1/callback" },
+                    AllowedScopes = { "patients.read", "patients.add", "patients.update", "patients.delete", "openid", "profile" },
+                }
+            };
+    }
+}
+```
+
+## Example Client Auth Flows
+
+### Example OAuth2 Flow in Postman
+1. Make sure your Authentication Server is properly configured for this client (see [the Duende example above](#example-auth-server-setup) for a sample).
+2. Open Postman and create a new `POST` request.
+3. Select the `Authorization` tab, select `OAuth 2.0` for type, and fill in the appropriate information. Note that the scopes are space delimited.
+    <img src={ExamplePostmanClientForAuth} alt="example postman client for auth" />
+4. Select `GetNewAccessToken` to get your token. This token can now be added to your Postman requests when working with your API.
+
+### Example OAuth2 Flow in Swagger
+Wrapt APIs will automatically scaffold out the appropriate configuration for handling Authorization your Swagger setup. Just run your API, go to your swagger page, click the `Authorize` button, select your scopes, and log in via OAuth. 

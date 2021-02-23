@@ -1,0 +1,81 @@
+---
+title: Authorization Settings
+description: Authorization settings for the web api or microservice.
+---
+
+## Authorization Settings Properties
+
+| Name       | Required | Description                                                         | Default                          |
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- |
+| Policies   | Yes      | A list of policies that can be applied in your api or microservice. | *None*                           |
+
+
+### Policies Properties
+
+| Name               | Required | Description                                                  | Default                          |
+| ------------------ | -------- | ------------------------------------------------------------ | -------------------------------- |
+| Name               | Yes      | The name of the policy (e.g. `CanReadPatient`). | *None*   |
+| PolicyType         | Yes      | The type of policy that will be used. The only valid policy type at the moment is `scope` to authorize based on a scope. | *None*   |
+| PolicyValue        | Yes      | The value of the policy that is going to be added (e.g. `patients.read`). | *None*   |
+| EndpointEntities   | Yes      | The entity endpoints that this policy restriction should be applied to. | *None*   |
+
+
+### Endpoint Entities Values Properties
+
+| Name                | Required | Description                                                  | Default                          |
+| ------------------- | -------- | ------------------------------------------------------------ | -------------------------------- |
+| EntityName          | Yes      | The name of the entity that you want to apply the policy authorization restriction to. This field needs to match the name of the entity class that the controller is based on. | *None*                           |
+| RestrictedEndpoints | Yes      | A list of controller endpoints that the associated policy should be added to for the designated entity. These endpoints must match one of the values in the [Endpoint Options Section](#endpoint-options).| *None*                           |
+
+### Endpoint Options
+* GetList
+* GetRecord
+* AddRecord
+* UpdateRecord
+* UpdatePartial
+* DeleteRecord
+
+## Using Non-Scope Policy Types
+At the moment, only scope policies can be scaffolded out in a Wrapt project. With that said, as with any Wrapt project, you can absolutely update it to use additional policies and [authorize by role](https://jakeydocs.readthedocs.io/en/latest/security/authorization/roles.html)
+or [by a claim](https://jakeydocs.readthedocs.io/en/latest/security/authorization/claims.html) as well. If you're adding this manually, make sure you [hit all the right places](/docs/all-about-auth-in-dotnet-core#how-does-wrapt-set-up-auth).
+
+As always, if there enough of a need for these to be supported out of the box, please feel free to submit a feature request on GitHub.
+
+## Learn More About Setting Up Auth
+Authentication and Authorization are a very complex domain to work with. I've made an effort to [consolidate my learning around auth](/docs/all-about-auth-in-dotnet-core) to help myself and others if you'd like to check it out.  
+
+## Authorization Settings Example
+```yaml
+AuthorizationSettings:
+  Policies:
+    - Name: CanReadPatients
+      PolicyType: scope
+      PolicyValue: patients.read
+      EndpointEntities:
+        - EntityName: Patient
+          RestrictedEndpoints:
+            - GetList
+            - GetRecord
+    - Name: CanAddPatients
+      PolicyType: scope
+      PolicyValue: patients.add
+      EndpointEntities:
+        - EntityName: Patient
+          RestrictedEndpoints:
+            - AddRecord
+    - Name: CanDeletePatients
+      PolicyType: scope
+      PolicyValue: patients.delete
+      EndpointEntities:
+        - EntityName: Patient
+          RestrictedEndpoints:
+            - DeleteRecord
+    - Name: CanUpdatePatients
+      PolicyType: scope
+      PolicyValue: patients.update
+      EndpointEntities:
+        - EntityName: Patient
+          RestrictedEndpoints:
+            - UpdateRecord
+            - UpdatePartial
+```

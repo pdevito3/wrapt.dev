@@ -4,8 +4,6 @@ shortTitle: New Web API
 description: Scaffolds out Web API files and projects based on a given template file in a json or yaml format.
 ---
 
-This command can scaffolds out Web API files and projects based on a given template file in a json or yaml format.
-
 ```shell
 craftsman new:api [options] <filepath>
 ```
@@ -13,7 +11,7 @@ craftsman new:api [options] <filepath>
 ## New Api Arguments
 | Argument        | Description                                                  |
 | --------------- | ------------------------------------------------------------ |
-| filepath        | The full filepath for the yaml or json file that describes your web API using a proper Wrapt format.
+| filepath        | The full filepath for the yaml or json file that describes your web API using a proper Wrapt format. Details on this file setup can be found on the [api-template page](/docs/api-template).
 
 ## New Api Options
 | Option          | Description                                                  |
@@ -31,13 +29,13 @@ craftsman new:api C:\fullpath\api.json
 
 ## New Api Example
 
-### New API Config File
+### New API Template File
 
 To get things started, you're going to need to scaffold out what you want your initial API configuration to look like in a `yaml` or `json` file. 
 
 Don't feel pressured to get this exactly correct from the get go. **This file is NOT meant to be a concrete implementation of your API**, just a starting point that you can build on over time. 
 
-So what's this file look like? For a full list of the configuration option details, you can go [to the configuration file options](#api-configuration-file-options), but let's go over a basic `yaml` example:
+So what's this file look like? For a full list of the configuration option details, you can go to the [api-template page](/docs/api-template), but let's go over a basic `yaml` example here:
 
 First, you need to start with a name for your API:
 
@@ -113,7 +111,7 @@ Entities:
       CanFilter: false  
 ```
 
-And that's it! Now that we've laid out what we want our API to look like, let's [make it](#using-the-command)!
+And that's it! Now that we've laid out what we want our API to look like, let's [make it](#using-the-new-api-command)!
 
 ### Using the New Api Command
 

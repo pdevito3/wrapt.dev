@@ -13,21 +13,37 @@ export const documentationNav = {
     pages['project-organization'],
     pages['customizing-wrapt-projects'],
   ],
-  'Template File': [
-    pages['solution-name'],
-    pages['db-context'],
-    pages['entities'],
-    pages['swagger'],
-    pages['git'],
-    pages['multiple-environments'],
-  ],
   'Commands': [
     pages['add-entity'],
     pages['add-entity-property'],
+    pages['new-micro'],
     pages['new-api'],
   ],
-  'Additional Resources': [
-    pages['migrations'],
-    pages['logging'],
+  'Templates': [
+    pages['api-template'],
+    pages['add-entity-template'],
+    pages['microservice-template'],
   ],
+  'Template Objects': [
+    pages['authorization-settings'],
+    pages['db-context'],
+    pages['entities'],
+    pages['gateway'],
+    pages['git'],
+    pages['microservice'],
+    pages['multiple-environments'],
+    pages['solution-name'],
+    pages['swagger'],
+  ],
+  'Additional Resources': [
+    pages['all-about-auth-in-dotnet-core'],
+    pages['logging'],
+    pages['migrations'],
+  ],
+  // 'Examples': [
+    // pages['basic-api'],
+    // pages['basic-microservice'],
+    // pages['api-with-auth'],
+    // pages['add-entity'],
+  // ],
 }

@@ -4,9 +4,7 @@ shortTitle: Multiple Environments
 description: Settings for scaffolding out multiple environments in your Web API.
 ---
 
-import FileRequirementPill from 'src/components/FileRequirementPill'
-
-## Multiple Environments <FileRequirementPill padLeft={"sm"} type={"optional"} />
+## Multiple Environments
 
 Wrapt templates are configured with Development (`StartupDevelopment`) and Production (`Startup`) environments by default, with the ability to add as many additional environments as you'd like. 
 
@@ -20,12 +18,18 @@ Additional environments can be add added using an `Environments` list in your in
 | Name             | Required | Description                                                  | Default |
 | ---------------- | -------- | ------------------------------------------------------------ | ------- |
 | EnvironmentName  | Yes      | The name of the environment that will set `ASPNETCORE_ENVIRONMENT`, the suffix of your `Startup.cs` etc. Note that `Development` and `Startup` are reserved strings for the in memory and production environments respectively. `Startup` can be used to add settings to the production environment. | *None*  |
-| ConnectionString | Yes      | The connection string for the database. The connection string will just be added in between quotes and treated like a string, so will need to be valid in that format. Backslashes will automtically be escaped for you. | *None*  |
-| ProfileName      | Yes      | The name of the profile that is added into your `launchsettings.json` to run this environment | *None*  |
+| ConnectionString | Yes      | The connection string for the database. The connection string will just be added in between quotes and treated like a string, so will need to be valid in that format. Backslashes will automatically be escaped for you. | *None*  |
+| ProfileName      | No       | The name of the profile that is added into your `launchsettings.json` to run this environment. | *SOLUTIONNAME (Development)*  |
+| Authority        | No       | The authority url for the auth server. | *None*  |
+| Audience         | No       | The unique id of the audience for an issued token (Identified in a JWT `aud` claim). In this case, this is usually going to be the identifier given to your **API** on your Authorization Server. | *None*  |
+| AuthorizationUrl | No       | The url to the authentication server to authenticate yourself and get an authorization code or access token. | *None*  |
+| TokenUrl         | No       | The url to the authentication server to refresh your access token. | *None*  |
+| ClientId         | No       | The client id of the client as configured on your authorization server. | *None*  |
+| ClientSecret     | No       | The client secret known only to your application and authorization server. If your client is configured for a [PKCE-enhanced authorization code flow](https://auth0.com/docs/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce) on your Authorization Sever, this is not needed.  | *None*  |
 
 > IMPORTANT
 >
-> Note that the connection strings will currently be added to `appsettings.{environment}.json`, so they will be committed to source control. You should NOT be adding anything with credentials in here. 
+> Note that the connection strings and client secrets will currently be added to `appsettings.{environment}.json`, so they will be committed to source control. You should NOT be adding anything with credentials in here. 
 >
 > There are plans to support secret manager and integration with external secret managers in AWS, Azure, etc. in the future.
 
@@ -51,3 +55,23 @@ Environments:
     ProfileName: Local
 ```
 
+## Example with Auth
+In this example, we are not adding any new environments, but adding auth info for `Development` (our local, in memory project) and `Startup` to act as our production environment. 
+
+```yaml
+Environments:
+  - EnvironmentName: Development
+    ProfileName: Development
+    Authority: https://localhost:5010
+    Audience: patients
+  - EnvironmentName: Startup
+    ConnectionString: "Data Source=prodserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ProfileName: Prod
+    Authority: https://myprod.auth0.com/
+    Audience: patients
+```
+
+## Additional Auth Resources
+* Here is great talk from an Okta rep about [the authentication flow in plain english](https://www.youtube.com/watch?v=996OiexHze0&feature=youtu.be). Definitely one of the better videos I've seen.
+* Kevin Dockx has a [great course on securing microservices](https://app.pluralsight.com/library/courses/securing-microservices-asp-dot-net-core/table-of-contents) that will likely teach you a lot around Auth regardless of whether or not you are working with microservices or a monolith.
+* [JWT.io is a great resource](https://jwt.io/) for destructuring and investigating encoded JWTs to see what's in your tokens.

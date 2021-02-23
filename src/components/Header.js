@@ -33,7 +33,7 @@ export function Header({ navIsOpen, onNavToggle }) {
             <a
               target="_blank"
               href="https://github.com/pdevito3/craftsman"
-              className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+              className="text-gray-400 hover:text-gray-500 transition-colors duration-200 pr-4 sm:pr-6"
             >
               <span className="sr-only">Craftsman on GitHub</span>
               <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor">
