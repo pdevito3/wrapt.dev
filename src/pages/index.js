@@ -496,7 +496,16 @@ export default function Home() {
             />  
             <FeatureBlock 
               title={'Customizable Response Wrapper'} 
+            />   
+            <FeatureBlock 
+              title={'Authorization and Scope Protection'} 
             />  
+            <FeatureBlock 
+              title={'Optional Microservice Organization'} 
+            />  
+            <FeatureBlock 
+              title={'Ocelot Gateway Scaffolding'} 
+            /> 
           </div>
         </div>
       </div>
