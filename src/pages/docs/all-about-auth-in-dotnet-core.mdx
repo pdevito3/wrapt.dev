@@ -107,8 +107,9 @@ Identity Server 4 is a staple of the .NET community that will soon be transition
     ```
 
 5. Add [Api Resources](https://docs.duendesoftware.com/identityserver/v5/fundamentals/resources/api_resources/). These define API in whatever organization your business has set up. This could be a single monolithic API, or a suite of smaller APIs. 
-This Resource should include the scopes allowed by this resource. In relation to Wrapt projects. This can generally map 1:1 to the `WebAPI` projects generated with Craftsman.
-  ```csharp
+    This Resource should include the scopes allowed by this resource. In relation to Wrapt projects. This can generally map 1:1 to the `WebAPI` projects generated with Craftsman.
+
+    ```csharp
     public static readonly IEnumerable<ApiResource> GetApiResources()
     { 
         return new List<ApiResource>
@@ -124,7 +125,18 @@ This Resource should include the scopes allowed by this resource. In relation to
             }
         };
     }
-  ```
+    ```
+
+    You'll also need to register the `ApiResource` service in your `Startup.cs` file. This should make your in-memory block look like this:
+
+    ```csharp
+    builder.AddInMemoryIdentityResources(Config.IdentityResources);
+    builder.AddInMemoryApiScopes(Config.ApiScopes);
+    builder.AddInMemoryApiResources(Config.ApiResources); // this is the new api resource registration
+    builder.AddInMemoryClients(Config.Clients);
+    ```
+
+    > While you're in `Startup.cs`, you can optionally remove the authentication service registration that includes google options or add additional configuration for that as well.
 
 6. Add [Api Scopes](https://docs.duendesoftware.com/identityserver/v5/fundamentals/resources/api_scopes/). These scopes are the permissions that the client can request.
 
