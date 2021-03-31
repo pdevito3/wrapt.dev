@@ -1,0 +1,36 @@
+---
+title: Add Bounded Context Command
+shortTitle: Add Bounded Context
+description: Adds a new bounded context to a domain project.
+---
+
+This command can add one or more new bounded contexts to your Wrapt project using a formatted yaml or json file. The [input file template](/docs/bounded-context-template) only requires a list of one or more entities.
+
+> This command must to be run from the *root* directory for a project that was made using the `new:domain` command.
+
+```shell
+craftsman add:bc [options] <filepath>
+```
+
+## Add Bounded Context Arguments
+| Argument        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| filepath        | The full filepath for the yaml or json file that lists the new entities that you want to add to your API.
+
+## Add Bounded Context Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+| -v              | Show verbose output.
+
+
+## Add Bounded Context Example Commands
+```shell
+craftsman add:bc -h
+craftsman add:bc C:\fullpath\new-bc.yaml
+craftsman add:bc C:\fullpath\new-bc.yml
+craftsman add:bc C:\fullpath\new-bc.json
+```
+
+## Add Bounded Context Example
+The examples on the [project tutorial](/docs/tutorial#adding-a-new-bounded-context) and the [bounded contexts template](/docs/bounded-contexts-template) cover how to add new bounded contexts.

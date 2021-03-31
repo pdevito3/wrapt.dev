@@ -1,14 +1,15 @@
 ---
-title: Add Entity Template
+title: Entity Template
 description: The template for the file used when adding new entities to a web API using the `add:entity` command.
 ---
 
-## Authorization Settings Properties
+## Add Entity Template Properties
 
 | Name       | Required | Description                                                         | Default                          |
 | ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- |
 | [Entities](/docs/entities)        | Yes      | A list of entities to create database endpoints. | *None*   |
 | [AuthorizationSettings](/docs/authorization-settings)        | Yes      | The authorization settings (e.g. policies) that are set for the entity. | *None*   |
+| [AddSwaggerComments](/docs/swagger#add-swagger-comments-property) | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint.| false  |
 
 ## Add Entity Template Examples
 
@@ -16,6 +17,7 @@ description: The template for the file used when adding new entities to a web AP
 The add entity template only needs the details for the new entity objects you want to add (one or more entities). You can find more details on the [add entity command page](/docs/add-entity).
 
 ```yaml
+AddSwaggerComments: true
 Entities:
   - Name: Supplier
     Properties:
@@ -57,6 +59,7 @@ Entities:
 If you've configured your app to use authorization, you can add authorization settings as well.
 
 ```yaml
+AddSwaggerComments: true
 Entities:
   - Name: Supplier
     Properties:

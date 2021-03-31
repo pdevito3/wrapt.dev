@@ -1,13 +1,12 @@
 ---
 title: Add Entity Command
 shortTitle: Add Entity
-description: Adds a new entity and all associated files to your project.
+description: Adds a new entity and all associated files to a bounded context.
 ---
 
-This command can add one or more new entities to your Wrapt project using a formatted yaml or json file. The [input file template](/docs/add-entity-template) only requires a list of one or more entities.
+This command can add one or more new entities to your Wrapt project using a formatted yaml or json file. The [input file template](/docs/entity-template) only requires a list of one or more entities.
 
-> This command must to be run from the solution directory for a project that was made using the `new:api` command.
-
+> This command must to be run from the *solution* directory for a project that was made using the `new:domain` command.
 
 ```shell
 craftsman add:entity [options] <filepath>
@@ -22,6 +21,7 @@ craftsman add:entity [options] <filepath>
 | Option          | Description                                                  |
 | --------------- | ------------------------------------------------------------ |
 | -h, --help      | Display help message. No filepath is needed to display the help message.
+| -v              | Show verbose output.
 
 
 ## Add Entity Example Commands
@@ -32,49 +32,5 @@ craftsman add:entity C:\fullpath\newentity.yml
 craftsman add:entity C:\fullpath\newentity.json
 ```
 
-## Add Entity File
-
-First, you'll want to create a `yaml` or `json` file that describes the new entity. This is pretty much the same as the 
-file we made for our `new:api` command, but now, the only required section is the `Entities` section. Just create a list of one or more entities, and you're good to go. For example:
-
-```yaml
-Entities:
-  - Name: Supplier
-    Properties:
-      - Name: SupplierId
-        IsPrimaryKey: true
-        Type: int
-        CanFilter: true
-        CanSort: true
-      - Name: Name
-        Type: string
-        CanFilter: true
-        CanSort: true
-      - Name: EmployeeCount
-        Type: int?
-        CanFilter: true
-        CanSort: true
-      - Name: CreationDate
-        Type: datetime?
-        CanFilter: true
-        CanSort: true
-      - Name: SupplierType
-        Type: int?
-        CanFilter: true
-        CanSort: true
-```
-
-### Using the Add Entity File
-
-To actually add the entity, you'll want to `cd` into whatever directory your API solution is located at.
-
-```shell
-cd C:\MyFull\RepoPath\Here
-```
-
-Then, we just need to add our `yaml` or `json` path to our `craftsman add:entity` command:
-
-```shell
-craftsman add:entity C:\Users\Paul\Documents\ApiConfigs\supplier-entity.yaml
-```
-
+## Add Entity Example
+The examples on the [project tutorial](/docs/tutorial#adding-a-new-entity) and the [entity template](/docs/entity-template) cover how to add new entities.

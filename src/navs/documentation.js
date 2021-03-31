@@ -14,25 +14,23 @@ export const documentationNav = {
     pages['customizing-wrapt-projects'],
   ],
   'Commands': [
+    pages['add-bounded-context'],
     pages['add-entity'],
     pages['add-entity-property'],
-    pages['new-micro'],
-    pages['new-api'],
+    pages['new-domain'],
   ],
-  'Templates': [
-    pages['api-template'],
-    pages['add-entity-template'],
-    pages['microservice-template'],
+  'File Templates': [
+    pages['bounded-contexts-template'],
+    pages['domain-template'],
+    pages['entity-template'],
   ],
-  'Template Objects': [
+  'Template Properties': [
     pages['authorization-settings'],
+    pages['bounded-contexts'],
     pages['db-context'],
     pages['entities'],
-    pages['gateway'],
     pages['git'],
-    pages['microservice'],
     pages['multiple-environments'],
-    pages['solution-name'],
     pages['swagger'],
   ],
   'Additional Resources': [
@@ -40,10 +38,7 @@ export const documentationNav = {
     pages['logging'],
     pages['migrations'],
   ],
-  // 'Examples': [
-    // pages['basic-api'],
-    // pages['basic-microservice'],
-    // pages['api-with-auth'],
-    // pages['add-entity'],
-  // ],
+  'Examples': [
+    pages['examples'],
+  ],
 }

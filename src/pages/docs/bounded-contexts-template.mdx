@@ -1,0 +1,62 @@
+---
+title: Bounded Contexts Template
+description: The template for the file used when creating a new bounded context to your domain project using the `add:bc` command.
+---
+
+## Bounded Context Template Properties
+
+| Name       | Required | Description                                                         | Default                          |
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- |
+| [BoundedContexts](/docs/bounded-contexts)    | No      | The logical contextual boundaries within your domain. | *None*   |
+
+## Add Bounded Contexts Example
+The add bounded context template is the same as the bounded contexts when 
+[creating a new domain](/docs/domain-template); it just doesn't need the domain info, that already exists.
+
+```yaml
+BoundedContexts:
+- SolutionName: FrontDesk
+  Port: 1200
+  DbContext:
+   ContextName: FrontDeskDbContext
+   DatabaseName: FrontDeskDbContext
+   Provider: Postgres
+  Entities:
+  - Name: Patient
+    Properties:
+    - Name: PatientId
+      IsPrimaryKey: true
+      Type: guid
+      CanFilter: true
+      CanSort: true
+    - Name: FirstName
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: LastName
+      Type: string
+      CanFilter: true
+      CanSort: true
+- SolutionName: Billing
+  Port: 2010
+  DbContext:
+   ContextName: BillingDbContext
+   DatabaseName: BillingDbContext
+   Provider: Postgres
+  Entities:
+  - Name: Invoice
+    Properties:
+    - Name: InvoiceId
+      IsPrimaryKey: true
+      Type: guid
+      CanFilter: true
+      CanSort: true
+    - Name: Vendor
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Amount
+      Type: int
+      CanFilter: true
+      CanSort: true
+```

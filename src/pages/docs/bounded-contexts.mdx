@@ -1,20 +1,23 @@
 ---
-title: API Template
-description: The template for the file used when creating a new web API using the `new:api` command.
+title: Bounded Contexts
+description: Settings for scaffolding out a bounded context for within your domain project.
 ---
 
-## Authorization Settings Properties
+## Bounded Contexts
+A bounded context is a logical contextual boundary within your domain, in the same vein that it is used in Domain Driven Design (DDD). For example, in
+a clinical domain, I might have front desk, billing, laboratory, and reporting contexts.
+
+## Bounded Contexts Properties
 
 | Name       | Required | Description                                                         | Default                          |
 | ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- |
-| [SolutionName](/docs/solution-name)    | Yes      | The name of the solution. | *None*   |
+| SolutionName    | Yes      | A simple string that will become the name of your solution within a bounded context. | *None*   |
 | [DbContext](/docs/db-context)       | Yes      | The db context setup for this project. | *None*   |
 | [Entities](/docs/entities)        | Yes      | A list of entities to create database endpoints. | *None*   |
 | [SwaggerConfig](/docs/swagger)   | No      | The swagger configuration for this API. | *None*   |
 | [Environments](/docs/multiple-environments)    | No      | The environments that get scaffolded out in this project. | *None*   |
-| [AddGit](/docs/git)    | No      | Settings for git in your project. | *true*  |
 | [AuthorizationSettings](/docs/authorization-settings)    | No      | The authorization settings assigned to this project. | *None*   |
 | Port    | No      | The port that will be used on localhost for this project. | *5000*   |
 
-## API Template Example
-The example on the [project tutorial](/docs/tutorial) covers how to set up an API Template.
+## Bounded Context Example
+The example on the [project tutorial](/docs/tutorial#adding-a-new-bounded-context) covers how to add new bounded contexts.

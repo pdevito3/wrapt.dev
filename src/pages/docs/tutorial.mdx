@@ -8,21 +8,43 @@ Let's say that we want to create an application to manage recipes. We're going t
 should start out by storing recipes and their associated ingredients. 
 
 ## Creating a Template File
-As we discussed in [the basics](/docs/how-it-works#the-basics), we need to start out by building a barebones `yaml` 
-or `json` file to lay out what we want our API to look like. This file is going to descibe how we want to 
-our API to start out and then we can add additional features and logic afterward. You can find the details for 
-each of the properties we're working with in the `Template File` section of the docs, but let's start building it out.
+To get things started,  we need to start out by building a bare bones `yaml` or `json` file to lay out what we want our project to look like. This file is going to describe what our particular domain looks like 
+and then we can add additional features and logic afterward.
 
-### Solution and Database Setup
-We're going to start out by creating a new `yaml` file and adding a [SolutionName](/docs/solution-name) of 
-'CarbonKitchen.Api' and a basic [DbContext](/docs/db-context) that will run on SqlServer.
+Don't feel pressured to get this exactly correct from the get go. **This file is NOT meant to be a concrete implementation of your API**, just a starting point that you can build on over time. 
+
+So what's this file look like? Let's go over an example. For a full list of the configuration option details, you can go to the [domain-template page](/docs/domain-template).
+
+
+### Basic Domain and Bounded Context Setup
+We're going to start out by creating a new `yaml` file and adding a domain name of `CarbonKitchen`. 
 
 ```yaml
-SolutionName: CarbonKitchen.Api
-DbContext:
- ContextName: CarbonKitchenDbContext
- DatabaseName: CarbonKitchen
- Provider: SqlServer
+DomainName: CarbonKitchen
+```
+
+Next, we need to lay out each of the logical contextual boundaries within our domain (a.k.a. bounded contexts).
+In this domain, three come to mind: 1) `Recipes` to store our recipes 2) `Planning` to store our meal plans and 3) `Shopping` to store our shopping lists. 
+Let's start out with the `Recipes` bounded context and name it with a property called `SolutionName`. 
+
+```yaml
+DomainName: CarbonKitchen
+BoundedContexts:
+- SolutionName: Recipes
+```
+
+Then, we'll describe our database set up for each bounded context using the [DbContext](/docs/db-context) 
+property. I'm also going to set port to run on locally, but this is optional.
+
+```yaml
+DomainName: CarbonKitchen
+BoundedContexts:
+- SolutionName: Recipes
+  Port: 5000
+  DbContext:
+   ContextName: RecipesDbContext
+   DatabaseName: RecipesDbContext
+   Provider: SqlServer
 ```
 
 ### Entity Setup
@@ -30,187 +52,200 @@ Then I'm going to add in my 'Recipe' and 'Ingredient' [Entities](/docs/entities)
 properties based on my requirements. Be sure to check the [entity properties](/docs/entities#entity-properties) page to 
 see what's required and what defaults are used, but it's built to be as minimal as possible.
 
+
 ```yaml
-SolutionName: CarbonKitchen.Api
-DbContext:
- ContextName: CarbonKitchenDbContext
- DatabaseName: CarbonKitchen
- Provider: SqlServer
-Entities:
-- Name: Recipe
-  Properties:
-  - Name: RecipeId
-    IsPrimaryKey: true
-    Type: int
-    CanFilter: true
-    CanSort: true
-  - Name: Title
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Directions
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: RecipeSourceLink
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Description
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: ImageLink
-    Type: string
-    CanFilter: true
-    CanSort: true
-- Name: Ingredient
-  Properties:
-  - Name: IngredientId
-    IsPrimaryKey: true
-    Type: int
-    CanFilter: true
-    CanSort: true
-  - Name: RecipeId
-    Type: int?
-    CanFilter: true
-    CanSort: true
-  - Name: Name
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Unit
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Amount
-    Type: double?
-    CanFilter: true
-    CanSort: true
+DomainName: CarbonKitchen
+BoundedContexts:
+- SolutionName: Recipes
+  Port: 5000
+  DbContext:
+   ContextName: RecipesDbContext
+   DatabaseName: RecipesDbContext
+   Provider: SqlServer
+  Entities:
+  - Name: Recipe
+    Properties:
+    - Name: RecipeId
+      IsPrimaryKey: true
+      Type: int
+      CanFilter: true
+      CanSort: true
+    - Name: Title
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Directions
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: RecipeSourceLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Description
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: ImageLink
+      Type: string
+      CanFilter: true
+      CanSort: true
 ```
 
-### Optional Environment and Swagger Setup
-Now I'm going to add in a few environments as well as some Swagger documentation. Both of these are optional, but good to have.
+Note that this is a list, so we can add more than one entity if we want:
+
 ```yaml
-SolutionName: CleanCarbonKitchen.Api
-DbContext:
- ContextName: CarbonKitchenDbContext
- DatabaseName: CarbonKitchen
- Provider: SqlServer
-Entities:
-- Name: Recipe
-  Properties:
-  - Name: RecipeId
-    IsPrimaryKey: true
-    Type: int
-    CanFilter: true
-    CanSort: true
-  - Name: Title
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Directions
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: RecipeSourceLink
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Description
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: ImageLink
-    Type: string
-    CanFilter: true
-    CanSort: true
-- Name: Ingredient
-  Properties:
-  - Name: IngredientId
-    IsPrimaryKey: true
-    Type: int
-    CanFilter: true
-    CanSort: true
-  - Name: RecipeId
-    Type: int?
-    CanFilter: true
-    CanSort: true
-  - Name: Name
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Unit
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Amount
-    Type: double?
-    CanFilter: true
-    CanSort: true
-- Name: ShoppingListItem
-  Properties:
-  - Name: ShoppingListItemId
-    IsPrimaryKey: true
-    Type: int
-    CanFilter: true
-    CanSort: true
-  - Name: Amount
-    Type: double?
-    CanFilter: true
-    CanSort: true
-  - Name: Name
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Category
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Unit
-    Type: string
-    CanFilter: true
-    CanSort: true
-  - Name: Acquired
-    Type: bool?
-    DefaultValue: false
-    CanFilter: true
-    CanSort: true
-  - Name: Hidden
-    Type: bool?
-    DefaultValue: false
-    CanFilter: true
-    CanSort: true
-  - Name: ShoppingListId
-    Type: int?
-    CanFilter: true
-    CanSort: true
-Environments:
-  - EnvironmentName: Startup
-    ConnectionString: "Data Source=myprodserver;Initial Catalog=CarbonKitchen;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
-    ProfileName: Prod
-  - EnvironmentName: Qa
-    ConnectionString: "Data Source=myqaserver;Initial Catalog=CarbonKitchen;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
-    ProfileName: Qa
-SwaggerConfig:
-  Title: Carbon Kitchen
-  Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
-  AddSwaggerComments: true
-  ApiContact: 
-    Name: Carbon Kitchen
-    Email: devsupport@CarbonKitchen.com
-    Url: https://www.carbonkitchen.com
+DomainName: CarbonKitchen
+BoundedContexts:
+- SolutionName: Recipes
+  Port: 5000
+  DbContext:
+   ContextName: RecipesDbContext
+   DatabaseName: RecipesDbContext
+   Provider: SqlServer
+  Entities:
+  - Name: Recipe
+    Properties:
+    - Name: RecipeId
+      IsPrimaryKey: true
+      Type: int
+      CanFilter: true
+      CanSort: true
+    - Name: Title
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Directions
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: RecipeSourceLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Description
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: ImageLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+  - Name: Ingredient
+    Properties:
+    - Name: IngredientId
+      IsPrimaryKey: true
+      Type: int
+      CanFilter: true
+      CanSort: true
+    - Name: RecipeId
+      Type: int?
+      CanFilter: true
+      CanSort: true
+    - Name: Name
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Unit
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Amount
+      Type: double?
+      CanFilter: true
+      CanSort: true
 ```
 
-## Creating a New API
-Now that we've put together our basic API layout, let's actually build our project. To start, make sure you've followed the [install instructions](/docs/installation).
-Then, open Command Prompt, Powershell, Terminal, etc. and `cd` to whatever directory you want to create your project repository in. Finally, we can literally just run [one command](/docs/new-api):
+### Environment and Swagger Setup
+Now I'm going to add in a few environments as well as some Swagger documentation. Both of these are optional, 
+but good to have. You can also add other optional properties like [authorization settings](/docs/authorization-settings) if you'd like to include those here.
+
+```yaml
+DomainName: CarbonKitchen
+BoundedContexts:
+- SolutionName: Recipes
+  Port: 5000
+  DbContext:
+   ContextName: RecipesDbContext
+   DatabaseName: RecipesDbContext
+   Provider: SqlServer
+  Entities:
+  - Name: Recipe
+    Properties:
+    - Name: RecipeId
+      IsPrimaryKey: true
+      Type: int
+      CanFilter: true
+      CanSort: true
+    - Name: Title
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Directions
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: RecipeSourceLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Description
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: ImageLink
+      Type: string
+      CanFilter: true
+      CanSort: true
+  - Name: Ingredient
+    Properties:
+    - Name: IngredientId
+      IsPrimaryKey: true
+      Type: int
+      CanFilter: true
+      CanSort: true
+    - Name: RecipeId
+      Type: int?
+      CanFilter: true
+      CanSort: true
+    - Name: Name
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Unit
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Amount
+      Type: double?
+      CanFilter: true
+      CanSort: true
+  Environments:
+    - EnvironmentName: Production
+      ConnectionString: "Data Source=myprodserver;Initial Catalog=CarbonKitchen;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+      ProfileName: Prod
+    - EnvironmentName: Qa
+      ConnectionString: "Data Source=myqaserver;Initial Catalog=CarbonKitchen;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+      ProfileName: Qa
+  SwaggerConfig:
+    Title: Carbon Kitchen Recipes
+    Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
+    AddSwaggerComments: true
+    ApiContact: 
+      Name: Carbon Kitchen
+      Email: devsupport@CarbonKitchen.com
+      Url: https://www.carbonkitchen.com
+```
+
+## Creating a New Domain Project
+Now that we've put together our domain layout, let's actually build our project. To start, make sure you've followed the [install instructions](/docs/installation).
+Then, open Command Prompt, Powershell, Terminal, etc. and `cd` to whatever directory you want to create your project repository in. Finally, we just need to run [one command](/docs/new-domain):
 
 ```shell
-craftsman new:api C:\Users\Paul\Documents\WraptTemplates\NewCarbonKitchen.yaml
+craftsman new:domain C:\Users\Paul\Documents\WraptTemplates\NewCarbonKitchen.yaml
 ```
 
-> Note that the filepath here should match wherever you saved your yaml file.
+> Note that the filepath here should match wherever you saved your yaml file. A relative path should also work.
 
 Once that's done, Craftsman will have added an entire API for you in whatever directory you ran this in. Check out the [project architecture and organization](/docs/project-organization) page for more details.
 
@@ -218,10 +253,11 @@ Once that's done, Craftsman will have added an entire API for you in whatever di
 Now you can `cd` into your project directory and run `dotnet run --project webapi` and your API is up and running with no boilerplate in sight 🥳
 
 ## Adding a New Entity
-But hold on, we have this existing project, but what if we wanted to create a new entity to capture shopping list items so that we can add ingredients we need for our grocery outing? 
-All we need to do is create another `yaml` or `json` file that describes this new entity. Something like this:
+But hold on, we have this existing project, but what if we wanted to add a new entity to capture shopping list items so that we can add ingredients we need for our grocery outing? 
+All we need to do is create another `yaml` or `json` file (based on the [add entity template](/docs/entity-template)) that describes this new entity. Something like this:
 
 ```yaml
+AddSwaggerComments: true
 Entities:
 - Name: ShoppingListItem
   Properties:
@@ -261,7 +297,7 @@ don't even need a file this time!
 Let's say we wanted to add a nullable boolean called 'Acquired' that can be filtered and sorted. We could do something like this:
 
 ```shell
-craftsman add:property --entity ShoppingListItem --name Acquired --type bool? --filter true -sort true
+craftsman add:prop --entity ShoppingListItem --name Acquired --type bool? --filter true -sort true
 ```
 
 We could also use shorthand and do something like this:
@@ -269,6 +305,59 @@ We could also use shorthand and do something like this:
 craftsman add:property -e ShoppingListItem -n Acquired -t bool? -f true -s true
 ```
 
+## Adding a New Bounded Context
+So we built out the bounded context for our `Recipes`, but what if we wanted to add the `Shopping` bounded context? Let's make a 
+new file (using a [bounded-contexts template](/docs/bounded-contexts) to capture those details:
+
+```yaml
+BoundedContexts:
+- SolutionName: Shopping
+  Port: 5010
+  DbContext:
+   ContextName: ShoppingDbContext
+   DatabaseName: ShoppingDbContext
+   Provider: Postgres
+  Entities:
+  - Name: ShoppingList
+    Properties:
+    - Name: ShoppingListId
+      IsPrimaryKey: true
+      Type: guid
+      CanFilter: true
+      CanSort: true
+    - Name: Store
+      Type: string
+      CanFilter: true
+      CanSort: true
+  Environments:
+    - EnvironmentName: Production
+      ConnectionString: "User ID=postgres;Password=password;Host=prodserver;Port=5432;Database=Shopping;"
+      ProfileName: Prod
+    - EnvironmentName: Qa
+      ConnectionString: "User ID=postgres;Password=password;Host=qaserver;Port=5432;Database=Shopping;"
+      ProfileName: Qa
+  SwaggerConfig:
+    Title: Carbon Kitchen Shopping
+    Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
+    AddSwaggerComments: true
+    ApiContact: 
+      Name: Carbon Kitchen
+      Email: devsupport@CarbonKitchen.com
+      Url: https://www.carbonkitchen.com
+```
+
+Then we can go to our domain directory (the one with the .gitignore):
+
+```shell
+cd C:\my\domain\directory
+```
+
+Then we can use the [add:bc command](/docs/add-bounded-context) to add the new context:
+
+```shell
+add:bc C:\fullpath\my-new-bc.yaml
+```
+
 ## Customization
-Great! Now I have my API, but I want to add some custom business logic. Maybe I want to do some special operation in the recipe repository when I'm adding something new or add another 
+Great! Now we have a new project, but we want to add some custom business logic. Maybe we want to do some special validation when we're adding a new recipe or add another 
 endpoint to manage ingredients in batch. This is all completely doable! For details, see the page on [customizing Wrapt projects](/docs/customizing-wrapt-projects).

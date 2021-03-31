@@ -1,0 +1,34 @@
+---
+title: New Domain Command
+shortTitle: New Domain
+description: Scaffolds out Web API files and projects based on a given template file in a json or yaml format.
+---
+
+```shell
+craftsman new:api [options] <filepath>
+```
+
+## New Api Arguments
+| Argument        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| filepath        | The full filepath for the yaml or json file that describes your domain using a proper Wrapt format. Details on this file setup can be found on the [domain-template page](/docs/domain-template).
+
+## New Api Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+| -v              | Show verbose output.
+
+
+## New Api Example Commands
+```shell
+craftsman new:domain -h
+craftsman new:domain C:\fullpath\domain.yaml
+craftsman new:domain C:\fullpath\domain.yml
+craftsman new:domain C:\fullpath\domain.json
+```
+
+## New Domain Example
+
+### New Domain Template File
+The examples on the [project tutorial](/docs/tutorial) covers how to create a new domain.
