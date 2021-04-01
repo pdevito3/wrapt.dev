@@ -8,7 +8,7 @@ Let's say that we want to create an application to manage recipes. We're going t
 should start out by storing recipes and their associated ingredients. 
 
 ## Creating a Template File
-To get things started,  we need to start out by building a bare bones `yaml` or `json` file to lay out what we want our project to look like. This file is going to describe what our particular domain looks like 
+To get things started, we we are going to build a bare bones `yaml` or `json` file to lay out what we want our project to look like. This file is going to describe what our particular domain looks like 
 and then we can add additional features and logic afterward.
 
 Don't feel pressured to get this exactly correct from the get go. **This file is NOT meant to be a concrete implementation of your API**, just a starting point that you can build on over time. 
@@ -40,7 +40,7 @@ property. I'm also going to set port to run on locally, but this is optional.
 DomainName: CarbonKitchen
 BoundedContexts:
 - SolutionName: Recipes
-  Port: 5000
+  Port: 5005
   DbContext:
    ContextName: RecipesDbContext
    DatabaseName: RecipesDbContext
@@ -48,16 +48,16 @@ BoundedContexts:
 ```
 
 ### Entity Setup
-Then I'm going to add in my 'Recipe' and 'Ingredient' [Entities](/docs/entities) with a variety of 
-properties based on my requirements. Be sure to check the [entity properties](/docs/entities#entity-properties) page to 
-see what's required and what defaults are used, but it's built to be as minimal as possible.
+Then let's add in our `Recipe` [Entity](/docs/entities) with a variety of 
+properties based on our requirements. Be sure to check the [entity properties](/docs/entities#entity-properties) page to 
+see what's required and what defaults are used.
 
 
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
 - SolutionName: Recipes
-  Port: 5000
+  Port: 5005
   DbContext:
    ContextName: RecipesDbContext
    DatabaseName: RecipesDbContext
@@ -92,13 +92,13 @@ BoundedContexts:
       CanSort: true
 ```
 
-Note that this is a list, so we can add more than one entity if we want:
+Note that `Entities` is a list, so we can add more than one if we want:
 
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
 - SolutionName: Recipes
-  Port: 5000
+  Port: 5005
   DbContext:
    ContextName: RecipesDbContext
    DatabaseName: RecipesDbContext
@@ -164,7 +164,7 @@ but good to have. You can also add other optional properties like [authorization
 DomainName: CarbonKitchen
 BoundedContexts:
 - SolutionName: Recipes
-  Port: 5000
+  Port: 5005
   DbContext:
    ContextName: RecipesDbContext
    DatabaseName: RecipesDbContext
@@ -250,7 +250,7 @@ craftsman new:domain C:\Users\Paul\Documents\WraptTemplates\NewCarbonKitchen.yam
 Once that's done, Craftsman will have added an entire API for you in whatever directory you ran this in. Check out the [project architecture and organization](/docs/project-organization) page for more details.
 
 ### Using Your API 
-Now you can `cd` into your project directory and run `dotnet run --project webapi` and your API is up and running with no boilerplate in sight 🥳
+Now you can `cd` into your bounded context directory and run `dotnet run --project {SolutionName}.webapi` and your API is up and running with no boilerplate in sight 🥳
 
 ## Adding a New Entity
 But hold on, we have this existing project, but what if we wanted to add a new entity to capture shopping list items so that we can add ingredients we need for our grocery outing? 
