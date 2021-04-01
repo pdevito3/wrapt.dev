@@ -3,60 +3,84 @@ title: Project Organization
 description: A walkthrough of the organization schema for Wrapt projects
 ---
 
-## Clean Architecture
-Instead of making you learn some custom directory structure, Wrapt projects are organized using the well known and maintainable `Clean Architecture` format. If you are not familiar with this structure, 
-there are some great resources on it by [Steve Smith](https://www.youtube.com/watch?v=joNTQy-KXiU), [Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html), and 
+## Choosing an Architecture
+
+### Starting Out Clean
+Deciding on a particular architecture to organize Wrapt projects was a big deal for me. Project architecture is a foundational aspect that drives a lot of different operations and sets up a projects for maintainable success or a total mess. 
+While I don't think there is a single 'correct' architecture to chose, there are certainly patterns that are better than others. 
+
+The first that came to mind was a `Clean/Onion Architecture` format. It is a well known pattern in the enterprise architecture world and there are some great resources on it by 
+[Steve Smith](https://www.youtube.com/watch?v=joNTQy-KXiU), [Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html), and 
 [Jason Taylor](https://jasontaylor.dev/clean-architecture-getting-started/). 
 
-In short, `Clean Architecture` breaks your project up into logical layers like below. If you want to add something and you're not seeing it here, but think it should be, feel free to 
-submit a ticket on github for it to be added.
+After a lot of research and a couple of trial projects, I actually decided that this was the architecture I wanted to use for Wrapt and went forward with it through 0.8.2. 
+And then I came across a different pattern...
 
-### Core
-The core layer is split into two projects, the `Application` and `Domain` layers. 
+### Onions Actually Stink — Moving to a Vertical Slice Architecture
+Enter the Vertical Slice Architecture (VSA). I came across one of [Jimmy Bogard's talks on VSA](https://youtu.be/SUiWfhAhgQw) and it really spoke to me. I also found out that it's worked really well for others, many of which who came from Clean projects.
 
-The `Domain` project is pretty simple and will capture all of the entities and items directly related to that. This layer should never depend on any other project.
+For those not familiar, the short version is that Clean Architecture aims to separate the business rules from the I/O with [designated layers](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg) 
+while Vertical Slice Architecture aims to [separate the code by features](https://www.ghyston.com/media/insights/2020-06-26-architecting-for-maintainability-through-vertical-slices/vertical-applicaiton.png), aiming to minimize code sharing between features.
 
-The `Application` project is meant to abstract out our specific business rules for our application. It is dependent on the `Domain` layer, but has no dependencies on 
-any other layer or project. This layer defines our interfaces, DTOs, Enums, Exceptions, Mapping Profiles, Validators, Specifications, and Wrappers that can be used by our external layers.
+I'm planning on doing a detailed blog post on why I made this decision and how to work with VSA, but here are some of the benefits of VSA:
 
+- VSA is feature based. This is how requests come to my teams in real life and it lines up directly with my apps.
+- Because of the feature base, everything is in one spot. Everyone from a senior architect to a new intern knows exactly where to go to find something. This contrasts with Clean/Onion which forces layers on you prematurely in many instances.
+- This structure means that new features are rarely updating existing code and worrying about possible side effects. This allows you to breath easier and work faster.
+- Reusable code is written as the need for them is discovered, and not sooner. Starting with vertical slices essentially means you get adherence to You Ain't Gonna Need It (YAGNI) and Keep It Simple Stupid (KISS). 
+Even if you do miss something that would be better abstracted, duplication is far cheaper than the wrong abstraction.
 
-### Infrastructure
-Our infrastructure layer is used for all of our external communication requirements (e.g. database communication). For more control, this layer is split into a `Persistence` 
-project as well as a `Shared` project. Additional layers like `Auth`, `Web Api Clients`, `File System Accessors`, `Logging Adapters`, and `Email/SMS Sending` can also be added here.
+For those that want to read up more on VSA, here's some links.
+- [Jimmy Bogard discussion](https://www.youtube.com/watch?v=SUiWfhAhgQw)
+- [Jimmy Bogard Blog](https://jimmybogard.com/vertical-slice-architecture/)
+- OJ Develops [Blog 1](https://www.ojdevelops.com/2018/07/the-tyranny-of-horizontal-architectures.html?m=1) and [Blog 2](https://www.ojdevelops.com/2018/07/the-tyranny-of-horizontal-architectures.html?m=1)
+- [Jeremiah Blog](https://jeremiahflaga.github.io/2019/05/20/vertical-slice-architecture-is-it-incompatible-with-clean-architecture/)
+- [Example Repo](https://github.com/jbogard/ContosoUniversityDotNetCore-Pages)
 
-The `Persistence` project will capture our application specific database configuration. The `Shared` project will capture any external service requirements that 
-we may need across our infrastructure layer (e.g. DateTimeService).
-
-
-### API
-Finally, we have our API layer. This is where our `WebApi` project will live to provide us access to our API endpoints. This layer depends on both the `Core` and `Infrastructure` layers, 
-however, the dependency on `Infrastructure` is only to support dependency injection. Therefore only `Startup` classes should reference `Infrastructure`.
 
 ## What Boilerplate Do You Get?
 ### Entities & DTOs
 Entities are set up to represent distinct tables in your database. These entities should not be exposed outside of the API and accordingly each have their own read, create, 
-and update data transfer objects (DTOs). 
+and update data transfer objects (DTOs). There is also a common `Manipulation` DTO that the update and create DTOs inherit from to share common requirements.
 
 #### Domain Entities
 At some point you may want to make a domain entity that is not directly linked to a database table. You can either do this manually or use the `add:entity` command 
 and update the associated files to meet your needs.
 
-### Repositories
-Wrapt APIs have a repository built out for each entity that act as the core data access layer (DAL) any time we need to touch the database. You can find the repositories in the 
-`Infrastructure.Persistence` layer.
+### Features
+Features are one of the pivotal patterns of a Vertical Slice Architecture. Each feature lives in the `Feature` folder of the Web Api project and 
+will correspond to various actions that can be performed on each of your entities. Out of the box, Wrapt will give you basic CRUD features for each of your entities to 
+get a list, get a record, create a record, update a record, partially update a record, and delete a record.
+
+In practice, each controller is essentially acting as a router to a feature and that's all. All the business logic behind the endpoint lives in the feature. The features themselves are 
+[MediatR commands or queries](https://github.com/jbogard/MediatR) that are fed into a handler that return a response.
+
+
+<!-- add an image like so here? https://youtu.be/SUiWfhAhgQw?t=959 -->
+
+
+> It's worth noting that these features do NOT have repositories. In fact, there are no repositories in this architecture at all by design. This gives you 
+the ability to control how each feature accesses the data however is appropriate for that particular feature. There are other benefits here as well that I'll detail in my blog
+and repositories do have their place, but they are not forced on you be default.
+
+<!-- iamge like so? https://youtu.be/SUiWfhAhgQw?t=2224 -->
 
 ### Filtering and Sorting
-#### Toggling Filtering and Sorting
-Wrapt APIs use the magnificent [Sieve](https://github.com/Biarity/Sieve) library for filtering and sorting. All GET collection endpoints will have this capability enabled automatically 
-and can be used for any attributes that you have this configured for. These properties can be set when creating an entity or 
-adding a new property, otherwise you'll need to manage filtering and sorting on existing entity properties manually. There are details in the docs, but all you 
-need to to is manage the `Sieve` attribute on any entity properties.
-
-Note that Wrapt APIs do *not* use Sieve's pagination capabilities. For more information on how Wrapt handles pagination, see the [pagination](#pagination) section.
+#### Configuring Filtering and Sorting
+Wrapt APIs use the magnificent [Sieve](https://github.com/Biarity/Sieve) library for filtering and sorting. All GET list features will have this capability enabled automatically 
+and can be used for any attributes that you have this configured for like so:
 
 ```csharp
 [Sieve(CanFilter = true, CanSort = false)]
+public string FirstName { get; set; }
 ```
+
+These properties can be set when creating an entity or 
+adding a new property, otherwise you'll need to manage filtering and sorting on existing entity properties manually. There are details in the docs, but all you 
+need to to is manage the `Sieve` attribute on any entity properties.
+
+> Note that Wrapt APIs do *not* use Sieve's pagination capabilities. For more information on how Wrapt handles pagination, see the [pagination](#pagination) section.
+
 
 #### Using Filtering and Sorting
 To add a filter to your API calls, just add a `Filters` query string and the designated filter values you'd like to use. Below is a few examples, but you can find a full list of 
@@ -77,10 +101,10 @@ http://localhost:5000/api/cities?Filters=name==Atlanta&SortOrder=name,-popularit
 If you'd like to change the pagination and/or sorting, you can update the `ENTITYParametersDto`.
 
 ### Pagination
-Wrapt APIs use a custom pagination capability to make working with large dataset as easy as possible.
+Wrapt APIs use a custom pagination capability to make working with large dataset as easy as possible out of the box.
 
 #### Pagination Requests
-When making a request to your GET collection endpoint, you can pass a `PageNumber` and `PageSize` query string, or exclude them to use the default values. 
+When making a request to your GET list endpoint, you can pass a `PageNumber` and `PageSize` query string, or exclude them to use the default values. 
 
 To change the default pagination values, go to the `ENTITYParametersDto` class that you'd like to modify and create an override parameter for the property you'd like to change. Be sure to set the permission level to `internal` to match the inherited permissions.
 ```csharp
@@ -92,7 +116,8 @@ public class CityParametersDto : BasePaginationParameters
 }
 ```
 
-Please note that if you make change to the `BasePaginationParameters` class, it will affect **all** classes that inherit from it (which is every one by default)
+Please note that if you make change to the `BasePaginationParameters` class, it will affect **all** classes that inherit from it (which is every one by default). This is one of the few classes in Wrapt projects 
+that is shared between multiple features as it is a common base to work from that is easily overridden.
 
 #### Pagination Responses
 Getting paginated results is nice, but you'll very likely want to know information about the collection's pagination info as well, especially when you're programming a UI. Wrapt APIs 
@@ -111,14 +136,26 @@ will automatically return a complete list of pagination metadata in the response
 | HasNext | A boolean that denotes whether or not there is a next page. |
 
 
-### Fluent Validation
-Wrapt APIs are set up to run validation rules on any POST, PUT, and PATCH endpoints using [Fluent Validation](https://fluentvalidation.net/). No rules are added by default, 
+### Validation
+Domain validation
+
+We want to push our behaviors down to our domain model. This means that our handler gets thinner and thinner and is really just acting as a data access logic (no need for an extra repository layer). 
+Then i can get delegate all the meat of the work in the domain logic. This means I have a fully encapsulated domain.
+
+Now, before we do all that work in the handler/domain logic, we need to check if we actually *can* do that thing that we want to do. Enter validation. So we want to center our validation around our requests and our handlers.
+
+This means there are two main types of validation: 1) request validation and 2) command validation.
+
+#### Request Validation
+Request validation is just us making sure that the data in the request looks acceptable enough for us to use it. Do we have all of the required fields, is a particular field a certain minimum length, etc.
+
+In Wrapt, our requests will validate themselves using [Fluent Validation](https://fluentvalidation.net/) (Data Annotations is another viable option here if you'd like to go that route). No rules are added by default, 
 but you can add any rules that fit your business needs in `Core.Application.Validation`. Validation rules can be assigned to the `ENTITYForManipulationDtoValidator` class 
 if you'd like the rule to be run on both creation (POST calls) and update (PUT, PATCH). If you'd like a rule to just be ran on one or the other, you can add the rule to 
 the respective validator class.
 
-The OOTB rules for fluent validation are pretty robust, but if you need to make a custom validation rule, something like 
-the below is a good example. This comes from a [full write up on this blog](https://www.locktar.nl/programming/net-core/creating-custom-validators-with-fluentvalidation/) .
+The OOTB rules for Fluent Validation are pretty robust, but if you need to make a custom validation rule, something like 
+the below [from this blog]((https://www.locktar.nl/programming/net-core/creating-custom-validators-with-fluentvalidation/)) is a good example.
 
 ```csharp
 public static class CustomValidators
@@ -148,3 +185,22 @@ public class PersonValidator : AbstractValidator<Person>
     }
 }
 ```
+
+Note that these rules are only looking at the request object itself. They can't go out to something external and check for some validation there.
+
+#### Command Validation
+Command validation is where we have more complex business validations come into play that can work with the database or other external systems. These domain level validations make sure that:
+
+- An email address isn't taken when registering a new account 
+- We can't add items to an order if it has already been processed
+- A name is unique and can't be added again
+
+This validation can be added in your command handler or, even better, encapsulated in your domain entity as a new method.
+
+
+### Automated Tests
+Wrapt will automatically scaffold out unit, integration and functional tests for each of your bounded contexts using NUnit. **Unit tests** are meant to confirm that individual operations are working as expected 
+(e.g. PagedList calculations). **Integration tests** are meant to check that different areas are working together as expected (e.g. our features folder). These tests will spin up a real database in docker 
+and run each of your feature tests in an actual representation of your database. **Functional tests** are meant to check an entire slice of functionality with all the code running together. 
+These are generally more involved to write and maintain, but with this project setup, our controllers are essentially just routers to our feature queries and commands, so we have 
+already done the meat of our testing in our integration tests. This means that our functional tests can just confirm that we are getting the expected responses from our routes and we can call it a day.
