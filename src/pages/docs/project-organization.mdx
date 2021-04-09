@@ -9,7 +9,7 @@ description: A walkthrough of the organization schema for Wrapt projects
 Deciding on a particular architecture to organize Wrapt projects was a big deal for me. Project architecture is a foundational aspect that drives a lot of different operations and sets up a projects for maintainable success or a total mess. 
 While I don't think there is a single 'correct' architecture to chose, there are certainly patterns that are better than others. 
 
-The first that came to mind was a `Clean/Onion Architecture` format. It is a well known pattern in the enterprise architecture world and there are some great resources on it by 
+The first that came to mind was a Clean/Onion Architecture format. It is a well known pattern in the enterprise architecture world and there are some great resources on it by 
 [Steve Smith](https://www.youtube.com/watch?v=joNTQy-KXiU), [Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html), and 
 [Jason Taylor](https://jasontaylor.dev/clean-architecture-getting-started/). 
 
@@ -17,7 +17,7 @@ After a lot of research and a couple of trial projects, I actually decided that 
 And then I came across a different pattern...
 
 ### Onions Actually Stink — Moving to a Vertical Slice Architecture
-Enter the Vertical Slice Architecture (VSA). I came across one of [Jimmy Bogard's talks on VSA](https://youtu.be/SUiWfhAhgQw) and it really spoke to me. I also found out that it's worked really well for others, many of which who came from Clean projects.
+Enter the Vertical Slice Architecture (VSA). I came across one of [Jimmy Bogard's talks on VSA](https://youtu.be/SUiWfhAhgQw) and it really spoke to me. I also found out that [it has worked really well for others as well](https://www.reddit.com/r/dotnet/comments/lw13r2/choosing_between_using_cleanonion_or_vertical/), many of which who came from Clean projects.
 
 For those not familiar, the short version is that Clean Architecture aims to separate the business rules from the I/O with [designated layers](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg) 
 while Vertical Slice Architecture aims to [separate the code by features](https://www.ghyston.com/media/insights/2020-06-26-architecting-for-maintainability-through-vertical-slices/vertical-applicaiton.png), aiming to minimize code sharing between features.
@@ -135,19 +135,20 @@ will automatically return a complete list of pagination metadata in the response
 | HasPrevious | A boolean that denotes whether or not there is a previous page. |
 | HasNext | A boolean that denotes whether or not there is a next page. |
 
-
-### Validation
-Domain validation
-
-We want to push our behaviors down to our domain model. This means that our handler gets thinner and thinner and is really just acting as a data access logic (no need for an extra repository layer). 
-Then i can get delegate all the meat of the work in the domain logic. This means I have a fully encapsulated domain.
+### Encapsulated Domain
+Generally, we want to push our behaviors down into our domain model or (a domain layer if the level of complexity calls for it). This means that our handler gets thinner and thinner and is really just acting as a data access logic (no need for an extra repository layer). 
+Then we can get delegate all the meat of the work in the domain logic. This means we have a fully encapsulated domain.
 
 Now, before we do all that work in the handler/domain logic, we need to check if we actually *can* do that thing that we want to do. Enter validation. So we want to center our validation around our requests and our handlers.
 
-This means there are two main types of validation: 1) request validation and 2) command validation.
+<!-- https://youtu.be/5kOzZz2vj2o?t=2921 -->
+<!-- https://youtu.be/SUiWfhAhgQw?t=2703 -->
+
+### Validation
+Validation can generally be broken up into two main categories 1) request validation and 2) command validation. 
 
 #### Request Validation
-Request validation is just us making sure that the data in the request looks acceptable enough for us to use it. Do we have all of the required fields, is a particular field a certain minimum length, etc.
+Request validation is just us making sure that the data in the request itself is valid to be submitted. Do we have all of the required fields, is a particular field a certain minimum length, etc.
 
 In Wrapt, our requests will validate themselves using [Fluent Validation](https://fluentvalidation.net/) (Data Annotations is another viable option here if you'd like to go that route). No rules are added by default, 
 but you can add any rules that fit your business needs in `Core.Application.Validation`. Validation rules can be assigned to the `ENTITYForManipulationDtoValidator` class 
@@ -188,19 +189,26 @@ public class PersonValidator : AbstractValidator<Person>
 
 Note that these rules are only looking at the request object itself. They can't go out to something external and check for some validation there.
 
-#### Command Validation
+#### Command/Domain Validation
 Command validation is where we have more complex business validations come into play that can work with the database or other external systems. These domain level validations make sure that:
 
 - An email address isn't taken when registering a new account 
 - We can't add items to an order if it has already been processed
 - A name is unique and can't be added again
+- We can't approve cancelled invoices
 
 This validation can be added in your command handler or, even better, encapsulated in your domain entity as a new method.
 
 
 ### Automated Tests
-Wrapt will automatically scaffold out unit, integration and functional tests for each of your bounded contexts using NUnit. **Unit tests** are meant to confirm that individual operations are working as expected 
-(e.g. PagedList calculations). **Integration tests** are meant to check that different areas are working together as expected (e.g. our features folder). These tests will spin up a real database in docker 
-and run each of your feature tests in an actual representation of your database. **Functional tests** are meant to check an entire slice of functionality with all the code running together. 
+Wrapt will automatically scaffold out unit, integration and functional tests for each of your bounded contexts using NUnit. 
+
+- **Unit tests** are meant to confirm that individual operations are working as expected 
+(e.g. PagedList calculations). 
+
+- **Integration tests** are meant to check that different areas are working together as expected (e.g. our features folder). These tests will spin up a real database in docker 
+and run each of your feature tests in an actual representation of your database. 
+
+- **Functional tests** are meant to check an entire slice of functionality with all the code running together. 
 These are generally more involved to write and maintain, but with this project setup, our controllers are essentially just routers to our feature queries and commands, so we have 
 already done the meat of our testing in our integration tests. This means that our functional tests can just confirm that we are getting the expected responses from our routes and we can call it a day.

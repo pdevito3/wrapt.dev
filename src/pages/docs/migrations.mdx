@@ -25,16 +25,16 @@ When running migrations, make sure your `UseInMemoryDatabase` setting is set to 
   dotnet tool install -g dotnet-ef
   ```
 
-2. Set your env variable (e.g. Prod) that matches the environment name in `launchsettings`:
+2. Set your env variable (e.g. Development) that matches the environment name suffixed on Startup. The default `ASPNETCORE_ENVIRONMENT` is `Production` [if none has been been set](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0).
 
   *Powershell*
   ```powershell
-  $Env:ASPNETCORE_ENVIRONMENT = "Prod"
+  $Env:ASPNETCORE_ENVIRONMENT = "Development"
   ```
 
   *Bash*
   ```bash
-  export ASPNETCORE_ENVIRONMENT=Prod
+  export ASPNETCORE_ENVIRONMENT=Development
   ```
 
 3. If you don't have any migrations for whatever reason, you can perform your first migration with something like the below where `Ordering` 

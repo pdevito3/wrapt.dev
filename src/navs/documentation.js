@@ -18,6 +18,7 @@ export const documentationNav = {
     pages['add-entity'],
     pages['add-entity-property'],
     pages['new-domain'],
+    pages['version-command'],
   ],
   'File Templates': [
     pages['bounded-contexts-template'],
