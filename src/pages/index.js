@@ -208,8 +208,8 @@ export default function Home() {
         {/* <Hero /> */}
       </header>
 
-    <div className="hidden md:block">
-      <div className="md:px-8 mt-16 md:mt-20 2xl:mt-24">
+    <div className="block">
+      <div className="px-1 md:px-8 mt-16 md:mt-20 2xl:mt-24">
         <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
           <AspectRatio ratio={16 / 9}>
             <button
@@ -245,7 +245,7 @@ export default function Home() {
 
       <Gutters>
         <div className="max-w-lg mx-auto md:max-w-4xl 2xl:max-w-5xl">
-          <div className="flex -mx-4">
+          <div className="hidden md:flex -mx-4">
             <div className="w-1/4 px-4">              
               <VideoSlider trackProps={trackPropsApiDescription} handles={handlesApiDescription} isActive={currentSegment==="apiDescription"}/>
             </div>
@@ -376,7 +376,7 @@ export default function Home() {
             </div>
           </div>
               
-          <div className="h-40 mt-3 overflow-hidden md:h-36 md:mt-10 md:text-center md:flex md:justify-center lg:h-32">
+          <div className="h-52 sm:h-40 mt-3 overflow-hidden md:h-36 md:mt-10 md:text-center md:flex md:justify-center lg:h-32">
             <FadeBetween currentSegment={currentSegment}>
               <State for="apiDescription">
                 <Text color="light-gray">
