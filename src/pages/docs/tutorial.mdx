@@ -25,12 +25,12 @@ DomainName: CarbonKitchen
 
 Next, we need to lay out each of the logical contextual boundaries within our domain (a.k.a. bounded contexts).
 In this domain, three come to mind: 1) `Recipes` to store our recipes 2) `Planning` to store our meal plans and 3) `Shopping` to store our shopping lists. 
-Let's start out with the `Recipes` bounded context and name it with a property called `SolutionName`. 
+Let's start out with the `RecipeManagement` bounded context and name it with a property called `SolutionName`. 
 
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: Recipes
+- SolutionName: RecipeManagement
 ```
 
 Then, we'll describe our database set up for each bounded context using the [DbContext](/docs/db-context) 
@@ -39,11 +39,11 @@ property. I'm also going to set port to run on locally, but this is optional.
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: Recipes
+- SolutionName: RecipeManagement
   Port: 5005
   DbContext:
    ContextName: RecipesDbContext
-   DatabaseName: RecipesDbContext
+   DatabaseName: RecipeManagement
    Provider: SqlServer
 ```
 
@@ -56,11 +56,11 @@ see what's required and what defaults are used.
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: Recipes
+- SolutionName: RecipeManagement
   Port: 5005
   DbContext:
    ContextName: RecipesDbContext
-   DatabaseName: RecipesDbContext
+   DatabaseName: RecipeManagement
    Provider: SqlServer
   Entities:
   - Name: Recipe
@@ -97,11 +97,11 @@ Note that `Entities` is a list, so we can add more than one if we want:
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: Recipes
+- SolutionName: RecipeManagement
   Port: 5005
   DbContext:
    ContextName: RecipesDbContext
-   DatabaseName: RecipesDbContext
+   DatabaseName: RecipeManagement
    Provider: SqlServer
   Entities:
   - Name: Recipe
@@ -163,11 +163,11 @@ but good to have. You can also add other optional properties like [authorization
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: Recipes
+- SolutionName: RecipeManagement
   Port: 5005
   DbContext:
    ContextName: RecipesDbContext
-   DatabaseName: RecipesDbContext
+   DatabaseName: RecipeManagement
    Provider: SqlServer
   Entities:
   - Name: Recipe
@@ -311,11 +311,11 @@ new file (using a [bounded-contexts template](/docs/bounded-contexts) to capture
 
 ```yaml
 BoundedContexts:
-- SolutionName: Shopping
+- SolutionName: ShoppingManagement
   Port: 5010
   DbContext:
    ContextName: ShoppingDbContext
-   DatabaseName: ShoppingDbContext
+   DatabaseName: ShoppingManagement
    Provider: Postgres
   Entities:
   - Name: ShoppingList
