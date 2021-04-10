@@ -455,7 +455,7 @@ export default function Home() {
               // details={'Every entity will have GET, POST, PUT, PATCH, and DELETE endpoints automatically generated for you so you can hit the ground running right away.'} 
             />
             <FeatureBlock 
-              title={'Clean Architecture'} 
+              title={'Vertical Slice Architecture'} 
               // details={'No need to learn a custom organizational structure — Wrapt Web APIs follow best in class practices with Clean Architecture to optimize for flexibility and scalability.'} 
             />
             <FeatureBlock 
@@ -463,7 +463,11 @@ export default function Home() {
               // details={'Not only will pagination metadata be returned with all your GET collection requests, but complex filtering and sorting is baked right into your repositories as well.'} 
             />
             <FeatureBlock 
-              title={'Unit and Integration Tests '} 
+              title={'Unit, Integration, & Functional Tests'} 
+              // details={'Web APIs generated with Wrapt will scaffold out unit and integration tests for you automatically, so you can make updates with confidence.'} 
+            />
+            <FeatureBlock 
+              title={'Docker Database Tests'} 
               // details={'Web APIs generated with Wrapt will scaffold out unit and integration tests for you automatically, so you can make updates with confidence.'} 
             />
             <FeatureBlock 
@@ -479,7 +483,7 @@ export default function Home() {
               // details={"Built in support to scaffold out as many environments as you'd like."} 
             />
             <FeatureBlock 
-              title={'Fluent Validation'} 
+              title={'Flexible Validation'} 
               // details={'Easily validate your HTTP endpoints using the powerful Fluent Validation library.'}
             />
             <FeatureBlock 
@@ -500,12 +504,6 @@ export default function Home() {
             <FeatureBlock 
               title={'Authorization and Scope Protection'} 
             />  
-            <FeatureBlock 
-              title={'Optional Microservice Organization'} 
-            />  
-            <FeatureBlock 
-              title={'Ocelot Gateway Scaffolding'} 
-            /> 
           </div>
         </div>
       </div>
