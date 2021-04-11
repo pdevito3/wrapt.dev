@@ -6,6 +6,7 @@ import { Header } from 'src/components/Header'
 import { ResizeObserver } from '@juggle/resize-observer'
 import { Title } from 'src/components/Title'
 import twitterLargeCard from 'src/img/twitter-large-card.jpg'
+import BlogHeader from 'src/components/BlogHeader'
 // import 'intersection-observer'
 
 if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
@@ -14,6 +15,21 @@ if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
 
 function MyApp({ Component, pageProps, router }) {
   let [navIsOpen, setNavIsOpen] = useState(false)
+  const [header, setHeader] = useState(null)
+
+  // move to state machine for fun?
+  useEffect(() => {
+    let isHomepage = router.pathname === '/';
+    let isBlog = router.pathname.startsWith("/blog");
+
+    setHeader(null);
+    if(!isHomepage){
+      setHeader(<Header navIsOpen={navIsOpen} onNavToggle={(isOpen) => setNavIsOpen(isOpen)} />);
+    }
+    if(isBlog) {
+      setHeader(<BlogHeader />)
+    }
+  }, [navIsOpen, setNavIsOpen, setHeader, router.pathname]);
 
   useEffect(() => {
     if (!navIsOpen) return
@@ -60,9 +76,7 @@ function MyApp({ Component, pageProps, router }) {
           content={`https://wrapt.dev${twitterLargeCard}`}
         />
       </Head>
-      {router.pathname !== '/' && (
-        <Header navIsOpen={navIsOpen} onNavToggle={(isOpen) => setNavIsOpen(isOpen)} />
-      )}
+      {header}
       <Layout {...layoutProps}>
         <Component {...pageProps} />
       </Layout>

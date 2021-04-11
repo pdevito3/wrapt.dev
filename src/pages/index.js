@@ -140,6 +140,11 @@ export default function Home() {
             </div>
 
             <div className="flex items-center justify-center space-x-5 sm:space-x-8">
+              <NextLink href="/blog">
+                <a className="hidden md:block text-base leading-6 font-medium hover:text-gray-600 transition-colors duration-200">
+                  Blog
+                </a>
+              </NextLink>
               <NextLink href="/docs/how-it-works">
                 <a className="hidden md:block text-base leading-6 font-medium hover:text-gray-600 transition-colors duration-200">
                   Docs

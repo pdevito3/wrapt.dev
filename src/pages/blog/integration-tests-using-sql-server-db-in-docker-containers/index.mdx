@@ -1,0 +1,898 @@
+import { pauldevito } from 'src/data/authors'
+// import image from './card.jpg'
+
+export const blogmeta = {
+  title: '.NET Core Integration Tests using a Sql Server Database in Docker Containers',
+  description: `Let's make our integration tests more reliable by dynamically spinning up a database in Docker that mimics production and makes your project easy to use on any dev box.`,
+  date: '2021-04-11 01:00:15', // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: 'Testing',
+  tags: ['docker', 'dotnet', 'net5', 'integration tests']
+}
+
+## Source Repo
+
+An example repo for all of this can be found **here**. 
+
+## Introduction
+
+So I was revamping the tests in the template projects for Wrapt and wanted to try using a real database instead of compromising for an in memory one. There’s a few reasons for this, but most notably is being able to get to your test environment as close to realistic as possible. 
+
+Setting things up with a local database isn’t terribly hard but it does require some manual steps when setting things up for the first time and requires a specific local set up. This can be automated to a degree like Jimmy Bogard does [in his Contoso repo](https://github.com/jbogard/ContosoUniversityDotNetCore-Pages/) but I was aiming for something a little different. 
+
+## An alternate approach using Docker
+
+My goal was to have a Dev to be able to clone down the repo and run these tests without having to do anything else. The first thing that came to my mind here was Docker. While the dev box does need docker installed, we don't have to worry about different local database setups or anything of that nature. 
+As long as you have Docker (and .NET essentials), you're ready to play. 
+
+Like most developers, I started out by googling around to see what others had developed and came across [this great article by Georg Dangl](https://blog.dangl.me/archive/running-sql-server-integration-tests-in-net-core-projects-via-docker/). This was a super cool concept and was a great start to what I was looking for. 
+
+## Getting set up
+
+If you took a look at the example repo, you might’ve noticed that I chose NUnit instead of XUnit. I know pretty much everybody uses XUnit and I was one of those people as well, but bear with me here.
+
+I could probably write a whole post on some of the pain points I had with XUnit, but the biggest reason I chose NUnit in this case was so I could easily set up and tear down before and after my tests. This is technically doable in XUnit but it is much more convoluted and literally goes against the  Philosophy behind the XUnit maintainers. With NUnit, I can spin up docker and a new db before I start my test and reset my database before I run each test really easily. 
+
+> Note that this tutorial goes through a set up for sql server, but you can find a postgres example **in this example repo** as well. Very similar but slight differences using npgsql.
+
+## Creating our database in Docker
+
+Starting out with a fresh NUnit project, the first thing we need to do is create a utility that can create our docker container. To do this we’re going to use an awesome library called [dotnet.docker](https://github.com/dotnet/Docker.DotNet). 
+
+Let's look at the whole class first. Again, big shout out to Georg for a great base and example in [his blog post](https://blog.dangl.me/archive/running-sql-server-integration-tests-in-net-core-projects-via-docker/).
+
+```csharp
+// based on https://blog.dangl.me/archive/running-sql-server-integration-tests-in-net-core-projects-via-docker/
+
+namespace Accessioning.IntegrationTests.TestUtilities
+{
+    using Docker.DotNet;
+    using Docker.DotNet.Models;
+    using System;
+    using System.Collections.Generic;
+    using System.Data.SqlClient;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    public static class DockerSqlDatabaseUtilities
+    {
+        public const string DB_PASSWORD = "#testingDockerPassword#";
+        public const string DB_USER = "SA";
+        public const string DB_IMAGE = "mcr.microsoft.com/mssql/server";
+        public const string DB_IMAGE_TAG = "2019-latest";
+        public const string DB_CONTAINER_NAME = "IntegrationTestingContainer_Accessioning";
+        public const string DB_VOLUME_NAME = "IntegrationTestingVolume_Accessioning";
+
+        public static async Task<(string containerId, string port)> EnsureDockerStartedAndGetContainerIdAndPortAsync()
+        {
+            await CleanupRunningContainers();
+            await CleanupRunningVolumes();
+            var dockerClient = GetDockerClient();
+            var freePort = GetFreePort();
+
+            // This call ensures that the latest SQL Server Docker image is pulled
+            await dockerClient.Images.CreateImageAsync(new ImagesCreateParameters
+            {
+                FromImage = $"{DB_IMAGE}:{DB_IMAGE_TAG}"
+            }, null, new Progress<JSONMessage>());
+
+            // create a volume, if one doesn't already exist
+            var volumeList = await dockerClient.Volumes.ListAsync();
+            var volumeCount = volumeList.Volumes.Where(v => v.Name == DB_VOLUME_NAME).Count();
+            if(volumeCount <= 0)
+            {
+                await dockerClient.Volumes.CreateAsync(new VolumesCreateParameters
+                {
+                    Name = DB_VOLUME_NAME,
+                });
+            }
+
+            // create container, if one doesn't already exist
+            var contList = await dockerClient
+                .Containers.ListContainersAsync(new ContainersListParameters() { All = true });
+            var existingCont = contList
+                .Where(c => c.Names.Any(n => n.Contains(DB_CONTAINER_NAME))).FirstOrDefault();
+
+            if (existingCont == null)
+            {
+                var sqlContainer = await dockerClient
+                    .Containers
+                    .CreateContainerAsync(new CreateContainerParameters
+                    {
+                        Name = DB_CONTAINER_NAME,
+                        Image = $"{DB_IMAGE}:{DB_IMAGE_TAG}",
+                        Env = new List<string>
+                        {
+                            "ACCEPT_EULA=Y",
+                            $"SA_PASSWORD={DB_PASSWORD}"
+                        },
+                        HostConfig = new HostConfig
+                        {
+                            PortBindings = new Dictionary<string, IList<PortBinding>>
+                            {
+                            {
+                                "1433/tcp",
+                                new PortBinding[]
+                                {
+                                    new PortBinding
+                                    {
+                                        HostPort = freePort
+                                    }
+                                }
+                            }
+                            },
+                            Binds = new List<string>
+                            {
+                                $"{DB_VOLUME_NAME}:/Accessioning_data"
+                            }
+                        },
+                    });
+
+                await dockerClient
+                    .Containers
+                    .StartContainerAsync(sqlContainer.ID, new ContainerStartParameters());
+
+                await WaitUntilDatabaseAvailableAsync(freePort);
+                return (sqlContainer.ID, freePort);
+            }
+
+            return (existingCont.ID, existingCont.Ports.FirstOrDefault().PublicPort.ToString());
+        }
+
+        private static bool IsRunningOnWindows()
+        {
+            return Environment.OSVersion.Platform == PlatformID.Win32NT;
+        }
+
+        private static DockerClient GetDockerClient()
+        {
+            var dockerUri = IsRunningOnWindows()
+                ? "npipe://./pipe/docker_engine"
+                : "unix:///var/run/docker.sock";
+            return new DockerClientConfiguration(new Uri(dockerUri))
+                .CreateClient();
+        }
+
+        private static async Task CleanupRunningContainers(int hoursTillExpiration = -24)
+        {
+            var dockerClient = GetDockerClient();
+
+            var runningContainers = await dockerClient.Containers
+                .ListContainersAsync(new ContainersListParameters());
+
+            foreach (var runningContainer in runningContainers.Where(cont => cont.Names.Any(n => n.Contains(DB_CONTAINER_NAME))))
+            {
+                // Stopping all test containers that are older than 24 hours
+                var expiration = hoursTillExpiration > 0
+                    ? hoursTillExpiration * -1
+                    : hoursTillExpiration;
+                if (runningContainer.Created < DateTime.UtcNow.AddHours(expiration))
+                {
+                    try
+                    {
+                        await EnsureDockerContainersStoppedAndRemovedAsync(runningContainer.ID);
+                    }
+                    catch
+                    {
+                        // Ignoring failures to stop running containers
+                    }
+                }
+            }
+        }
+
+        private static async Task CleanupRunningVolumes(int hoursTillExpiration = -24)
+        {
+            var dockerClient = GetDockerClient();
+
+            var runningVolumes = await dockerClient.Volumes.ListAsync();
+
+            foreach (var runningVolume in runningVolumes.Volumes.Where(v => v.Name == DB_VOLUME_NAME))
+            {
+                // Stopping all test volumes that are older than 24 hours
+                var expiration = hoursTillExpiration > 0
+                    ? hoursTillExpiration * -1
+                    : hoursTillExpiration;
+                if (DateTime.Parse(runningVolume.CreatedAt) < DateTime.UtcNow.AddHours(expiration))
+                {
+                    try
+                    {
+                        await EnsureDockerVolumesRemovedAsync(runningVolume.Name);
+                    }
+                    catch
+                    {
+                        // Ignoring failures to stop running containers
+                    }
+                }
+            }
+        }
+
+        public static async Task EnsureDockerContainersStoppedAndRemovedAsync(string dockerContainerId)
+        {
+            var dockerClient = GetDockerClient();
+            await dockerClient.Containers
+                .StopContainerAsync(dockerContainerId, new ContainerStopParameters());
+            await dockerClient.Containers
+                .RemoveContainerAsync(dockerContainerId, new ContainerRemoveParameters());
+        }
+
+        public static async Task EnsureDockerVolumesRemovedAsync(string volumeName)
+        {
+            var dockerClient = GetDockerClient();
+            await dockerClient.Volumes.RemoveAsync(volumeName);
+        }
+
+        private static async Task WaitUntilDatabaseAvailableAsync(string databasePort)
+        {
+            var start = DateTime.UtcNow;
+            const int maxWaitTimeSeconds = 60;
+            var connectionEstablished = false;
+            while (!connectionEstablished && start.AddSeconds(maxWaitTimeSeconds) > DateTime.UtcNow)
+            {
+                try
+                {
+                    var sqlConnectionString = GetSqlConnectionString(databasePort);
+                    using var sqlConnection = new SqlConnection(sqlConnectionString);
+                    await sqlConnection.OpenAsync();
+                    connectionEstablished = true;
+                }
+                catch
+                {
+                    // If opening the SQL connection fails, SQL Server is not ready yet
+                    await Task.Delay(500);
+                }
+            }
+
+            if (!connectionEstablished)
+            {
+                throw new Exception($"Connection to the SQL docker database could not be established within {maxWaitTimeSeconds} seconds.");
+            }
+
+            return;
+        }
+
+        private static string GetFreePort()
+        {
+            // From https://stackoverflow.com/a/150974/4190785
+            var tcpListener = new TcpListener(IPAddress.Loopback, 0);
+            tcpListener.Start();
+            var port = ((IPEndPoint)tcpListener.LocalEndpoint).Port;
+            tcpListener.Stop();
+            return port.ToString();
+        }
+
+        public static string GetSqlConnectionString(string port)
+        {
+            return $"Data Source=localhost,{port};" +
+                "Integrated Security=False;" +
+                $"User ID={DB_USER};" +
+                $"Password={DB_PASSWORD}";
+        }
+    }
+}
+```
+
+### Walkthrough of the Docker Utility
+
+As a reminder, the goal of this utility class is to allow us to spin up our docker container. There's a lot going on here, so let's walk through it. 
+
+We start by setting some constants to use for out container. Note that the db password [has some prereqs](https://hub.docker.com/_/microsoft-mssql-server). You can change the image to another version or a custom image that you put together and the container and volume name can be whatever you want. 
+
+```csharp
+public const string DB_PASSWORD = "#testingDockerPassword#";
+public const string DB_USER = "SA";
+public const string DB_IMAGE = "mcr.microsoft.com/mssql/server";
+public const string DB_IMAGE_TAG = "2019-latest";
+public const string DB_CONTAINER_NAME = "IntegrationTestingContainer_Accessioning";
+public const string DB_VOLUME_NAME = "IntegrationTestingVolume_Accessioning";
+```
+
+ At the beginning of our method, we are calling two clean up methods that are defined farther down. These just remove our container or volume if they are too old, with too old being whatever specification you'd like. We are also creating a new docker client instance and getting a free port with another custom method towards the bottom.
+
+```csharp
+await CleanupRunningContainers();
+await CleanupRunningVolumes();
+var dockerClient = GetDockerClient();
+var freePort = GetFreePort();
+```
+
+Then we make sure we have the image pulled.
+
+```csharp
+await dockerClient.Images.CreateImageAsync(new ImagesCreateParameters
+{
+    FromImage = $"{DB_IMAGE}:{DB_IMAGE_TAG}"
+}, null, new Progress<JSONMessage>());
+```
+
+And our volume to persist our database. This makes it so we don’t have to go through all this work and time every single time we run our tests. 
+
+```csharp
+var volumeList = await dockerClient.Volumes.ListAsync();
+var volumeCount = volumeList.Volumes.Where(v => v.Name == DB_VOLUME_NAME).Count();
+if(volumeCount <= 0)
+{
+    await dockerClient.Volumes.CreateAsync(new VolumesCreateParameters
+    {
+        Name = DB_VOLUME_NAME,
+    });
+}
+```
+
+Then we will actually create the container. First, we're checking to see if the container exists. If it does, we skip this and save some time! If it doesn't, we'll create a new container. This is where all the container details are set, including the name, the image we want to use, the environment variables, appropriate ports (sql server exposes 1443), and the volume we want to mount to.
+
+```csharp
+var contList = await dockerClient
+    .Containers.ListContainersAsync(new ContainersListParameters() { All = true });
+var existingCont = contList
+    .Where(c => c.Names.Any(n => n.Contains(DB_CONTAINER_NAME))).FirstOrDefault();
+
+if (existingCont == null)
+{
+    var sqlContainer = await dockerClient
+        .Containers
+        .CreateContainerAsync(new CreateContainerParameters
+        {
+            Name = DB_CONTAINER_NAME,
+            Image = $"{DB_IMAGE}:{DB_IMAGE_TAG}",
+            Env = new List<string>
+            {
+                "ACCEPT_EULA=Y",
+                $"SA_PASSWORD={DB_PASSWORD}"
+            },
+            HostConfig = new HostConfig
+            {
+                PortBindings = new Dictionary<string, IList<PortBinding>>
+                {
+                {
+                    "1433/tcp",
+                    new PortBinding[]
+                    {
+                        new PortBinding
+                        {
+                            HostPort = freePort
+                        }
+                    }
+                }
+                },
+                Binds = new List<string>
+                {
+                    $"{DB_VOLUME_NAME}:/Accessioning_data"
+                }
+            },
+        });
+```
+
+Now we can actually create the container 
+
+```csharp
+await dockerClient
+    .Containers
+    .StartContainerAsync(sqlContainer.ID, new ContainerStartParameters());
+```
+
+Next, we want to make sure our db is set up in our container and return the container info when we're done.
+
+```csharp
+    /// prior code in conditional
+    await WaitUntilDatabaseAvailableAsync(freePort);
+    return (sqlContainer.ID, freePort);
+}
+
+return (existingCont.ID, existingCont.Ports.FirstOrDefault().PublicPort.ToString());
+```
+
+Then we have our helper methods that we used above. Starting with out Docker client creation.
+
+```csharp
+private static bool IsRunningOnWindows()
+{
+    return Environment.OSVersion.Platform == PlatformID.Win32NT;
+}
+
+private static DockerClient GetDockerClient()
+{
+    var dockerUri = IsRunningOnWindows()
+        ? "npipe://./pipe/docker_engine"
+        : "unix:///var/run/docker.sock";
+    return new DockerClientConfiguration(new Uri(dockerUri))
+        .CreateClient();
+}
+```
+
+Then our cleanup methods. These are set to remove the container and volume if they are older than 24 hours. I chose 24 hours because it's long enough to make it where you're not wasting time throughout the day constantly spinning up and dropping your docker config, but also not too long where it could go stale. 
+
+```csharp
+private static async Task CleanupRunningContainers(int hoursTillExpiration = -24)
+{
+    var dockerClient = GetDockerClient();
+
+    var runningContainers = await dockerClient.Containers
+        .ListContainersAsync(new ContainersListParameters());
+
+    foreach (var runningContainer in runningContainers.Where(cont => cont.Names.Any(n => n.Contains(DB_CONTAINER_NAME))))
+    {
+        // Stopping all test containers that are older than 24 hours
+        var expiration = hoursTillExpiration > 0
+            ? hoursTillExpiration * -1
+            : hoursTillExpiration;
+        if (runningContainer.Created < DateTime.UtcNow.AddHours(expiration))
+        {
+            try
+            {
+                await EnsureDockerContainersStoppedAndRemovedAsync(runningContainer.ID);
+            }
+            catch
+            {
+                // Ignoring failures to stop running containers
+            }
+        }
+    }
+}
+
+private static async Task CleanupRunningVolumes(int hoursTillExpiration = -24)
+{
+    var dockerClient = GetDockerClient();
+
+    var runningVolumes = await dockerClient.Volumes.ListAsync();
+
+    foreach (var runningVolume in runningVolumes.Volumes.Where(v => v.Name == DB_VOLUME_NAME))
+    {
+        // Stopping all test volumes that are older than 24 hours
+        var expiration = hoursTillExpiration > 0
+            ? hoursTillExpiration * -1
+            : hoursTillExpiration;
+        if (DateTime.Parse(runningVolume.CreatedAt) < DateTime.UtcNow.AddHours(expiration))
+        {
+            try
+            {
+                await EnsureDockerVolumesRemovedAsync(runningVolume.Name);
+            }
+            catch
+            {
+                // Ignoring failures to stop running containers
+            }
+        }
+    }
+}
+
+public static async Task EnsureDockerContainersStoppedAndRemovedAsync(string dockerContainerId)
+{
+    var dockerClient = GetDockerClient();
+    await dockerClient.Containers
+        .StopContainerAsync(dockerContainerId, new ContainerStopParameters());
+    await dockerClient.Containers
+        .RemoveContainerAsync(dockerContainerId, new ContainerRemoveParameters());
+}
+
+public static async Task EnsureDockerVolumesRemovedAsync(string volumeName)
+{
+    var dockerClient = GetDockerClient();
+    await dockerClient.Volumes.RemoveAsync(volumeName);
+}
+```
+
+Then we have a method to confirm that our database is available.
+
+```csharp
+private static async Task WaitUntilDatabaseAvailableAsync(string databasePort)
+{
+    var start = DateTime.UtcNow;
+    const int maxWaitTimeSeconds = 60;
+    var connectionEstablished= false;
+    while (!connectionEstablished&& start.AddSeconds(maxWaitTimeSeconds) > DateTime.UtcNow)
+    {
+        try
+        {
+            var sqlConnectionString = GetSqlConnectionString(databasePort);
+            using var sqlConnection = new SqlConnection(sqlConnectionString);
+            await sqlConnection.OpenAsync();
+            connectionEstablished= true;
+        }
+        catch
+        {
+            // If opening the SQL connection fails, SQL Server is not ready yet
+            await Task.Delay(500);
+        }
+    }
+
+    if (!connectionEstablished)
+    {
+        throw new Exception($"Connection to the SQL docker database could not be established within {maxWaitTimeSeconds} seconds.");
+    }
+
+    return;
+}
+```
+
+And that's our docker utility! Now let's bring it in to our tests.
+
+## Setting Up Our One Time Test Fixture
+
+Now that we have a utility built than can spin up all of the docker stuff for us, we need to add it to our tests. The goal is to spin this all up once before we run our tests and then we can wipe the database before we run each test so we can start with a clean slate.
+
+To do this, we are going to use NUnit's `[SetUpFixture]`. Here's the entire fixture class. It's a mix of [Jason Taylor's example fixture](https://github.com/jasontaylordev/CleanArchitecture/blob/main/tests/Application.IntegrationTests/Testing.cs), [Jimmy Bogard's example fixture](https://github.com/jbogard/ContosoUniversityDotNetCore-Pages/blob/master/ContosoUniversity.IntegrationTests/SliceFixture.cs), and my own spin on things to integrate the docker db.
+
+```csharp
+namespace Accessioning.IntegrationTests
+{
+    using Accessioning.Infrastructure.Contexts;
+    using Accessioning.IntegrationTests.TestUtilities;
+    using Accessioning.WebApi;
+    using MediatR;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Moq;
+    using NUnit.Framework;
+    using Respawn;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
+
+    [SetUpFixture]
+    public class TestFixture
+    {
+        private static IConfigurationRoot _configuration;
+        private static IWebHostEnvironment _env;
+        private static IServiceScopeFactory _scopeFactory;
+        private static Checkpoint _checkpoint;
+
+        private string _dockerContainerId;
+        private string _dockerSqlPort;
+
+        [OneTimeSetUp]
+        public async Task RunBeforeAnyTests()
+        {
+
+            (_dockerContainerId, _dockerSqlPort) = await DockerSqlDatabaseUtilities.EnsureDockerStartedAndGetContainerIdAndPortAsync();
+            var dockerConnectionString = DockerSqlDatabaseUtilities.GetSqlConnectionString(_dockerSqlPort);
+
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        { "UseInMemoryDatabase", "false" },
+                        { "ConnectionStrings:AccessioningDbContext", dockerConnectionString }
+                    })
+                .AddEnvironmentVariables();
+
+            _configuration = builder.Build();
+            _env = Mock.Of<IWebHostEnvironment>();
+
+            var startup = new Startup(_configuration, _env);
+
+            var services = new ServiceCollection();
+
+            services.AddLogging();
+
+            startup.ConfigureServices(services);
+
+            _scopeFactory = services.BuildServiceProvider().GetService<IServiceScopeFactory>();
+
+            _checkpoint = new Checkpoint
+            {
+                TablesToIgnore = new[] { "__EFMigrationsHistory" },
+            };
+
+            EnsureDatabase();
+        }
+
+        private static void EnsureDatabase()
+        {
+            using var scope = _scopeFactory.CreateScope();
+
+            var context = scope.ServiceProvider.GetService<AccessioningDbContext>();
+            
+            context.Database.Migrate();
+        }
+
+        public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
+        {
+            using var scope = _scopeFactory.CreateScope();
+
+            var mediator = scope.ServiceProvider.GetService<ISender>();
+
+            return await mediator.Send(request);
+        }
+
+        public static async Task ResetState()
+        {
+            await _checkpoint.Reset(_configuration.GetConnectionString("AccessioningDbContext"));
+        }
+
+        public static async Task<TEntity> FindAsync<TEntity>(params object[] keyValues)
+            where TEntity : class
+        {
+            using var scope = _scopeFactory.CreateScope();
+
+            var context = scope.ServiceProvider.GetService<AccessioningDbContext>();
+
+            return await context.FindAsync<TEntity>(keyValues);
+        }
+
+        public static async Task AddAsync<TEntity>(TEntity entity)
+            where TEntity : class
+        {
+            using var scope = _scopeFactory.CreateScope();
+
+            var context = scope.ServiceProvider.GetService<AccessioningDbContext>();
+
+            context.Add(entity);
+
+            await context.SaveChangesAsync();
+        }
+
+        public static async Task ExecuteScopeAsync(Func<IServiceProvider, Task> action)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AccessioningDbContext>();
+
+            try
+            {
+                //await dbContext.BeginTransactionAsync();
+
+                await action(scope.ServiceProvider);
+
+                //await dbContext.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                //dbContext.RollbackTransaction();
+                throw;
+            }
+        }
+
+        public static async Task<T> ExecuteScopeAsync<T>(Func<IServiceProvider, Task<T>> action)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AccessioningDbContext>();
+
+            try
+            {
+                var result = await action(scope.ServiceProvider);
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public static Task ExecuteDbContextAsync(Func<AccessioningDbContext, Task> action)
+            => ExecuteScopeAsync(sp => action(sp.GetService<AccessioningDbContext>()));
+
+        public static Task ExecuteDbContextAsync(Func<AccessioningDbContext, ValueTask> action)
+            => ExecuteScopeAsync(sp => action(sp.GetService<AccessioningDbContext>()).AsTask());
+
+        public static Task ExecuteDbContextAsync(Func<AccessioningDbContext, IMediator, Task> action)
+            => ExecuteScopeAsync(sp => action(sp.GetService<AccessioningDbContext>(), sp.GetService<IMediator>()));
+
+        public static Task<T> ExecuteDbContextAsync<T>(Func<AccessioningDbContext, Task<T>> action)
+            => ExecuteScopeAsync(sp => action(sp.GetService<AccessioningDbContext>()));
+
+        public static Task<T> ExecuteDbContextAsync<T>(Func<AccessioningDbContext, ValueTask<T>> action)
+            => ExecuteScopeAsync(sp => action(sp.GetService<AccessioningDbContext>()).AsTask());
+
+        public static Task<T> ExecuteDbContextAsync<T>(Func<AccessioningDbContext, IMediator, Task<T>> action)
+            => ExecuteScopeAsync(sp => action(sp.GetService<AccessioningDbContext>(), sp.GetService<IMediator>()));
+
+        public static Task<int> InsertAsync<T>(params T[] entities) where T : class
+        {
+            return ExecuteDbContextAsync(db =>
+            {
+                foreach (var entity in entities)
+                {
+                    db.Set<T>().Add(entity);
+                }
+                return db.SaveChangesAsync();
+            });
+        }
+
+        [OneTimeTearDown]
+        public Task RunAfterAnyTests()
+        {
+            return Task.CompletedTask;
+        }
+    }
+}
+```
+
+### Walkthrough of the Fixture
+
+Starting out, you'll notice that we have the `[SetUpFixture]` attribute on our class to denote that this should be run once before all of our tests. We also have some private fields and the method to implement our `OneTimeSetUp`. This starts out by immediately getting our docker config set up.
+
+```csharp
+private static IConfigurationRoot _configuration;
+private static IWebHostEnvironment _env;
+private static IServiceScopeFactory _scopeFactory;
+private static Checkpoint _checkpoint;
+//private static string _currentUserId;
+
+private string _dockerContainerId;
+private string _dockerSqlPort;
+
+[OneTimeSetUp]
+public async Task RunBeforeAnyTests()
+{
+
+    (_dockerContainerId, _dockerSqlPort) = await DockerSqlDatabaseUtilities.EnsureDockerStartedAndGetContainerIdAndPortAsync();
+    var dockerConnectionString = DockerSqlDatabaseUtilities.GetSqlConnectionString(_dockerSqlPort);
+
+//... more to come
+```
+
+Then we create a new `ConfigurationBuilder` that has our connection string from docker.
+
+```csharp
+var builder = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddInMemoryCollection(new Dictionary<string, string>
+        {
+            { "UseInMemoryDatabase", "false" },
+            { "ConnectionStrings:AccessioningDbContext", dockerConnectionString }
+        })
+    .AddEnvironmentVariables();
+
+_configuration = builder.Build();
+_env = Mock.Of<IWebHostEnvironment>();
+
+var startup = new Startup(_configuration, _env);
+
+var services = new ServiceCollection();
+
+services.AddLogging();
+
+startup.ConfigureServices(services);
+
+_scopeFactory = services.BuildServiceProvider().GetService<IServiceScopeFactory>();
+```
+
+Note that the connection string should match whatever your DbContext service is configured for in your startup. In my case, it looks something like this. 
+
+```csharp
+if (configuration.GetValue<bool>("UseInMemoryDatabase"))
+{
+    services.AddDbContext<AccessioningDbContext>(options =>
+        options.UseInMemoryDatabase($"AccessioningDbContext"));
+}
+else
+{
+    services.AddDbContext<AccessioningDbContext>(options =>
+        options.UseSqlServer(
+            configuration.GetConnectionString("AccessioningDbContext"),
+            builder => builder.MigrationsAssembly(typeof(AccessioningDbContext).Assembly.FullName)));
+}
+```
+
+Then we create a new [Respawn](https://github.com/jbogard/Respawn) checkpoint and run a custom `EnsureDatabase` method. If you're not familiar with Respawn, it is a simple library that lets you easily reset your db to a particular checkpoint.
+
+The `EnsureDatabase` method makes sure that our database is configured. The important part is the the migration to set up the database with the proper schema.
+
+> Note that you need to have migrations for this to work! Without a migration, we don't have any way to set up the database schema in our docker container.
+
+```csharp
+	_checkpoint = new Checkpoint
+	{
+	    TablesToIgnore = new[] { "__EFMigrationsHistory" },
+	};
+	
+	EnsureDatabase();
+}
+
+private static void EnsureDatabase()
+{
+	using var scope = _scopeFactory.CreateScope();
+	
+	var context = scope.ServiceProvider.GetService<AccessioningDbContext>();
+	
+	context.Database.Migrate();
+}
+```
+
+After that, we have a bunch of utility methods to help us interact with everything and make our tests a bit cleaner. I'm not going to bother copying and pasting it again. This is already getting to be really long!
+
+## Writing Our Tests
+
+So we have our docker utility to spin up our database in docker and we have a fixture to get everything set up before our tests start, but now we need to write our tests.
+
+The meat of what's in the tests is somewhat project specific, so I won't go into a ton of detail on what's happening there, but let's make sure we have the testing architecture set up so you can add whatever is needed to your tests.
+
+Let's look at an example test.
+
+```csharp
+namespace Accessioning.IntegrationTests.FeatureTests.Patient
+{
+    using Accessioning.SharedTestHelpers.Fakes.Patient;
+    using Accessioning.IntegrationTests.TestUtilities;
+    using FluentAssertions;
+    using Microsoft.EntityFrameworkCore;
+    using NUnit.Framework;
+    using System.Threading.Tasks;
+    using static Accessioning.WebApi.Features.Patients.DeletePatient;
+    using static TestFixture;
+
+    public class DeletePatientCommandTests : TestBase
+    {
+        [Test]
+        public async Task DeletePatientCommand_Deletes_Patient_From_Db()
+        {
+            // Arrange
+            var fakePatientOne = new FakePatient { }.Generate();
+            await InsertAsync(fakePatientOne);
+            var patient = await ExecuteDbContextAsync(db => db.Patients.SingleOrDefaultAsync());
+            var patientId = patient.PatientId;
+
+            // Act
+            var command = new DeletePatientCommand(patientId);
+            await SendAsync(command);
+            var patients = await ExecuteDbContextAsync(db => db.Patients.ToListAsync());
+
+            // Assert
+            patients.Count.Should().Be(0);
+        }
+    }
+}
+```
+
+The first thing to notice here is that I have this `TestBase` class that I'm inheriting from. This is a pattern directly from [Jason Taylor's example project](https://github.com/nickdodd79/AutoBogus) that will actually run the method that resets the database to a clean state before each test. It's pretty simple.
+
+```csharp
+namespace Accessioning.IntegrationTests
+{
+    using NUnit.Framework;
+    using System.Threading.Tasks;
+    using static TestFixture;
+
+    public class TestBase
+    {
+        [SetUp]
+        public async Task TestSetUp()
+        {
+            await ResetState();
+        }
+    }
+}
+```
+
+Okay, so back to the test. My arrange step is setting up the database using [Autobogus](https://github.com/nickdodd79/AutoBogus) to create a dummy record as well as the helper methods that we made in the TestFixture. You can likely do something similar to this.
+
+```csharp
+  // Arrange
+  var fakePatientOne = new FakePatient { }.Generate();
+  await InsertAsync(fakePatientOne);
+  var patient = await ExecuteDbContextAsync(db => db.Patients.SingleOrDefaultAsync());
+  var patientId = patient.PatientId;
+```
+
+For the Act phase, things might be a bit different for you depending on your implementation. In this project, I am using a vertical slice architecture which, in part, uses CQRS commands with [MediatR](https://github.com/jbogard/MediatR). One of the many reasons I like this is because it is easy to test like this, but however your project is set up, this is where you action is going to happen. You could have a repository call here or a variety of other things.
+
+```csharp
+  // Act
+  var command = new DeletePatientCommand(patientId);
+  await SendAsync(command);
+  var patients = await ExecuteDbContextAsync(db => db.Patients.ToListAsync());
+```
+
+And my Assert phase is pretty simple here. I'm just making sure that the record is gone. I can check for a count of `0` here because I wiped the db before the test ran and it is completely empty other than what I added in my Arrange step.
+
+```csharp
+  // Assert
+  patients.Count.Should().Be(0);
+```
+
+## What about Unit and Functional Tests?
+
+As you may have noticed, this is covering integration tests for my features, but doesn't have unit tests or functional tests. Each of these is a separate project in my `tests` directory with my unit tests doing smaller domain level logic and the functional tests essentially acting as just endpoint checks as my main business logic behind each of those is covered in the integration tests. I may do another post about this in the future in more detail.
+
+## Using this in Your Projects
+
+If you're starting a new project, you may want to consider using [Wrapt](https://wrapt.dev) to scaffold it out for you. All of the above (and a lot more) will get scaffolded out for you automatically without having to lift a finger 🚀
+
+Regardless, I hope this was helpful! I'd love to hear your thoughts and how your implementations are working [on Twitter](https://twitter.com/pdevito3) @pdevito3.

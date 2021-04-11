@@ -42,6 +42,7 @@
     "simple-functional-loader": "^1.2.1",
     "stringify-object": "^3.3.0",
     "tailwindcss": "^2.0.1",
-    "tailwindcss-question-mark": "^0.1.0"
+    "tailwindcss-question-mark": "^0.1.0",
+    "tinytime": "^0.2.6"
   }
 }
