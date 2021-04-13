@@ -133,9 +133,9 @@ export default function Home() {
       <header className="relative z-10 max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl mx-auto">
         <div className="px-4 sm:px-6 md:px-8">
           <div className="border-b border-gray-200 py-1 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex flex-1 items-center space-x-10 sm:space-x-15 max-w-2xl pr-2 py-2 sm:py-0">
-              <LogoNoText className={"h-12 w-auto sm:hidden"}  />
-              <LogoWithText className={"h-16 w-auto hidden sm:block"}  />
+            <div className="flex flex-1 items-center space-x-10 md:space-x-15 max-w-2xl pr-2 py-2 sm:py-0">
+              <LogoNoText className={"h-12 w-auto lg:hidden"}  />
+              <LogoWithText className={"h-16 w-auto hidden lg:block"}  />
               <Search setSearchIsOpen={setSearchIsOpen} />
             </div>
 
