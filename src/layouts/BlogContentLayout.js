@@ -48,7 +48,7 @@ export function BlogContentLayout({ children, blogmeta }) {
             
             <div className="py-2">
               <span className="sr-only">Category</span>
-              <p class="font-medium text-purple-600 uppercase">
+              <p className="font-medium text-violet-600 uppercase">
                 {blogmeta.category}
               </p>
             </div>
@@ -56,7 +56,7 @@ export function BlogContentLayout({ children, blogmeta }) {
             <div className="hidden sm:block py-3">
               <ul className="flex items-center justify-center space-x-3">
               {blogmeta.tags.map((tag) => (
-                <li><BlogTag tag={tag} /></li>
+                <li><BlogTag key={tag} tag={tag} /></li>
               ))}
               </ul>
             </div>
@@ -84,7 +84,7 @@ export function BlogContentLayout({ children, blogmeta }) {
                       <dd>
                         <a
                           href={`https://twitter.com/${author.twitter}`}
-                          className="text-purple-500 hover:text-purple-600"
+                          className="text-violet-500 hover:text-violet-600"
                         >
                           @{author.twitter}
                         </a>
@@ -110,7 +110,7 @@ export function BlogContentLayout({ children, blogmeta }) {
         <footer className="text-sm font-medium leading-5 divide-y divide-gray-200 xl:col-start-1 xl:row-start-2">
           <div className="pt-8">
             <NextLink href="/">
-              <a className="text-purple-500 hover:text-purple-600">&larr; Back to the blog</a>
+              <a className="text-violet-500 hover:text-violet-600">&larr; Back to the blog</a>
             </NextLink>
           </div>
         </footer>
@@ -121,7 +121,7 @@ export function BlogContentLayout({ children, blogmeta }) {
           <div className="pt-6 pb-16">
             <p>
               Want to talk about this post?{' '}
-              <a href={blogmeta.discussion} className="font-medium text-purple-500 hover:text-purple-600">
+              <a href={blogmeta.discussion} className="font-medium text-violet-500 hover:text-violet-600">
                 Discuss this on GitHub &rarr;
               </a>
             </p>

@@ -40,10 +40,10 @@ function index() {
         <div className="mt-4 md:mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
           {posts.map(({ link, module: { default: { layoutProps: { blogmeta } } }  }) => {
             return (
-              <div className="flex flex-col rounded-lg shadow-lg overflow-hidden">
+              <div key={link} className="flex flex-col rounded-lg shadow-lg overflow-hidden">
                 <div className="flex-1 bg-white p-6 flex flex-col justify-between">
                   <div className="flex-1">
-                    <Link href={`blog${link}`}>
+                    <Link href={`/blog${link}`}>
                       <a className="block mt-2">
                         <p className="text-xl font-semibold text-gray-900">
                           {blogmeta.title}
@@ -51,10 +51,10 @@ function index() {
                         <div className="py-1.5">
                           {/* {blogmeta.tags.slice(0, 1).map((tag) => {
                             return (
-                              <BlogTag tag={tag} />
+                              <BlogTag key={tag} tag={tag} />
                             )
                           })} */}
-                          <p class="text-sm font-medium text-purple-600 uppercase">
+                          <p className="text-sm font-medium text-purple-600 uppercase">
                             {blogmeta.category}
                           </p>
                         </div>
