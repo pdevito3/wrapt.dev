@@ -27,6 +27,9 @@ function index() {
         <meta key="og:image" name="og:image" content={`https://wrapt.dev${twitterBlogCard}`} />
         <title>Blog – Wrapt</title>
         <meta name="description" content="Keep up with useful web dev tips and follow my progress on building Craftsman." />
+        <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="/feed.xml" />
+        <link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="/atom.xml" />
+        <link rel="alternate" type="application/json" title="JSON Feed" href="/feed.json" />
       </Head>
       <div className="pt-6 pb-4 space-y-2 md:space-y-5">
         <h1 className="text-3xl leading-9 font-extrabold text-gray-900 tracking-tight sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
