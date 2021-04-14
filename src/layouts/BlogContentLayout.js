@@ -56,7 +56,7 @@ export function BlogContentLayout({ children, blogmeta }) {
             <div className="hidden sm:block py-3">
               <ul className="flex items-center justify-center space-x-3">
               {blogmeta.tags.map((tag) => (
-                <li><BlogTag key={tag} tag={tag} /></li>
+                <li key={tag}><BlogTag tag={tag} /></li>
               ))}
               </ul>
             </div>
