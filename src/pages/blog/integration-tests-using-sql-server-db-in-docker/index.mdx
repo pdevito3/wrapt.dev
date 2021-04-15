@@ -13,7 +13,7 @@ export const blogmeta = {
 
 ## Source Repo
 
-An example repo for all of this can be found **here**. 
+An example repo for all of this can be found [on my github](https://github.com/pdevito3/craftsman-examples/blob/master/v0.9.3/new-domain/complex/complex/Billing).
 
 ## Introduction
 
@@ -34,13 +34,21 @@ If you took a look at the example repo, you might’ve noticed that I chose NUni
 
 I could probably write a whole post on some of the pain points I had with XUnit, but the biggest reason I chose NUnit in this case was so I could easily set up and tear down before and after my tests. This is technically doable in XUnit but it is much more convoluted and literally goes against the  Philosophy behind the XUnit maintainers. With NUnit, I can spin up docker and a new db before I start my test and reset my database before I run each test really easily. 
 
-> Note that this tutorial goes through a set up for sql server, but you can find a postgres example **in this example repo** as well. Very similar but slight differences using npgsql.
+### Using Databases Other Than Sql Server
+While this tutorial goes through a set up for Sql Server, you can do this with other databases as well. You can find an example for postgres in [this repo for reference](https://github.com/pdevito3/craftsman-examples/blob/master/v0.9.3/new-domain/complex/complex/Billing/tests/Billing.IntegrationTests).
 
-## Creating our database in Docker
+Some files to note in here are the: 
+- [Docker Utilities file](https://github.com/pdevito3/craftsman-examples/blob/master/v0.9.3/new-domain/complex/complex/Billing/tests/Billing.IntegrationTests/TestUtilities/DockerDatabaseUtilities.cs)
+- [Text Fixture file](https://github.com/pdevito3/craftsman-examples/blob/master/v0.9.3/new-domain/complex/complex/Billing/tests/Billing.IntegrationTests/TestFixture.cs)
+- [Test Base file](https://github.com/pdevito3/craftsman-examples/blob/master/v0.9.3/new-domain/complex/complex/Billing/tests/Billing.IntegrationTests/TestBase.cs)
 
-Starting out with a fresh NUnit project, the first thing we need to do is create a utility that can create our docker container. To do this we’re going to use an awesome library called [dotnet.docker](https://github.com/dotnet/Docker.DotNet). 
+The setup is *very* similar, with only slight differences using [npgsql](https://github.com/npgsql/npgsql).
 
-Let's look at the whole class first. Again, big shout out to Georg for a great base and example in [his blog post](https://blog.dangl.me/archive/running-sql-server-integration-tests-in-net-core-projects-via-docker/).
+## Creating a Database in Docker
+
+Starting out with a fresh NUnit project, the first thing we need to do is create a utility that can create our docker container. To do this we’re going to use an awesome library called [Docker.DotNet](https://github.com/dotnet/Docker.DotNet). 
+
+Let's look at the whole class first. Again, big shout out to Georg for a great base and write up in [his blog post](https://blog.dangl.me/archive/running-sql-server-integration-tests-in-net-core-projects-via-docker/).
 
 ```csharp
 // based on https://blog.dangl.me/archive/running-sql-server-integration-tests-in-net-core-projects-via-docker/
@@ -290,7 +298,7 @@ public const string DB_CONTAINER_NAME = "IntegrationTestingContainer_Accessionin
 public const string DB_VOLUME_NAME = "IntegrationTestingVolume_Accessioning";
 ```
 
- At the beginning of our method, we are calling two clean up methods that are defined farther down. These just remove our container or volume if they are too old, with too old being whatever specification you'd like. We are also creating a new docker client instance and getting a free port with another custom method towards the bottom.
+ At the beginning of our method, we are calling two clean up methods that are defined farther down. These just remove our container or volume if they are too old, with too old being whatever specification you'd like (in this example, > 24 hours old). We are also creating a new docker client instance and getting a free port with another custom method towards the bottom.
 
 ```csharp
 await CleanupRunningContainers();
@@ -366,7 +374,7 @@ if (existingCont == null)
         });
 ```
 
-Now we can actually create the container 
+Now we can actually create the container.
 
 ```csharp
 await dockerClient
@@ -374,7 +382,7 @@ await dockerClient
     .StartContainerAsync(sqlContainer.ID, new ContainerStartParameters());
 ```
 
-Next, we want to make sure our db is set up in our container and return the container info when we're done.
+Next, we want to make sure our db is set up in our container and that we return the container info when we're done.
 
 ```csharp
     /// prior code in conditional
@@ -508,13 +516,15 @@ private static async Task WaitUntilDatabaseAvailableAsync(string databasePort)
 }
 ```
 
-And that's our docker utility! Now let's bring it in to our tests.
+And that's our docker utility! I know that was a lot. You'll may have to read through it a couple times to get it to sink in, but it will be worth it!
+
+Okay, now let's bring it in to our tests.
 
 ## Setting Up Our One Time Test Fixture
 
-Now that we have a utility built than can spin up all of the docker stuff for us, we need to add it to our tests. The goal is to spin this all up once before we run our tests and then we can wipe the database before we run each test so we can start with a clean slate.
+Now that we have a utility built than can spin up all of the docker stuff for us, we need to add it to our tests. The goal is to spin this all up **once before we run our tests** and then we can wipe the database before we run each test so we can start with a clean slate.
 
-To do this, we are going to use NUnit's `[SetUpFixture]`. Here's the entire fixture class. It's a mix of [Jason Taylor's example fixture](https://github.com/jasontaylordev/CleanArchitecture/blob/main/tests/Application.IntegrationTests/Testing.cs), [Jimmy Bogard's example fixture](https://github.com/jbogard/ContosoUniversityDotNetCore-Pages/blob/master/ContosoUniversity.IntegrationTests/SliceFixture.cs), and my own spin on things to integrate the docker db.
+To do this, we are going to use NUnit's `[SetUpFixture]`. Below is the entire fixture class. It's a mix of [Jason Taylor's example fixture](https://github.com/jasontaylordev/CleanArchitecture/blob/main/tests/Application.IntegrationTests/Testing.cs), [Jimmy Bogard's example fixture](https://github.com/jbogard/ContosoUniversityDotNetCore-Pages/blob/master/ContosoUniversity.IntegrationTests/SliceFixture.cs), and my own spin on things to integrate the docker db.
 
 ```csharp
 namespace Accessioning.IntegrationTests
@@ -637,15 +647,10 @@ namespace Accessioning.IntegrationTests
 
             try
             {
-                //await dbContext.BeginTransactionAsync();
-
                 await action(scope.ServiceProvider);
-
-                //await dbContext.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                //dbContext.RollbackTransaction();
                 throw;
             }
         }
@@ -714,7 +719,6 @@ private static IConfigurationRoot _configuration;
 private static IWebHostEnvironment _env;
 private static IServiceScopeFactory _scopeFactory;
 private static Checkpoint _checkpoint;
-//private static string _currentUserId;
 
 private string _dockerContainerId;
 private string _dockerSqlPort;
@@ -801,11 +805,11 @@ After that, we have a bunch of utility methods to help us interact with everythi
 
 ## Writing Our Tests
 
-So we have our docker utility to spin up our database in docker and we have a fixture to get everything set up before our tests start, but now we need to write our tests.
+So we have our docker utility to spin up our database in docker and we have a fixture to get everything set up before our tests start, but now we need to actually write our tests!
 
 The meat of what's in the tests is somewhat project specific, so I won't go into a ton of detail on what's happening there, but let's make sure we have the testing architecture set up so you can add whatever is needed to your tests.
 
-Let's look at an example test.
+Let's look at an example:
 
 ```csharp
 namespace Accessioning.IntegrationTests.FeatureTests.Patient
@@ -889,11 +893,9 @@ And my Assert phase is pretty simple here. I'm just making sure that the record 
 ```
 
 ## What about Unit and Functional Tests?
-
 As you may have noticed, this is covering integration tests for my features, but doesn't have unit tests or functional tests. Each of these is a separate project in my `tests` directory with my unit tests doing smaller domain level logic and the functional tests essentially acting as just endpoint checks as my main business logic behind each of those is covered in the integration tests. I may do another post about this in the future in more detail.
 
 ## Using this in Your Projects
-
-If you're starting a new project, you may want to consider using [Wrapt](https://wrapt.dev) to scaffold it out for you. All of the above (and a lot more) will get scaffolded out for you automatically without having to lift a finger 🚀
+If you're starting a new project, you may want to consider using [Wrapt](https://wrapt.dev). All of the above (and a lot more) will get scaffolded out for you automatically without having to lift a finger 🚀
 
 Regardless, I hope this was helpful! I'd love to hear your thoughts and how your implementations are working [on Twitter](https://twitter.com/pdevito3) @pdevito3.
