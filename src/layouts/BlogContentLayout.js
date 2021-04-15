@@ -9,6 +9,7 @@ import { MDXProvider } from '@mdx-js/react'
 import twitterLargeBlogCard from 'src/img/twitter-large-blog-card.jpg'
 import tinytime from 'tinytime'
 import BlogTag from 'src/components/BlogTag'
+import smallCard from 'src/img/twitter-square.jpg'
 
 export function BlogContentLayout({ children, blogmeta }) {
   const mdxComponents = {
@@ -31,12 +32,29 @@ export function BlogContentLayout({ children, blogmeta }) {
         <meta name="twitter:creator" content="@pdevito3" />
         <meta name="twitter:title" content={`${blogmeta.title} – Wrapt`} />
         <meta name="twitter:description" content={blogmeta.description} />
-        <meta key="twitter:image" name="twitter:image" content={`https://wrapt.dev${twitterLargeBlogCard}`} />
+        {blogmeta.image ? 
+          (
+            <>
+              <meta name="twitter:card" content="summary_large_image" />
+              <meta
+                name="twitter:image"
+                content={`https://wrapt.dev/blog$${blogmeta.image}`}
+              />
+            </>
+          ) : (
+            <>
+              <meta name="twitter:card" content="summary" />
+              <meta
+                name="twitter:image"
+                content={`https://wrapt.dev/blog$${smallCard}`}
+              />
+            </>
+        )}
         <meta key="og:url" property="og:url" content={`https://wrapt.dev${router.pathname}`} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={`${blogmeta.title} – Wrapt`} />
         <meta property="og:description" content={blogmeta.description} />
-        <meta key="og:image" name="og:image" content={`https://wrapt.dev${twitterLargeBlogCard}`} />
+        <meta property="og:image" content={`https:/wrapt.dev/blog${blogmeta.image}`} />
         <meta name="description" content={blogmeta.description}></meta>
       </Head>
       <header className="">
