@@ -16,9 +16,22 @@ function classNames(...classes) {
 }
 
 function index() {
-  const posts = getAllPostPreviews();
-  const tags = [...new Set(posts.flatMap(post => post.module.default.layoutProps.blogmeta.tags))].sort();
   const postDateTemplate = tinytime('{dddd}, {MMMM} {DD}, {YYYY}');
+  const posts = getAllPostPreviews();
+
+  const [filteredPosts, setFilteredPosts] = useState(getAllPostPreviews());
+  const [tagFilter, setTagFilter] = useState(null)
+  
+  const tags = [...new Set(posts.flatMap(post => post.module.default.layoutProps.blogmeta.tags))].sort();
+
+  useEffect(() => {
+    if(tagFilter !== null)
+      setFilteredPosts(posts.filter(post => post.module.default.layoutProps.blogmeta.tags.includes(tagFilter)))
+    else
+      setFilteredPosts(posts);
+
+    console.log(posts)
+  }, [tagFilter])
 
   return (
     <div className="divide-y divide-gray-200 px-4 md:px-10 md:max-w-4xl lg:max-w-6xl mx-auto">
@@ -56,7 +69,6 @@ function index() {
                   <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
                   <TagIcon className="mr-2 h-5 w-5" aria-hidden="true" />
                     Tags
-                    {/* <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" /> */}
                   </Menu.Button>
                 </div>
 
@@ -79,18 +91,17 @@ function index() {
                     {
                       tags.map((tag) => {
                         return (
-                          <Menu.Item>
+                          <Menu.Item key={tag}>
                             {({ active }) => (
-                              <a
-                                ket={tag}
-                                href="#"
+                              <button
+                                onClick={() => setTagFilter(tag)}
                                 className={classNames(
                                   active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                  'block px-4 py-2 text-sm'
+                                  'block px-4 py-2 text-sm w-full text-left'
                                 )}
                               >
                                 {tag}
-                              </a>
+                              </button>
                             )}
                           </Menu.Item>
                         )
@@ -104,10 +115,25 @@ function index() {
             )}
           </Menu>
         </div>
+        <div className={tagFilter ? "block" : "hidden"}>
+          <span className="inline-flex rounded-full items-center py-1 pl-3 pr-2 text-sm font-medium bg-indigo-100 text-indigo-700">
+            {tagFilter}
+            <button
+              onClick={() => setTagFilter(null)}
+              type="button"
+              className="flex-shrink-0 ml-0.5 h-4 w-4 rounded-full inline-flex items-center justify-center text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none focus:bg-indigo-500 focus:text-white"
+            >
+              <span className="sr-only">Remove large option</span>
+              <svg className="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+                <path strokeLinecap="round" strokeWidth="1.5" d="M1 1l6 6m0-6L1 7" />
+              </svg>
+            </button>
+          </span>
+        </div>
       </div>
       <div className="mt-4">
         <div className="mt-4 md:mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
-          {posts.map(({ link, module: { default: { layoutProps: { blogmeta } } }  }) => {
+          {filteredPosts.map(({ link, module: { default: { layoutProps: { blogmeta } } }  }) => {
             return (
               <div key={link} className="flex flex-col rounded-lg shadow-lg overflow-hidden">
                 <div className="flex-1 bg-white p-6 flex flex-col justify-between">
