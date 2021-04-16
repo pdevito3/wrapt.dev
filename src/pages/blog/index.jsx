@@ -10,6 +10,7 @@ import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/solid'
 import { TagIcon } from '@heroicons/react/outline'
+import { ColorSwatchIcon } from '@heroicons/react/outline'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -20,18 +21,26 @@ function index() {
   const posts = getAllPostPreviews();
 
   const [filteredPosts, setFilteredPosts] = useState(getAllPostPreviews());
-  const [tagFilter, setTagFilter] = useState(null)
+  const [tagFilter, setTagFilter] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState(null);
   
   const tags = [...new Set(posts.flatMap(post => post.module.default.layoutProps.blogmeta.tags))].sort();
+  const categories = [...new Set(posts.map(post => post.module.default.layoutProps.blogmeta.category))].sort();
 
+  // definitely need to change this to a state machine if this gets any more complex. messy as is
   useEffect(() => {
-    if(tagFilter !== null)
+    if(tagFilter !== null) {
       setFilteredPosts(posts.filter(post => post.module.default.layoutProps.blogmeta.tags.includes(tagFilter)))
-    else
-      setFilteredPosts(posts);
+      return;
+    }
 
-    console.log(posts)
-  }, [tagFilter])
+    if(categoryFilter !== null) {
+      setFilteredPosts(posts.filter(post => post.module.default.layoutProps.blogmeta.category === categoryFilter))
+      return;
+    }
+    
+      setFilteredPosts(posts);
+  }, [tagFilter, categoryFilter])
 
   return (
     <div className="divide-y divide-gray-200 px-4 md:px-10 md:max-w-4xl lg:max-w-6xl mx-auto">
@@ -62,68 +71,127 @@ function index() {
             Keep up with useful web dev tips and follow my progress on building Craftsman.
           </p>
 
-          <Menu as="div" className="relative inline-block text-left pt-5 md:pt-0">
-            {({ open }) => (
-              <>
-                <div>
-                  <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
-                  <TagIcon className="mr-2 h-5 w-5" aria-hidden="true" />
-                    Tags
-                  </Menu.Button>
-                </div>
+          <div className="space-x-2 flex items-center justify-start">
 
-                <Transition
-                  show={open}
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items
-                    static
-                    className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+            <Menu as="div" className="relative inline-block text-left pt-5 md:pt-0">
+              {({ open }) => (
+                <>
+                  <div>
+                    <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                    <TagIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                      Tags
+                    </Menu.Button>
+                  </div>
+
+                  <Transition
+                    show={open}
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
                   >
-                    <div className="py-1">
-                      
-                    {
-                      tags.map((tag) => {
-                        return (
-                          <Menu.Item key={tag}>
-                            {({ active }) => (
-                              <button
-                                onClick={() => setTagFilter(tag)}
-                                className={classNames(
-                                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                  'block px-4 py-2 text-sm w-full text-left'
-                                )}
-                              >
-                                {tag}
-                              </button>
-                            )}
-                          </Menu.Item>
-                        )
-                      })
-                    }
-                      
-                    </div>
-                  </Menu.Items>
-                </Transition>
-              </>
-            )}
-          </Menu>
+                    
+                    {/* note that the media query is broken atm and it will always show on the left 🤷🏼‍♂️. have an issue in with TW */}
+                    <Menu.Items
+                      static
+                      className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none md:origin-top-right md:right-0"
+                    >
+                      <div className="py-1">
+                        
+                      {
+                        tags.map((tag) => {
+                          return (
+                            <Menu.Item key={tag}>
+                              {({ active }) => (
+                                <button
+                                  onClick={() => { setCategoryFilter(null); setTagFilter(tag); }}
+                                  className={classNames(
+                                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                    'block px-4 py-2 text-sm w-full text-left'
+                                  )}
+                                >
+                                  {tag}
+                                </button>
+                              )}
+                            </Menu.Item>
+                          )
+                        })
+                      }
+                        
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </>
+              )}
+            </Menu>
+
+            
+            <Menu as="div" className="relative inline-block text-left pt-5 md:pt-0">
+              {({ open }) => (
+                <>
+                  <div>
+                    <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                    <ColorSwatchIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                      Categories
+                    </Menu.Button>
+                  </div>
+
+                  <Transition
+                    show={open}
+                    as={Fragment}
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items
+                      static
+                      className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                    >
+                      <div className="py-1">
+                        
+                      {
+                        categories.map((category) => {
+                          return (
+                            <Menu.Item key={category}>
+                              {({ active }) => (
+                                <button
+                                  onClick={() => {  setTagFilter(null); setCategoryFilter(category); }}
+                                  className={classNames(
+                                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                    'block px-4 py-2 text-sm w-full text-left'
+                                  )}
+                                >
+                                  {category}
+                                </button>
+                              )}
+                            </Menu.Item>
+                          )
+                        })
+                      }
+                        
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </>
+              )}
+            </Menu>
+          </div>
         </div>
-        <div className={tagFilter ? "block" : "hidden"}>
+        <div className={tagFilter || categoryFilter ? "block" : "hidden"}>
           <span className="inline-flex rounded-full items-center py-1 pl-3 pr-2 text-sm font-medium bg-indigo-100 text-indigo-700">
-            {tagFilter}
+            {tagFilter ?? categoryFilter}
             <button
-              onClick={() => setTagFilter(null)}
+              onClick={() => { setTagFilter(null); setCategoryFilter(null); }}
               type="button"
               className="flex-shrink-0 ml-0.5 h-4 w-4 rounded-full inline-flex items-center justify-center text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none focus:bg-indigo-500 focus:text-white"
             >
-              <span className="sr-only">Remove large option</span>
+              <span className="sr-only">Remove filter option</span>
               <svg className="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
                 <path strokeLinecap="round" strokeWidth="1.5" d="M1 1l6 6m0-6L1 7" />
               </svg>
