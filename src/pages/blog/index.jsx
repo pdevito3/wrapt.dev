@@ -6,9 +6,18 @@ import BlogHeader from 'src/components/BlogHeader'
 import getAllPostPreviews from 'src/utils/getAllPostPreviews'
 import twitterBlogCard from 'src/img/twitter-large-blog-card.jpg'
 import BlogTag from 'src/components/BlogTag'
+import { Fragment } from 'react'
+import { Menu, Transition } from '@headlessui/react'
+import { ChevronDownIcon } from '@heroicons/react/solid'
+import { TagIcon } from '@heroicons/react/outline'
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ')
+}
 
 function index() {
-  const posts = getAllPostPreviews()
+  const posts = getAllPostPreviews();
+  const tags = [...new Set(posts.flatMap(post => post.module.default.layoutProps.blogmeta.tags))].sort();
   const postDateTemplate = tinytime('{dddd}, {MMMM} {DD}, {YYYY}');
 
   return (
@@ -31,13 +40,70 @@ function index() {
         <link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="/atom.xml" />
         <link rel="alternate" type="application/json" title="JSON Feed" href="/feed.json" />
       </Head>
-      <div className="pt-6 pb-4 space-y-2 md:space-y-5">
+      <div className="pt-6 md:pb-2 space-y-2 md:space-y-5">
         <h1 className="text-3xl leading-9 font-extrabold text-gray-900 tracking-tight sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
           Wrapt Blog
         </h1>
-        <p className="text-lg leading-7 text-gray-500">
-          Keep up with useful web dev tips and follow my progress on building Craftsman.
-        </p>
+        <div className="md:flex md:items-center md:justify-between">
+          <p className="text-lg leading-7 text-gray-500">
+            Keep up with useful web dev tips and follow my progress on building Craftsman.
+          </p>
+
+          <Menu as="div" className="relative inline-block text-left pt-5 md:pt-0">
+            {({ open }) => (
+              <>
+                <div>
+                  <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                  <TagIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                    Tags
+                    {/* <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" /> */}
+                  </Menu.Button>
+                </div>
+
+                <Transition
+                  show={open}
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items
+                    static
+                    className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  >
+                    <div className="py-1">
+                      
+                    {
+                      tags.map((tag) => {
+                        return (
+                          <Menu.Item>
+                            {({ active }) => (
+                              <a
+                                ket={tag}
+                                href="#"
+                                className={classNames(
+                                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                  'block px-4 py-2 text-sm'
+                                )}
+                              >
+                                {tag}
+                              </a>
+                            )}
+                          </Menu.Item>
+                        )
+                      })
+                    }
+                      
+                    </div>
+                  </Menu.Items>
+                </Transition>
+              </>
+            )}
+          </Menu>
+        </div>
       </div>
       <div className="mt-4">
         <div className="mt-4 md:mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
@@ -57,7 +123,7 @@ function index() {
                               <BlogTag key={tag} tag={tag} />
                             )
                           })} */}
-                          <p className="text-sm font-medium text-purple-600 uppercase">
+                          <p className="text-sm font-medium text-violet-600 uppercase">
                             {blogmeta.category}
                           </p>
                         </div>

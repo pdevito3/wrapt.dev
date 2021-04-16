@@ -11,7 +11,8 @@
   "dependencies": {
     "@docsearch/css": "^1.0.0-alpha.22",
     "@docsearch/react": "^1.0.0-alpha.14",
-    "@headlessui/react": "^0.2.0",
+    "@headlessui/react": "^1.0.0",
+    "@heroicons/react": "^1.0.1",
     "@juggle/resize-observer": "^3.2.0",
     "@mdx-js/loader": "^1.6.21",
     "@next/bundle-analyzer": "^10.0.3",
