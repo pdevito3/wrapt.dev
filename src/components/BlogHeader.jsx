@@ -2,6 +2,7 @@ import React from 'react'
 import NextLink from 'next/link'
 import LogoNoText from '../components/Logo/LogoNoText';
 import LogoWithText from '../components/Logo/LogoWithText';
+import { RssIcon } from '@heroicons/react/outline'
 
 function BlogHeader() {
   return (
@@ -32,6 +33,15 @@ function BlogHeader() {
               Wrapt Docs
             </a>
           </NextLink>
+          <a
+            target="_blank"
+            rel="noopener"
+            href="https://wrapt.dev/feed.xml"
+            className="hidden md:block text-gray-400 hover:text-gray-500 transition-colors duration-200"
+          >
+            <span className="sr-only">RSS Feed</span>
+            <RssIcon className="w-6"/>
+          </a>
           <a
             target="_blank"
             rel="noopener"
