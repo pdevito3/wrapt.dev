@@ -97,7 +97,7 @@ function index() {
                     {/* note that the media query is broken atm and it will always show on the left 🤷🏼‍♂️. have an issue in with TW */}
                     <Menu.Items
                       static
-                      className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none md:origin-top-right md:right-0"
+                      className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none md:origin-top-right md:right-0 md:left-auto"
                     >
                       <div className="py-1">
                         
