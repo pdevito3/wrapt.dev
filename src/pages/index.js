@@ -112,21 +112,26 @@ export default function Home() {
   return (
     <div >
       <Head>
-        <meta
-          key="twitter:title"
-          name="twitter:title"
-          content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
-        />
-        <meta
-          key="og:title"
-          property="og:title"
-          content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
-        />
-        <meta
-          name="description"
-          content="Scaffold an entire .NET 5 Web API with a simple yaml or json file."
-        />
-        <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file.</title>
+        {
+          !router.pathname.startsWith('/blog') &&
+          <>
+            <meta
+              key="twitter:title"
+              name="twitter:title"
+              content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+            />
+            <meta
+              key="og:title"
+              property="og:title"
+              content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+            />
+            <meta
+              name="description"
+              content="Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+            />
+            <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file.</title>
+          </>
+        }
       </Head>
 
       <Banner />
