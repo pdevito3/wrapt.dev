@@ -11,12 +11,14 @@ import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/solid'
 import { TagIcon } from '@heroicons/react/outline'
 import { ColorSwatchIcon } from '@heroicons/react/outline'
+import { Router, useRouter } from 'next/router'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 function index() {
+  const router = useRouter();
   const postDateTemplate = tinytime('{dddd}, {MMMM} {DD}, {YYYY}');
   const posts = getAllPostPreviews();
 
@@ -45,22 +47,27 @@ function index() {
   return (
     <div className="divide-y divide-gray-200 px-4 md:px-10 md:max-w-4xl lg:max-w-6xl mx-auto">
       <Head>
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@pdevito3" />
-        <meta name="twitter:creator" content="@pdevito3" />
-        <meta name="twitter:title" content="Blog – Wrapt" />
-        <meta name="twitter:description" content="Keep up with useful web dev tips and follow my progress on building Craftsman." />
-        <meta key="twitter:image" name="twitter:image" content={`https://wrapt.dev${twitterBlogCard}`} />
-        <meta property="og:url" content="https://wrapt.dev/blog" />
-        <meta property="og:type" content="article" />
-        <meta property="og:title" content="Blog – Wrapt" />
-        <meta property="og:description" content="Keep up with useful web dev tips and follow my progress on building Craftsman." />
-        <meta key="og:image" name="og:image" content={`https://wrapt.dev${twitterBlogCard}`} />
-        <title>Blog – Wrapt</title>
-        <meta name="description" content="Keep up with useful web dev tips and follow my progress on building Craftsman." />
-        <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="/feed.xml" />
-        <link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="/atom.xml" />
-        <link rel="alternate" type="application/json" title="JSON Feed" href="/feed.json" />
+        {
+          router.pathname === '/blog' && 
+          <>
+            <meta name="twitter:card" content="summary_large_image" />
+            <meta name="twitter:site" content="@pdevito3" />
+            <meta name="twitter:creator" content="@pdevito3" />
+            <meta name="twitter:title" content="Blog – Wrapt" />
+            <meta name="twitter:description" content="Keep up with useful web dev tips and follow my progress on building Craftsman." />
+            <meta key="twitter:image" name="twitter:image" content={`https://wrapt.dev${twitterBlogCard}`} />
+            <meta property="og:url" content="https://wrapt.dev/blog" />
+            <meta property="og:type" content="article" />
+            <meta property="og:title" content="Blog – Wrapt" />
+            <meta property="og:description" content="Keep up with useful web dev tips and follow my progress on building Craftsman." />
+            <meta key="og:image" name="og:image" content={`https://wrapt.dev${twitterBlogCard}`} />
+            <title>Blog – Wrapt</title>
+            <meta name="description" content="Keep up with useful web dev tips and follow my progress on building Craftsman." />
+            <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="/feed.xml" />
+            <link rel="alternate" type="application/atom+xml" title="Atom 1.0" href="/atom.xml" />
+            <link rel="alternate" type="application/json" title="JSON Feed" href="/feed.json" />
+          </>
+        }
       </Head>
       <div className="pt-6 md:pb-2 space-y-2 md:space-y-5">
         <h1 className="text-3xl leading-9 font-extrabold text-gray-900 tracking-tight sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
