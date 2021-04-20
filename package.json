@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build && next export && npm run build:rss",
     "start": "next start",
-    "build:rss": "node ./.next/server/scripts/build-rss.js"
+    "build:rss": "node ./.next/serverless/scripts/build-rss.js"
   },
   "dependencies": {
     "@docsearch/css": "^1.0.0-alpha.22",
