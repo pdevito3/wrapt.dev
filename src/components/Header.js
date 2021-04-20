@@ -13,7 +13,7 @@ export function Header({ navIsOpen, onNavToggle }) {
         <div className="flex-none pl-4 sm:pl-6 xl:pl-8 flex items-center lg:w-60 xl:w-72">
           <Link href="/">
             <a
-              className="overflow-hidden md:w-auto"
+              className="overflow-hidden md:w-auto" 
               // onContextMenu={(e) => {
               //   e.preventDefault()
               //   Router.push('/brand')
