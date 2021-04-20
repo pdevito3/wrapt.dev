@@ -32,7 +32,7 @@ export function BlogContentLayout({ children, blogmeta }) {
         <meta name="twitter:creator" content="@pdevito3" />
         <meta name="twitter:title" content={`${blogmeta.title} – Wrapt`} />
         <meta name="twitter:description" content={blogmeta.description} />
-        {blogmeta.image ? 
+        {/* {blogmeta.image ? 
           (
             <>
               <meta name="twitter:card" content="summary_large_image" />
@@ -49,7 +49,13 @@ export function BlogContentLayout({ children, blogmeta }) {
                 content={`https://wrapt.dev/blog$${smallCard}`}
               />
             </>
-        )}
+        )} */}
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:image"
+          content={`https://wrapt.dev/blog$${blogmeta.image}`}
+        />
         <meta key="og:url" property="og:url" content={`https://wrapt.dev${router.pathname}`} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={`${blogmeta.title} – Wrapt`} />
