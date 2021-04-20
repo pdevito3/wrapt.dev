@@ -8,6 +8,8 @@ module.exports = {
     content:[
       './src/**/*.js',
       './*/*.{js,mdx}',
+      './src/**/*.jsx',
+      './*/*.{jsx,mdx}',
     ]
   },
   darkMode: false, // or 'media' or 'class'
