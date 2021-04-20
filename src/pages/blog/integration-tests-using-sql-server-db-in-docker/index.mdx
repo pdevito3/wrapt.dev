@@ -287,7 +287,7 @@ namespace Accessioning.IntegrationTests.TestUtilities
 
 As a reminder, the goal of this utility class is to allow us to spin up our docker container. There's a lot going on here, so let's walk through it. 
 
-We start by setting some constants to use for our container. Note that the db password [has some prereqs](https://hub.docker.com/_/microsoft-mssql-server). You can change the image to another version or a custom image that you put together and the container and volume name can be whatever you want. 
+We start by setting some constants for us to use for our container. Note that the db password [has some prereqs](https://hub.docker.com/_/microsoft-mssql-server). You can change the image to another version or a custom image that you put together and the container and volume name can be whatever you want. 
 
 ```csharp
 public const string DB_PASSWORD = "#testingDockerPassword#";

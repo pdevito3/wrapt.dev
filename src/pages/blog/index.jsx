@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import tinytime from 'tinytime'
 import Link from 'next/link'
 import Head from 'next/head'
 import BlogHeader from 'src/components/BlogHeader'
@@ -12,6 +11,7 @@ import { ChevronDownIcon } from '@heroicons/react/solid'
 import { TagIcon } from '@heroicons/react/outline'
 import { ColorSwatchIcon } from '@heroicons/react/outline'
 import { Router, useRouter } from 'next/router'
+import dayjs from 'dayjs'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
@@ -19,7 +19,10 @@ function classNames(...classes) {
 
 function index() {
   const router = useRouter();
-  const postDateTemplate = tinytime('{dddd}, {MMMM} {DD}, {YYYY}');
+  function formatDate(input) { 
+    let formatted = dayjs(input).format('dddd, MMMM DD, YYYY');
+    return formatted;
+   };
   const posts = getAllPostPreviews();
 
   const [filteredPosts, setFilteredPosts] = useState(getAllPostPreviews());
@@ -255,7 +258,7 @@ function index() {
                         </p>
                         <div className="flex space-x-1 text-sm text-gray-500">
                           <time dateTime={blogmeta.date}>
-                            {postDateTemplate.render(new Date(blogmeta.date))}
+                            {formatDate(new Date(blogmeta.date))}
                           </time>
                           {/* <span aria-hidden="true">
                             ·

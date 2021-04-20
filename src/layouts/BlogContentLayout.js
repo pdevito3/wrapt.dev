@@ -7,7 +7,7 @@ import BlogHeader from 'src/components/BlogHeader'
 import { useRouter } from 'next/router'
 import { MDXProvider } from '@mdx-js/react'
 import twitterLargeBlogCard from 'src/img/twitter-large-blog-card.jpg'
-import tinytime from 'tinytime'
+import dayjs from 'dayjs'
 import BlogTag from 'src/components/BlogTag'
 import smallCard from 'src/img/twitter-square.jpg'
 
@@ -21,7 +21,10 @@ export function BlogContentLayout({ children, blogmeta }) {
     ),
   }
   const router = useRouter();
-  const postDateTemplate = tinytime('{dddd}, {MMMM} {DD}, {YYYY}');
+  function formatDate(input) { 
+    let formatted = dayjs(input).format('dddd, MMMM DD, YYYY');
+    return formatted;
+   };
 
   return (
     <article className="divide-y divide-gray-200">
@@ -89,7 +92,7 @@ export function BlogContentLayout({ children, blogmeta }) {
               <div>
                 <dt className="sr-only">Published on</dt>
                 <dd className="text-base leading-6 font-medium text-gray-500">
-                  <time dateTime={blogmeta.date}>{postDateTemplate.render(new Date(blogmeta.date))}</time>
+                  <time dateTime={blogmeta.date}>{formatDate(new Date(blogmeta.date))}</time>
                 </dd>
               </div>
             </dl>
