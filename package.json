@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "next build && next export && npm run build:rss",
+    "start": "next start",
+    "build:rss": "node ./.next/serverless/scripts/build-rss.js"
   },
   "dependencies": {
     "@docsearch/css": "^1.0.0-alpha.22",
     "@docsearch/react": "^1.0.0-alpha.14",
-    "@headlessui/react": "^0.2.0",
+    "@headlessui/react": "^1.0.0",
+    "@heroicons/react": "^1.0.1",
     "@juggle/resize-observer": "^3.2.0",
     "@mdx-js/loader": "^1.6.21",
     "@next/bundle-analyzer": "^10.0.3",
@@ -24,8 +26,10 @@
     "autoprefixer": "^10.0.2",
     "clsx": "^1.1.1",
     "dlv": "^1.1.3",
+    "feed": "^4.2.2",
     "file-loader": "^6.2.0",
     "front-matter": "^4.0.2",
+    "fs": "^0.0.1-security",
     "just-group-by": "^1.0.0",
     "minimatch": "^3.0.4",
     "next": "10.0.2",
@@ -42,6 +46,7 @@
     "simple-functional-loader": "^1.2.1",
     "stringify-object": "^3.3.0",
     "tailwindcss": "^2.0.1",
-    "tailwindcss-question-mark": "^0.1.0"
+    "tailwindcss-question-mark": "^0.1.0",
+    "tinytime": "^0.2.6"
   }
 }

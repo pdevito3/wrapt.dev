@@ -112,34 +112,44 @@ export default function Home() {
   return (
     <div >
       <Head>
-        <meta
-          key="twitter:title"
-          name="twitter:title"
-          content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
-        />
-        <meta
-          key="og:title"
-          property="og:title"
-          content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
-        />
-        <meta
-          name="description"
-          content="Scaffold an entire .NET 5 Web API with a simple yaml or json file."
-        />
-        <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file.</title>
+        {
+          !router.pathname.startsWith('/blog') &&
+          <>
+            <meta
+              key="twitter:title"
+              name="twitter:title"
+              content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+            />
+            <meta
+              key="og:title"
+              property="og:title"
+              content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+            />
+            <meta
+              name="description"
+              content="Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+            />
+            <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file.</title>
+          </>
+        }
       </Head>
 
       <Banner />
       <header className="relative z-10 max-w-screen-lg xl:max-w-screen-xl 2xl:max-w-screen-2xl mx-auto">
         <div className="px-4 sm:px-6 md:px-8">
           <div className="border-b border-gray-200 py-1 flex items-center justify-between mb-16 sm:mb-20 -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex flex-1 items-center space-x-10 sm:space-x-15 max-w-2xl pr-2 py-2 sm:py-0">
-              <LogoNoText className={"h-12 w-auto sm:hidden"}  />
-              <LogoWithText className={"h-16 w-auto hidden sm:block"}  />
+            <div className="flex flex-1 items-center space-x-10 md:space-x-15 max-w-2xl pr-2 py-2 sm:py-0">
+              <LogoNoText className={"h-12 w-auto lg:hidden"}  />
+              <LogoWithText className={"h-16 w-auto hidden lg:block"}  />
               <Search setSearchIsOpen={setSearchIsOpen} />
             </div>
 
             <div className="flex items-center justify-center space-x-5 sm:space-x-8">
+              <NextLink href="/blog">
+                <a className="hidden md:block text-base leading-6 font-medium hover:text-gray-600 transition-colors duration-200">
+                  Blog
+                </a>
+              </NextLink>
               <NextLink href="/docs/how-it-works">
                 <a className="hidden md:block text-base leading-6 font-medium hover:text-gray-600 transition-colors duration-200">
                   Docs

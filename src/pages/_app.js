@@ -6,6 +6,7 @@ import { Header } from 'src/components/Header'
 import { ResizeObserver } from '@juggle/resize-observer'
 import { Title } from 'src/components/Title'
 import twitterLargeCard from 'src/img/twitter-large-card.jpg'
+import BlogHeader from 'src/components/BlogHeader'
 // import 'intersection-observer'
 
 if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
@@ -14,6 +15,21 @@ if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
 
 function MyApp({ Component, pageProps, router }) {
   let [navIsOpen, setNavIsOpen] = useState(false)
+  const [header, setHeader] = useState(null)
+
+  // move to state machine for fun?
+  useEffect(() => {
+    let isHomepage = router.pathname === '/';
+    let isBlog = router.pathname.startsWith("/blog");
+
+    setHeader(null);
+    if(!isHomepage){
+      setHeader(<Header navIsOpen={navIsOpen} onNavToggle={(isOpen) => setNavIsOpen(isOpen)} />);
+    }
+    if(isBlog) {
+      setHeader(<BlogHeader />)
+    }
+  }, [navIsOpen, setNavIsOpen, setHeader, router.pathname]);
 
   useEffect(() => {
     if (!navIsOpen) return
@@ -38,31 +54,34 @@ function MyApp({ Component, pageProps, router }) {
     <>
       <Title suffix="Wrapt">{meta.metaTitle || meta.title}</Title>
       <Head>
-        <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
-        <meta key="twitter:site" name="twitter:site" content="@pdevito3" />
-        <meta key="twitter:description" name="twitter:description" content={description} />
-        <meta
-          key="twitter:image"
-          name="twitter:image"
-          content={`https://wrapt.dev${twitterLargeCard}`}
-        />
-        <meta key="twitter:creator" name="twitter:creator" content="@pdevito3" />
-        <meta
-          key="og:url"
-          property="og:url"
-          content={`https://wrapt.dev${router.pathname}`}
-        />
-        <meta key="og:type" property="og:type" content="article" />
-        <meta key="og:description" property="og:description" content={description} />
-        <meta
-          key="og:image"
-          property="og:image"
-          content={`https://wrapt.dev${twitterLargeCard}`}
-        />
+        {
+          !router.pathname.startsWith('/blog') &&
+          <>
+            <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
+            <meta key="twitter:site" name="twitter:site" content="@pdevito3" />
+            <meta key="twitter:description" name="twitter:description" content={description} />
+            <meta
+              key="twitter:image"
+              name="twitter:image"
+              content={`https://wrapt.dev${twitterLargeCard}`}
+            />
+            <meta key="twitter:creator" name="twitter:creator" content="@pdevito3" />
+            <meta
+              key="og:url"
+              property="og:url"
+              content={`https://wrapt.dev${router.pathname}`}
+            />
+            <meta key="og:type" property="og:type" content="article" />
+            <meta key="og:description" property="og:description" content={description} />
+            <meta
+              key="og:image"
+              property="og:image"
+              content={`https://wrapt.dev${twitterLargeCard}`}
+            />
+          </>
+        }
       </Head>
-      {router.pathname !== '/' && (
-        <Header navIsOpen={navIsOpen} onNavToggle={(isOpen) => setNavIsOpen(isOpen)} />
-      )}
+      {header}
       <Layout {...layoutProps}>
         <Component {...pageProps} />
       </Layout>

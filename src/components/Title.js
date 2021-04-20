@@ -5,9 +5,14 @@ export function Title({ suffix, children }) {
 
   return (
     <Head>
-      <title key="title">{title}</title>
-      <meta key="twitter:title" name="twitter:title" content={title} />
-      <meta key="og:title" property="og:title" content={title} />
+      {
+          !router.pathname.startsWith('/blog') &&
+          <>
+            <title key="title">{title}</title>
+            <meta key="twitter:title" name="twitter:title" content={title} />
+            <meta key="og:title" property="og:title" content={title} />
+          </>
+      }
     </Head>
   )
 }

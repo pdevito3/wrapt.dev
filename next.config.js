@@ -12,11 +12,12 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 })
 
 const fallbackLayouts = {
-  'src/pages/docs/**/*': ['src/layouts/DocumentationLayout', 'DocumentationLayout'],
+  'src/pages/docs/**/*': ['src/layouts/DocumentationLayout', 'DocumentationLayout']
 }
 
 const fallbackDefaultExports = {
   'src/pages/{docs,components}/**/*': ['src/layouts/ContentsLayout', 'ContentsLayout'],
+  'src/pages/{blog,components}/**/*': ['src/layouts/BlogContentLayout', 'BlogContentLayout'],
   'src/pages/course/**/*': ['src/layouts/VideoLayout', 'VideoLayout'],
 }
 
@@ -138,6 +139,16 @@ module.exports = withBundleAnalyzer({
         }),
       ],
     })
+
+    if (!options.dev && options.isServer) {
+      const originalEntry = config.entry
+
+      config.entry = async () => {
+        const entries = { ...(await originalEntry()) }
+        entries['./scripts/build-rss.js'] = './scripts/build-rss.js'
+        return entries
+      }
+    }
 
     return config
   },
