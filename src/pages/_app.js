@@ -54,27 +54,32 @@ function MyApp({ Component, pageProps, router }) {
     <>
       <Title suffix="Wrapt">{meta.metaTitle || meta.title}</Title>
       <Head>
-        <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
-        <meta key="twitter:site" name="twitter:site" content="@pdevito3" />
-        <meta key="twitter:description" name="twitter:description" content={description} />
-        <meta
-          key="twitter:image"
-          name="twitter:image"
-          content={`https://wrapt.dev${twitterLargeCard}`}
-        />
-        <meta key="twitter:creator" name="twitter:creator" content="@pdevito3" />
-        <meta
-          key="og:url"
-          property="og:url"
-          content={`https://wrapt.dev${router.pathname}`}
-        />
-        <meta key="og:type" property="og:type" content="article" />
-        <meta key="og:description" property="og:description" content={description} />
-        <meta
-          key="og:image"
-          property="og:image"
-          content={`https://wrapt.dev${twitterLargeCard}`}
-        />
+        {
+          !router.pathname.startsWith('/blog') &&
+          <>
+            <meta key="twitter:card" name="twitter:card" content="summary_large_image" />
+            <meta key="twitter:site" name="twitter:site" content="@pdevito3" />
+            <meta key="twitter:description" name="twitter:description" content={description} />
+            <meta
+              key="twitter:image"
+              name="twitter:image"
+              content={`https://wrapt.dev${twitterLargeCard}`}
+            />
+            <meta key="twitter:creator" name="twitter:creator" content="@pdevito3" />
+            <meta
+              key="og:url"
+              property="og:url"
+              content={`https://wrapt.dev${router.pathname}`}
+            />
+            <meta key="og:type" property="og:type" content="article" />
+            <meta key="og:description" property="og:description" content={description} />
+            <meta
+              key="og:image"
+              property="og:image"
+              content={`https://wrapt.dev${twitterLargeCard}`}
+            />
+          </>
+        }
       </Head>
       {header}
       <Layout {...layoutProps}>

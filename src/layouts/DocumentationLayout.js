@@ -7,7 +7,7 @@ import { documentationNav } from 'src/navs/documentation'
 import twitterSquare from 'src/img/twitter-square.jpg'
 
 export function DocumentationLayout(props) {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <>
@@ -16,16 +16,21 @@ export function DocumentationLayout(props) {
       </Title>
       
       <Head>
-        <meta key="twitter:card" name="twitter:card" content="summary" />
-        <meta
-          key="twitter:image"
-          name="twitter:image"
-          content={`https://wrapt.dev${twitterSquare}`}
-        />
-        <meta
-          name="description"
-          content="Documentation for the Wrapt framework. Scaffold an entire .NET 5 Web API with a simple yaml or json file."
-        />
+        {
+          !router.pathname.startsWith('/blog') &&
+          <>
+            <meta key="twitter:card" name="twitter:card" content="summary" />
+            <meta
+              key="twitter:image"
+              name="twitter:image"
+              content={`https://wrapt.dev${twitterSquare}`}
+            />
+            <meta
+              name="description"
+              content="Documentation for the Wrapt framework. Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+            />
+          </>
+        }
       </Head>
       <SidebarLayout nav={documentationNav} {...props} />
     </>
