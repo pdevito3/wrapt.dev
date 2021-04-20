@@ -1,7 +1,9 @@
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 
 export function Title({ suffix, children }) {
   let title = children + (suffix ? ` - ${suffix}` : '')
+  const router = useRouter();
 
   return (
     <Head>

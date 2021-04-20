@@ -14,8 +14,10 @@ import { useRanger } from "react-ranger";
 import VideoSlider from "src/components/VideoSlider"
 import LogoNoText from '../components/Logo/LogoNoText';
 import LogoWithText from '../components/Logo/LogoWithText';
+import { useRouter } from 'next/router'
 
 export default function Home() {
+  const router = useRouter();
   let [searchIsOpen, setSearchIsOpen] = useState()
   let isMounted = useIsMountedRef();
 
