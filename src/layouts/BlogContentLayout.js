@@ -132,9 +132,9 @@ export function BlogContentLayout({ children, blogmeta }) {
         </div>
       </div>
         <footer className="text-sm font-medium leading-5 divide-y divide-gray-200 xl:col-start-1 xl:row-start-2">
-          <div className="pt-8">
-            <NextLink href="/">
-              <a className="text-violet-500 hover:text-violet-600">&larr; Back to the blog</a>
+          <div className="py-4 px-3 flex items-center justify-center sm:justify-start ">
+            <NextLink href="/blog">
+              <a className="text-violet-500 hover:text-violet-600 text-lg sm:text-base">&larr; Back to the blog</a>
             </NextLink>
           </div>
         </footer>

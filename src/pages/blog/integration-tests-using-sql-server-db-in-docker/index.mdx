@@ -4,7 +4,7 @@ import image from './card.jpg'
 export const blogmeta = {
   title: '.NET Core Integration Tests using a Sql Server Database in Docker',
   description: `Let's make our integration tests more reliable by dynamically spinning up a database in Docker that mimics production and makes your project easy to test on any dev box.`,
-  date: '2021-04-20 12:49:40', // Ctrl+Shift+I w/ Insert Date String plugin
+  date: '2021-04-20 08:27:41', // Ctrl+Shift+I w/ Insert Date String plugin
   authors: [pauldevito],
   category: 'Testing',
   image,
@@ -21,14 +21,14 @@ So I was revamping the tests in the template projects for Wrapt and wanted to tr
 
 Setting things up with a local database isn’t terribly hard but it does require some manual steps when setting things up for the first time and requires a specific local set up. This can be automated to a degree like Jimmy Bogard does [in his Contoso repo](https://github.com/jbogard/ContosoUniversityDotNetCore-Pages/) but I was aiming for something a little different. 
 
-## An alternate approach using Docker
+## An Alternate Approach Using Docker
 
 My goal was to have a Dev to be able to clone down the repo and run these tests without having to do anything else. The first thing that came to my mind here was Docker. While the dev box does need docker installed, we don't have to worry about different local database setups or anything of that nature. 
 As long as you have Docker (and .NET essentials), you're ready to play. 
 
 Like most developers, I started out by googling around to see what others had developed and came across [this great article by Georg Dangl](https://blog.dangl.me/archive/running-sql-server-integration-tests-in-net-core-projects-via-docker/). This was a super cool concept and was a great start to what I was looking for. 
 
-## Getting set up
+## Getting Set Up
 
 If you took a look at the example repo, you might’ve noticed that I chose NUnit instead of XUnit. I know pretty much everybody uses XUnit and I was one of those people as well, but bear with me here.
 
@@ -44,7 +44,7 @@ Some files to note in here are the:
 
 The setup is *very* similar, with only slight differences using [npgsql](https://github.com/npgsql/npgsql).
 
-## Creating a Database in Docker
+## Getting Started - Creating a Database in Docker
 
 Starting out with a fresh NUnit project, the first thing we need to do is create a utility that can create our docker container. To do this we’re going to use an awesome library called [Docker.DotNet](https://github.com/dotnet/Docker.DotNet). 
 
@@ -287,7 +287,7 @@ namespace Accessioning.IntegrationTests.TestUtilities
 
 As a reminder, the goal of this utility class is to allow us to spin up our docker container. There's a lot going on here, so let's walk through it. 
 
-We start by setting some constants to use for out container. Note that the db password [has some prereqs](https://hub.docker.com/_/microsoft-mssql-server). You can change the image to another version or a custom image that you put together and the container and volume name can be whatever you want. 
+We start by setting some constants to use for our container. Note that the db password [has some prereqs](https://hub.docker.com/_/microsoft-mssql-server). You can change the image to another version or a custom image that you put together and the container and volume name can be whatever you want. 
 
 ```csharp
 public const string DB_PASSWORD = "#testingDockerPassword#";
@@ -393,7 +393,7 @@ Next, we want to make sure our db is set up in our container and that we return 
 return (existingCont.ID, existingCont.Ports.FirstOrDefault().PublicPort.ToString());
 ```
 
-Then we have our helper methods that we used above. Starting with out Docker client creation.
+Then we have our helper methods that we used above. Starting with our Docker client creation.
 
 ```csharp
 private static bool IsRunningOnWindows()
@@ -892,7 +892,7 @@ And my Assert phase is pretty simple here. I'm just making sure that the record 
   patients.Count.Should().Be(0);
 ```
 
-## What about Unit and Functional Tests?
+## What About Unit and Functional Tests?
 As you may have noticed, this is covering integration tests for my features, but doesn't have unit tests or functional tests. Each of these is a separate project in my `tests` directory with my unit tests doing smaller domain level logic and the functional tests essentially acting as just endpoint checks as my main business logic behind each of those is covered in the integration tests. I may do another post about this in the future in more detail.
 
 ## Using this in Your Projects
