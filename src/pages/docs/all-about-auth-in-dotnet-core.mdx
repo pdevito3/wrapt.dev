@@ -23,20 +23,22 @@ Regardless, of your choice, **Wrapt Web APIs are built to be authentication prov
 review your providers documentation as well for specific implementation details.
 
 ### Authorization
-Authorization is making sure that you have permissions to do something. In the context of a client application, when a user wants to access the protected endpoints of a web API, it needs to present an Access Token as proof that it has the 
-necessary permissions to access that resource. This Access Token is returned when a user is successfully authenticated by the Authentication Server and will be passed to the Web API to authorize the user for a given set of actions based on the permissions returned in the Access Token.
+Authorization is making sure that you have permissions to do something. In the context of a client application, in order to prove that you have permission to access something, when a user wants to access the protected endpoints of a web API, it needs to present what's called an `Access Token` as proof that you have the 
+necessary permissions to access that api resource. This `Access Token` is returned when a user is successfully authenticated by the Authentication Server and will be passed to the Web API to authorize the user for a given set of actions based on the permissions returned in the `Access Token`.
 
-This Access Token is generally implemented as a [JSON Web Token (JWT)](https://auth0.com/learn/json-web-tokens/) and contains, in part, the permissions that can executed using that token which are expressed as something called `scopes`. When the Access Token is passed along to the 
-API, the API will inspect the `scope` in the token to ensure that the appropriate permissions were granted to call that particular endpoint.
+This `Access Token` is generally implemented as a [JSON Web Token (JWT)](https://auth0.com/learn/json-web-tokens/) and contains, in part, the permissions that can executed using that token. These permissions are expressed as 
+something called `scopes`. When the `Access Token` is passed along to the API, the API will inspect the `scope` in the token to ensure that the appropriate permissions were granted to call that particular endpoint.
 
-It's also important to note that this Access Token does **not** contain any identity information. This information can be returned in an Identity Token, generally by hitting the user info endpoint (you can check the `well-known` doc of your authorization server for this).
+It's also important to note that this `Access Token` does **not** contain any identity information. This information can be returned in an `Identity Token`, generally by hitting the user info endpoint (you can check the `well-known` doc of your authorization server for this).
 
 ### OAuth2 and OpenID Connect
-OAuth2 is a protocol that standardizes authentication communication between apps and services. It defines an access token and how a client application can securely achieve authorization. The access token does **not** have a notion of the user.
+Some additional terminology that you'll hear thrown around is OAuth2.0 and OpenId Connect.
 
-OpenId Connect is a simple identity layer on top of the OAuth2 protocol to convey the concept of a user. A client application can request an identity token (next to an access token) and use it to sign in to the client application. This token can then be used to sign into an API.
+OAuth2.0 is the industry-standard protocol that standardizes authorization communication between apps and services. OAuth 2.0 defines several different workflows (called `flows`) to deal with this process.
 
-> Bottom line: OpenId Connect is a protocol on top of OAuth2 that prevents the misuse of OAuth2 for identity authentication. OAuth2 is still what we use for authorization and permissions.
+OpenId Connect is a simple identity layer on top of the OAuth2.0 to convey the concept of a user. A client application can request an identity token (next to an access token) and use it to sign in to the client application. This token can then be used to sign into an API.
+
+> Bottom line: OpenId Connect is a protocol on top of OAuth2.0 that prevents the misuse of OAuth2.0 for identity authentication. OAuth2.0 is still what we use for authorization and permissions.
 
 <!-- ### Additional Auth Jargon, Simplified
 * **Scopes**: scopes define what permissions are being requested or granted to access a particular resource.
@@ -53,16 +55,20 @@ has a good walkthrough of why this is preferable, but essentially, this flow giv
 * `Implicit` flow is similar to `Code` but sends the JWT immediately back instead of have the intermediary authorization code exchange step. This is less secure than the `Code` flow, but is often used in SPA workflows where 
 teams don't have the resources or capability to add a more secure server exchange. This is not recommended if you can at all avoid it. -->
 
-## What Are Current Best Practices Around Auth?
-Auth has changed *a lot* over the years. Luckily there have been a lot of lessons learned and the community has consolidated all of the different options in OAuth 2.0 into 2 auth flow recommendations 
-that developers should be using in their applications ([see the upcoming OAuth 2.1 specification details](https://oauth.net/2.1/)). Even better, the flow that we chose depends on the interaction we have.
+## What Are Current Best Practices?
+So we have OAuth2.0 to tell us what the best practices are in the industry, this should all be pretty straight forward, right? Well, best practices have changed *a lot* over the years. 
+
+Luckily there have been a lot of lessons learned and the community has consolidated all of the different options in OAuth 2.0 into two authorization flows  
+that developers should be using in their applications ([see the upcoming OAuth 2.1 specification for details](https://oauth.net/2.1/)). Even better, the flow that we choose depends on the interaction we have.
 
 ### Client Credentials Flow
-If you have Machine to Machine communication, then you should be using the `ClientCredentials` flow, basically you have a client (e.g. postman), you have an authorization server 
-(Duende, Okta, etc. to make sre you are who you say you are) and you have resources/apis. The authorization server knows about all of the clients and apis and which clients can 
-access which apis. So the client talks to the authorization server, authenticates and gets a token for an api, and if that is allowed, it will return an access token that can then be used to access the apis.
+If you have Machine to Machine communications, then you should be using the `ClientCredentials` flow. What does that mean though?
 
-The client request is generally pretty simple and just sends over the client id (unique id for the client), client secret (the unique secret value prove who you are), the flow that you are using, and the proper content type header.
+Basically you have a client, an authorization server (Duende, Okta, etc. to make sre you are who you say you are), and you have resources/apis. 
+The authorization server is configured to know about all of the clients, all the apis, and which clients can access which apis. 
+
+So using the `ClientCredentials` flow, the client talks to the authorization server to authenticate itself, generally, using a request using the client id (unique id for the client), 
+client secret (the unique secret value prove who you are), the flow that you are using, and the proper content type header.
 
 ```shell
 curl--location--request POST 'https://localhost:5010/connect/token' \
@@ -72,9 +78,16 @@ curl--location--request POST 'https://localhost:5010/connect/token' \
 --data - urlencode 'client_secret=19451648-6618-4d02-b5b0-14382e24307f'
 ```
 
+If the client has the appropriate access, the authorization server will return what's called an access token that can then be used by the client to access the apis.
+
+It is worth noting that this example uses a client secret which, while acceptable, can be hardened using asymmetric keys. For further discussion see the [M2M portion of Dominick Baier's NDC 2020 talk](https://youtu.be/jeRALmfyoqg?t=1113).
+
 ### Code Flow with PKCE
-For anything else, you have some kind of a user interaction with a client. In these situations, you want to use a `code` flow with  PKCE, also known as Proof Key for Code Exchange. 
-What this means is, when we send a request to the authorization server to get an authorization token that proves that we are who we say we are, we go through a specific flow to get that token. 
+For anything else, you have some kind of a user interaction with a client. In these situations, you want to use a `code` flow with  PKCE, also known as Proof Key for Code Exchange.
+
+This is a more involved process than the `ClientCredentials` flow. Using this type of `code` flow, we start by sending a request to the authorization server.
+
+To get an authorization token that proves that we are who we say we are, we go through a specific flow to get that token. 
 In this flow, once you've been successfully authenticated by the authorization server, the server sends you an authentication code (NOT your JWT). Once you have that authentication code, you can 
 then send it back to your authorization server to exchange it for your access token. The PKCE part of this essentially just means that, instead of providing client secret is managed between the authorization 
 server and the client, a secret is essentially dynamically generated per request [This video by Okta](https://www.youtube.com/watch?v=996OiexHze0&feature=youtu.be) has a lemans walkthrough and 
