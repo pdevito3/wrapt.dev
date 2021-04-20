@@ -54,13 +54,13 @@ export function BlogContentLayout({ children, blogmeta }) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:image"
-          content={`https://wrapt.dev/blog$${blogmeta.image}`}
+          content={`https://wrapt.dev/${blogmeta.image}`}
         />
         <meta key="og:url" property="og:url" content={`https://wrapt.dev${router.pathname}`} />
         <meta property="og:type" content="article" />
         <meta property="og:title" content={`${blogmeta.title} – Wrapt`} />
         <meta property="og:description" content={blogmeta.description} />
-        <meta property="og:image" content={`https:/wrapt.dev/blog${blogmeta.image}`} />
+        <meta property="og:image" content={`https:/wrapt.dev${blogmeta.image}`} />
         <meta name="description" content={blogmeta.description}></meta>
       </Head>
       <header className="">
