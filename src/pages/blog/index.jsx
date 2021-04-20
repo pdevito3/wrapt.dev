@@ -258,7 +258,7 @@ function index() {
                         </p>
                         <div className="flex space-x-1 text-sm text-gray-500">
                           <time dateTime={blogmeta.date}>
-                            {formatDate(new Date(blogmeta.date))}
+                            {formatDate(blogmeta.date)}
                           </time>
                           {/* <span aria-hidden="true">
                             ·

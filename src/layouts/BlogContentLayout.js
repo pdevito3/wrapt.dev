@@ -92,7 +92,7 @@ export function BlogContentLayout({ children, blogmeta }) {
               <div>
                 <dt className="sr-only">Published on</dt>
                 <dd className="text-base leading-6 font-medium text-gray-500">
-                  <time dateTime={blogmeta.date}>{formatDate(new Date(blogmeta.date))}</time>
+                  <time dateTime={blogmeta.date}>{formatDate(blogmeta.date)}</time>
                 </dd>
               </div>
             </dl>
