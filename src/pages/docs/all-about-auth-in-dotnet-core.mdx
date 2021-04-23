@@ -62,9 +62,9 @@ Luckily there have been a lot of lessons learned and the community has consolida
 that developers should be using in their applications ([see the upcoming OAuth 2.1 specification for details](https://oauth.net/2.1/)). Even better, the flow that we choose depends on the interaction we have.
 
 ### Client Credentials Flow
-If you have Machine to Machine communications, then you should be using the `ClientCredentials` flow. What does that mean though?
+If you have Machine to Machine communications with no interaction from a human being, then you should be using the `ClientCredentials` flow. What does that mean though?
 
-Basically you have a client, an authorization server (Duende, Okta, etc. to make sre you are who you say you are), and you have resources/apis. 
+Basically you have a client, an authorization server (Duende, Okta, etc. to make sure you are who you say you are), and you have resources/apis. 
 The authorization server is configured to know about all of the clients, all the apis, and which clients can access which apis. 
 
 So using the `ClientCredentials` flow, the client talks to the authorization server to authenticate itself, generally, using a request using the client id (unique id for the client), 
@@ -80,18 +80,49 @@ curl--location--request POST 'https://localhost:5010/connect/token' \
 
 If the client has the appropriate access, the authorization server will return what's called an access token that can then be used by the client to access the apis.
 
-It is worth noting that this example uses a client secret which, while acceptable, can be hardened using asymmetric keys. For further discussion see the [M2M portion of Dominick Baier's NDC 2020 talk](https://youtu.be/jeRALmfyoqg?t=1113).
+> It is worth noting that this example uses a client secret which, while acceptable, can be hardened using asymmetric keys. For further discussion see the 
+[M2M portion of Dominick Baier's NDC 2020 talk](https://youtu.be/jeRALmfyoqg?t=1113) and [this page of the Duende docs](https://docs.duendesoftware.com/identityserver/v5/tokens/authentication/mtls/).
 
 ### Code Flow with PKCE
-For anything else, you have some kind of a user interaction with a client. In these situations, you want to use a `code` flow with  PKCE, also known as Proof Key for Code Exchange.
+For anything else, you have some kind of a user interacting with a client. In these situations, you want to use a `code` flow with something called PKCE, also known as Proof Key for Code Exchange.
 
-This is a more involved process than the `ClientCredentials` flow. Using this type of `code` flow, we start by sending a request to the authorization server.
+So how do we use this `code` flow?
 
-To get an authorization token that proves that we are who we say we are, we go through a specific flow to get that token. 
-In this flow, once you've been successfully authenticated by the authorization server, the server sends you an authentication code (NOT your JWT). Once you have that authentication code, you can 
-then send it back to your authorization server to exchange it for your access token. The PKCE part of this essentially just means that, instead of providing client secret is managed between the authorization 
-server and the client, a secret is essentially dynamically generated per request [This video by Okta](https://www.youtube.com/watch?v=996OiexHze0&feature=youtu.be) has a lemans walkthrough and 
-[this video by Dominick Baier](https://youtu.be/TZG3OGlrzIQ) has a great walkthrough of recent best practices.
+1. We start as a user providing some input to our browser or native application, like logging in for instance. This would generally start by hitting an `/authorize` endpoint and submit a request to the authorization server like this:
+
+   ```
+     /authorize?
+     client_id=orderingapp
+     &redirect_uri=https://ordering.com/
+     &response_type=code
+     &scope=order:write
+     &state=someId
+     &code_challenge=hash(verifier)
+   ```
+
+   
+   Where:
+   - `client_id=orderingapp` is the id of the client application as designated on the authorization server
+   - `redirect_uri=https://ordering.com` is the uri that we are redirected to after authorization is complete
+   - `response_type=code` is designating that this request is a `code` flow
+   - `scope=order:write` is a space delimited list of the scopes (permissions) that we are requesting
+   - `state=someId` is an extra piece of info that helps bind the request to a user agent. This helps protect against XSRF attacks by essentially making sure that this info persists across the flow.
+   - `code_challenge=hash(verifier)` is used for the PKCE flow as what is essentially a per request secret
+
+2. Once we've made that request, the client app hands over control to the authorization server to show whatever UI it wants, i.e. some kind of log in page to enter your user credentials.
+
+3. Next, the use can optionally be asked for consent for certain access. This depends on what you chose as your implementation details. For example, you login with Google and you consent to give the client access to your name and email address.
+
+4. Next, the authorization server will send a authorization code. The client (on the server) will then make a request to the authorization server that includes the authorization code. 
+
+5. When the authorization server gets this request, it will check that all the info matches what it just sent out to the browser and, if it does, it with issue an access token to the 
+client that can be used to make authorized requests to your API. This access token is generally a JWT that includes the access token as well as a refresh token that we can use to 
+refresh our token after it expires. Depending on the scopes you requested, you could also get an identity token as well to designate user information.
+
+When does this PKCE thing come into play though? Well, the PKCE part of this essentially just means that, instead of providing client secret with your `/authorize` request that is managed between the authorization 
+server and the client, a secret is essentially dynamically generated per request. 
+
+> [This video by Dominick Baier](https://youtu.be/jeRALmfyoqg?t=1491) has a great walkthrough of recent best practices, specifically for the `code` flow at this timestamp.
 
 ## How Does Wrapt Set Up Auth?
 Wrapt lets you bring whatever Authentication Server you’d like to the table and sets up several areas of authorization in your web APIs.
@@ -112,7 +143,7 @@ Wrapt lets you bring whatever Authentication Server you’d like to the table an
 
 ## Example Authorization Server Setup
 
-Identity Server 4 is a staple of the .NET community that will soon be transitioning to Duende. I'll be using this in the Auth setup example to make sure it is as reproducible as possible, but this should have a comparable setup via other provider UI's like Auth0, Okta, etc. 
+Identity Server 4 is a staple of the .NET community that has recently transitioned to Duende. I'll be using this in the Auth setup example to make sure it is as reproducible as possible, but this should have a comparable setup via other provider UI's like Auth0, Okta, etc. 
 
 **This is not an exhaustive walkthrough** as there are too many business specific needs that come into play, but this will give you a base to work from. Let's get an initial setup going:
 
