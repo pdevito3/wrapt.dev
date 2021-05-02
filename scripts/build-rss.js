@@ -14,8 +14,8 @@ const feed = new Feed({
   id: siteUrl,
   link: siteUrl,
   language: 'en',
-  image: `${siteUrl}/favicon-32x32.png`,
-  favicon: `${siteUrl}/favicon.ico`,
+  image: `$https://wrapt.dev/favicon-32x32.png`,
+  favicon: `$https://wrapt.dev/favicon.ico`,
   copyright: `All rights reserved ${new Date().getFullYear()}, Wrapt`,
   feedLinks: {
     rss: `${siteUrl}/feed.xml`,
