@@ -23,10 +23,11 @@ A list of database entities in your project. These entities are added as dbsets 
 
 A list of properties that can be assigned to an entity.
 
+
 | Name               | Required | Description                                                  | Default                          |
 | ------------------ | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Name               | Yes      | The name of the property                                     | *None*                           |
-| Type               | Yes      | The data type for the property. These are *not* case sensitive and they can be set to nullable with a trailing `?`. | *None*                           |
+| Type               | Yes      | The data type for the property. These are *not* case sensitive and they can be set to nullable with a trailing `?`. All standard C# data types can be used here. You even do custom properties like classes that act as foreign keys for instance. | *None*                           |
 | IsPrimaryKey       | Yes      | When true, the property will be set as the primary key for the entity. For now, only one primary key is supported, with plans to add compound key support down the road. | false                            |
 | CanFilter          | No       | Will set the property to be filterable in the API endpoint when set to true. | false                            |
 | CanSort            | No       | Will set the property to be filterable in the API endpoint when set to true. | false                            |
