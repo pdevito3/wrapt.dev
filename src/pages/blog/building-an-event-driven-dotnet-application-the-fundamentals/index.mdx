@@ -1,0 +1,168 @@
+import { pauldevito } from 'src/data/authors'
+import image from './card.png'
+
+export const blogmeta = {
+  title: 'Building an Event Driven .NET Application: The Fundamentals',
+  description: `This is the first post in the Building an Event Driven .NET Application series where we’ll lay the foundation for your event driven knowledge moving forward.`,
+  date: '2021-05-11 08:22:12', // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: 'Distributed Systems',
+  image,
+  tags: ['event driven architecture', 'dotnet', 'net5']
+}
+
+## Series
+- Building an Event Driven .NET Application: The Fundamentals
+- Building an Event Driven .NET Application: Setting Up MassTransit and RabbitMQ (TBD)
+- Building an Event Driven .NET Application: Error Handling and Logging (TBD)
+- Building an Event Driven .NET Application: Testing Pub/Subs (TBD)
+- TBD Additional
+
+## Introduction
+
+The purpose of this series is to go through and in-depth walkthrough of setting up an event driven architecture in a distributed .NET application. 
+
+This is the first post in the series where we’ll lay the foundation for your event driven knowledge moving forward.
+
+## Defining an Event Driven versus an Event Sourcing Architecture
+
+An Event Driven Architecture (EDA) is used in distributed applications to pass messages around using events to send a notification some kind. This notification will signify that some change significant state change has occurred so that other applications can react to that state change in whatever way is required by the business. For example, say a customer changes their address in an application, that application might send out a `CustomerAddressUpdated` event and any other application that needs to react to that address change can do so. 
+
+Some applications take this a step further to an Event Sourcing pattern where the current state of an entity is derived entirely from the history of events that have happened to it over time. This post will be going in an Event Driven Architecture as oppose to an Event Sourcing Architecture.
+
+You can check out [a full talk on this by Martin Fowler](https://youtu.be/STKCRSUsyP0) if you'd like to hear more about the overall idea of these different patterns.
+
+## Core Concepts
+
+Let's cover some core concepts within a EDAs to lay a foundation for how things are working.
+
+### Messages
+
+A message is a piece of information that we want to distribute to one or more locations. The content of the message can be anything and they can generally be categorized into events or commands depending on how they are being used. Commands are used in the imperative to tell a subscriber to do something like `ApproveOrder` or `UpdateAddress`, where events are used in the past-participle to say that something occurred like `OrderApproved` or `AddressUpdated`.
+
+### Message Broker
+
+A message broker is a distinct piece of infrastructure that accepts incoming messages and routes them to any applications that have expressed interest in each message. You can think of this like a post office getting delivered mail and then bringing it to the designated address listed on the envelope or package. Common brokers are [RabbitMQ](https://www.rabbitmq.com/) and [Kafka](https://kafka.apache.org/). 
+
+### Publisher/Subscriber
+
+A publisher (a.k.a. producer) is an application that sends messages to the broker.
+
+A subscriber (a.k.a. consumer) is an application that connects to the broker, expresses interest in one or more types of messages, and can then get those message from the broker as they become available. 
+
+### Message Bus
+
+A message bus is a library to help manage the publishing and subscribing interactions between the message broker and client applications. Some common service bus libraries in the .NET space are [MassTransit](https://masstransit-project.com/), [NServiceBus](https://particular.net/nservicebus), [Brighter](https://www.goparamore.io/), and [Rebus](https://github.com/rebus-org/Rebus).
+
+### Connections and Channels
+
+You can think of these as the roads that the message bus will use to transport the message to the broker. In this mental model, the connection might be a road and the channels might be different lanes on the road.
+
+Connections are a TCP link between the client application that handles major networking responsibilities, including authentication. Channels are lightweight virtual connections **within** a TCP connection that are used to transport messages to and from the message broker. 
+
+The implication here is that we can leave a TCP connection open and the lightweight channels can be created and deleted as needed without requiring us to go through the additional handshake work that comes with setting up a TCP connection.
+
+CloudAMQP has [a good writeup on their blog](https://www.cloudamqp.com/blog/the-relationship-between-connections-and-channels-in-rabbitmq.html) that goes into a bit more detail if you're interested.
+
+<img className="mx-auto" src="https://www.cloudamqp.com/img/blog/workflow-rabbitmq.png" alt="basic rabbitmq workflow" />
+
+Credit: [CloudAMQP RabbitMQ For Beginners Blog Post](https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html)
+
+
+## The Different Parts of a Message Broker
+
+So we have a publishing application that will send a message to the message broker for distribution to any subscribers that may be interested. In order to send this message out, we'll need to tell our message broker how we want to distribute those messages. 
+
+In order to understand this process, we're going to break the message broker into three important parts. 
+
+### Exchange
+
+An exchange is where a message starts out in the broker and are in charge of routing incoming messages to the queue based on the rules defined by `exchange type` passed in with the message. An exchange can be thought of as the post office of the broker.
+
+### Queue
+
+Next, we have queues. A queue stores messages that have been passed to it from the exchange and are the part of the broker that our subscribers are actually subscribed to.
+
+### Bindings
+
+A binding is a relationship between an exchange and a queue. This can be simply read as: the queue is interested in messages from this exchange. These bindings have a unique identifier called a `binding key` that the exchange can use when routing messages to particular queues. It's usually a good practice to send a single exchange type through them (more on those later).
+
+> It's worth noting that you can bind two exchanges together as well if needed (e.g. load balancing, sharing messages between exchanges, wire tapping, saving messages). See [this writeup by CloudAMQP](https://www.cloudamqp.com/blog/exchange-to-exchange-binding-in-rabbitmq.html) for more details.
+
+<img className="mx-auto" src="https://www.cloudamqp.com/img/blog/exchanges-bidings-routing-keys.png" alt="expanded broker diagram" />
+
+Credit: [CloudAMQP RabbitMQ For Beginners Blog Post](https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html)
+
+## Telling the Exchange How to Deliver Our Messages
+
+So given that breakdown, our message will come into the broker and start at an exchange (the post office portion of our broker), but how does the exchange know which queue(s) to send the message to? Well, it's going to check the message metadata for a few things:
+
+1. **Exchange Type**: The exchange type will tell the exchange what type of distribution method it should use for this message.
+2. **Routing Key**: The routing key is a period (`.`) delimited list of words that can be used to direct a message to one or more queues based on their binding key. 
+3. **Header Attributes**: Contains attributes that are used to direct message routing when the message designates a `header` exchange type.
+
+An exchange will start out by checking the `exchange type` to see how it should route the incoming message. Let's look at the details for each exchange type.
+
+<img className="mx-auto max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl" src="https://www.cloudamqp.com/img/blog/exchanges-topic-fanout-direct.png" alt="basic exchange diagram" />
+
+Credit: [CloudAMQP RabbitMQ For Beginners Blog Post](https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html)
+
+
+### Fanout
+
+A `fanout` exchange type will tell the exchange to route messages to all of the queues bound to it. 
+
+For example, let's say we have a "checkout" exchange that has a "shipping" queue and an "inventory" queue bound to it. If the exchange receives a message with a `fanout` exchange type, this message will be sent to both the "inventory" and the "shipping" queues.
+
+### Direct
+
+A `direct` exchange type will tell the exchange to route messages to the queue whose binding key matches the routing key that was sent with the message exactly.
+
+For example, let's say our publishing application produces a message with a `direct` exchange type and a `shipping.us.tv` routing key. When the exchange gets this message, it will check for queue bindings that have a binding key (the identifier for an exchange-queue binding) that matches `shipping.us.tv` exactly.
+
+### Topic
+
+The `topic` exchange type is similar to the `direct` type, but lets us check for a partial match between the routing key and the binding key. You can use a `*` (asterisk) as a wildcard for a single word and a `#` (hash) can substitute for zero or more words.
+
+So in the `direct` exchange example, `shipping.us.tv` was only routed to the queue that had that exact binding, but if we used `shipping.*.tv` the message would be duplicated and routed to all queues that started with `shipping` and ended with `tv`. So say we had a few more queues, the message would be routed to `shipping.us.tv` and `shipping.ca.tv`,but not to `shipping.us.shoes`. Alternatively, if we has a routing key of `shipping.#` the message would also go to `shipping.us.shoes` because it also starts with `shipping.`.
+
+### Header
+
+The with `header` exchange behaves very similar to the `topic` exchange type, but ignore the routing key and use header metadata to figure out where to route the message instead. Because a `header` exchange type is not limited a string like the `topic` exchange type, it can be used as a more powerful type that routes using other data types like integers or hashes.
+
+A long with a list of key value pairs, a special argument named `x-match` can be sent in the header and assigned a value of `all` or `any` (with `all` being the default). When using `all`, all the header key value pairs much match and when using `any`, at least one of the key value pairs much match. Headers can also be built using various other operators to add additional rules to this matching pattern.
+
+So in a `header` example, let's say the binding between the exchange and one of the delivery queues has an `x-match` of `all` and two key value pairs — `from: Atlanta` and `to: Atlanta`. In order for a message to get routed to this queue, it needs to have an `x-match` value of `all` and both of the key value pairs as well.
+
+### Default
+
+The `default` exchange is another way of using the `direct` exchange type also known as a nameless exchange and is unique to RabbitMQ and is not found in other brokers. 
+
+When using the `default` exchange type (an exchange type with an empty string value, hence the 'nameless exchange' nickname), your message will be delivered to the queue with a name equal to the routing key of the message. Every queue is automatically bound to the default exchange with a routing key which is the same as the queue name.
+
+### Dead Letter Exchange
+
+RabbitMQ also has the concept of a `Dead Letter Exchange` which silently drops messages that can't be routed to a queue by the broker. There are extensions to capture and handle these messages instead of dropping them and many buses give you the capability to handle these messages (e.g. [MassTransit Dead-Letter Pipe](https://masstransit-project.com/usage/exceptions.html#dead-letter-pipe))
+
+### A Summary of the Message Flow for an Event Driven Architecture
+
+1. An application publishes a message to a message broker.
+2. The message will arrive in the exchange portion of the message broker.
+3. The exchange will check the configuration on the incoming message.
+4. Based on the configuration, the exchange will route the message to the appropriate queue based using whatever matching binding have been established to connect the queues and the exchange.
+5. The message will stay in the queue until it is picked up by a consumer.
+6. One or more subscribing applications will check the queue and consume the message when ready.
+
+## Coming in the Next Post
+
+In the next post of the series, we’ll actually see how we can implement each of these exchanges in a .NET 5 web api using MassTransit and RabbitMQ. 
+
+Regardless, I hope this was helpful! I'd love to hear your thoughts [on Twitter](https://twitter.com/pdevito3) @pdevito3.
+
+### Additional Resources on RabbitMQ
+
+RabbitMQ is the message broker that we're going to be working with in the next post. There's some great resources below if you want to get some additional insight.
+
+* [IBM RabbitMQ  Summary](https://youtu.be/7rkeORD4jSw)
+* [CloudAMQP RMQ Overview](https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html)
+* [CloudAMQP RMQ Exchange Summary](https://www.cloudamqp.com/blog/part4-rabbitmq-for-beginners-exchanges-routing-keys-bindings.html)
