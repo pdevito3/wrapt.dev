@@ -4,7 +4,7 @@ import image from './card.png'
 export const blogmeta = {
   title: 'Building an Event Driven .NET Application: The Fundamentals',
   description: `This is the first post in the Building an Event Driven .NET Application series where we’ll lay the foundation for your event driven knowledge moving forward.`,
-  date: '2021-05-11 07:53:21', // Ctrl+Shift+I w/ Insert Date String plugin
+  date: '2021-05-11 08:22:12', // Ctrl+Shift+I w/ Insert Date String plugin
   authors: [pauldevito],
   category: 'Distributed Systems',
   image,
@@ -64,7 +64,7 @@ The implication here is that we can leave a TCP connection open and the lightwei
 
 CloudAMQP has [a good writeup on their blog](https://www.cloudamqp.com/blog/the-relationship-between-connections-and-channels-in-rabbitmq.html) that goes into a bit more detail if you're interested.
 
-<img class="mx-auto" src="https://www.cloudamqp.com/img/blog/workflow-rabbitmq.png" alt="basic rabbitmq workflow" />
+<img className="mx-auto" src="https://www.cloudamqp.com/img/blog/workflow-rabbitmq.png" alt="basic rabbitmq workflow" />
 
 Credit: [CloudAMQP RabbitMQ For Beginners Blog Post](https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html)
 
@@ -89,7 +89,7 @@ A binding is a relationship between an exchange and a queue. This can be simply 
 
 > It's worth noting that you can bind two exchanges together as well if needed (e.g. load balancing, sharing messages between exchanges, wire tapping, saving messages). See [this writeup by CloudAMQP](https://www.cloudamqp.com/blog/exchange-to-exchange-binding-in-rabbitmq.html) for more details.
 
-<img class="mx-auto" src="https://www.cloudamqp.com/img/blog/exchanges-bidings-routing-keys.png" alt="expanded broker diagram" />
+<img className="mx-auto" src="https://www.cloudamqp.com/img/blog/exchanges-bidings-routing-keys.png" alt="expanded broker diagram" />
 
 Credit: [CloudAMQP RabbitMQ For Beginners Blog Post](https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html)
 
@@ -103,7 +103,7 @@ So given that breakdown, our message will come into the broker and start at an e
 
 An exchange will start out by checking the `exchange type` to see how it should route the incoming message. Let's look at the details for each exchange type.
 
-<img class="mx-auto max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl" src="https://www.cloudamqp.com/img/blog/exchanges-topic-fanout-direct.png" alt="basic exchange diagram" />
+<img className="mx-auto max-w-sm sm:max-w-md md:max-w-lg lg:max-w-2xl" src="https://www.cloudamqp.com/img/blog/exchanges-topic-fanout-direct.png" alt="basic exchange diagram" />
 
 Credit: [CloudAMQP RabbitMQ For Beginners Blog Post](https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html)
 
