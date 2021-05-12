@@ -26,7 +26,7 @@ This is the first post in the series where we’ll lay the foundation for your e
 
 ## Defining an Event Driven versus an Event Sourcing Architecture
 
-An Event Driven Architecture (EDA) is used in distributed applications to pass messages around using events to send a notification some kind. This notification will signify that some change significant state change has occurred so that other applications can react to that state change in whatever way is required by the business. For example, say a customer changes their address in an application, that application might send out a `CustomerAddressUpdated` event and any other application that needs to react to that address change can do so. 
+An Event Driven Architecture (EDA) is used in distributed applications to pass messages around using events to send a notification some kind. This notification will signify that some significant state change has occurred so that other applications can react to that state change in whatever way is required by the business. For example, say a customer changes their address in an application, that application might send out a `CustomerAddressUpdated` event and any other application that needs to react to that address change can do so. 
 
 Some applications take this a step further to an Event Sourcing pattern where the current state of an entity is derived entirely from the history of events that have happened to it over time. This post will be going in an Event Driven Architecture as oppose to an Event Sourcing Architecture.
 
