@@ -169,7 +169,7 @@ services.AddMassTransit(mt =>
 {
     mt.UsingRabbitMq((context, cfg) =>
     {
-	cfg.Host("localhost", "/", h =>
+      	cfg.Host("localhost", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
@@ -177,7 +177,7 @@ services.AddMassTransit(mt =>
 
         cfg.Message<ISendReportRequest>(e => e.SetEntityName("report-requests")); // name of the primary exchange
         cfg.Publish<ISendReportRequest>(e => e.ExchangeType = ExchangeType.Direct); // primary exchange type
-	cfg.Send<ISendReportRequest>(e =>
+	      cfg.Send<ISendReportRequest>(e =>
         {
             e.UseRoutingKeyFormatter(context => context.Message.Provider.ToString()); // route by provider (email or fax)
         });
@@ -294,13 +294,13 @@ public class Handler : IRequestHandler<SubmitReportRequestCommand, ReportRequest
 
         if (saveSuccessful)
         {
-	    var message = new
-	    {
-	        ReportId = reportRequest.ReportRequestId,
-	        Provider = reportRequest.Provider.ToString(),
-		Target = reportRequest.Target.ToString()
-	    };
-	    await _publishEndpoint.Publish<ISendReportRequest>(message);
+            var message = new
+            {
+              ReportId = reportRequest.ReportRequestId,
+              Provider = reportRequest.Provider.ToString(),
+              Target = reportRequest.Target.ToString()
+            };
+            await _publishEndpoint.Publish<ISendReportRequest>(message);
 
             return await _db.ReportRequests
                 .ProjectTo<ReportRequestDto>(_mapper.ConfigurationProvider)
@@ -342,13 +342,13 @@ services.AddMassTransit(mt =>
 {
     mt.UsingRabbitMq((context, cfg) =>
     {
-	cfg.Host("localhost", "/", h =>
+      	cfg.Host("localhost", "/", h =>
         {
             h.Username("guest");
             h.Password("guest");
         });
 
-	cfg.ReceiveEndpoint("email-reports", re =>
+      	cfg.ReceiveEndpoint("email-reports", re =>
         {
             // turns off default fanout settings
             re.ConfigureConsumeTopology = false;
@@ -367,7 +367,7 @@ services.AddMassTransit(mt =>
                 e.ExchangeType = ExchangeType.Direct;
             });
         });
-	cfg.ReceiveEndpoint("fax-reports", re =>
+      	cfg.ReceiveEndpoint("fax-reports", re =>
         {
             re.ConfigureConsumeTopology = false;
             re.Consumer<FaxConsumer>();
