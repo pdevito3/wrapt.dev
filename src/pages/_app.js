@@ -7,6 +7,7 @@ import { ResizeObserver } from '@juggle/resize-observer'
 import { Title } from 'src/components/Title'
 import twitterLargeCard from 'src/img/twitter-large-card.jpg'
 import BlogHeader from 'src/components/BlogHeader'
+import { usePanelbear } from '../hooks/usePanelbear'
 // import 'intersection-observer'
 
 if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
@@ -16,6 +17,10 @@ if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
 function MyApp({ Component, pageProps, router }) {
   let [navIsOpen, setNavIsOpen] = useState(false)
   const [header, setHeader] = useState(null)
+  usePanelbear("2XQVkQvfcG5", {
+    // Uncomment to allow sending events on localhost, and log to console too.
+    // debug: true
+  });
 
   // move to state machine for fun?
   useEffect(() => {

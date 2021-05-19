@@ -1454,6 +1454,11 @@
   resolved "https://registry.yarnpkg.com/@next/react-refresh-utils/-/react-refresh-utils-10.0.2.tgz#a9a3daa55385749cd62fb57d4423ca27ae5f4e81"
   integrity sha512-ILc5/BipD7+GBLmtfnQDMG71KLx0fEpVI5kJw8jN9SoeygMrb4auZhCl7gA6QP3oynocYouJ8piLj1Ol80ZvVw==
 
+"@panelbear/panelbear-js@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@panelbear/panelbear-js/-/panelbear-js-1.2.0.tgz#1037598fd2d310fcdc88d4447cfbc0d2833d2c25"
+  integrity sha512-wCet7ChsO313S0YpOXLAi5R3vIk38ckoDF5yHQ3wU6OV73tY4PijBex3Y+Nf4/EPakAAGoJjW8WSBtCXcxJchg==
+
 "@reach/observe-rect@1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@reach/observe-rect/-/observe-rect-1.2.0.tgz#d7a6013b8aafcc64c778a0ccb83355a11204d3b2"

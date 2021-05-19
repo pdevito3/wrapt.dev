@@ -9,7 +9,6 @@
     "start": "next start",
     "build:rss": "node ./.next/serverless/scripts/build-rss.js",
     "build:rss-local": "node ./.next/server/scripts/build-rss.js"
-
   },
   "dependencies": {
     "@docsearch/css": "^1.0.0-alpha.22",
@@ -20,6 +19,7 @@
     "@mdx-js/loader": "^1.6.21",
     "@next/bundle-analyzer": "^10.0.3",
     "@next/mdx": "^10.0.2",
+    "@panelbear/panelbear-js": "^1.2.0",
     "@reach/rect": "^0.12.0",
     "@sindresorhus/slugify": "^1.1.0",
     "@svgr/webpack": "^5.5.0",
