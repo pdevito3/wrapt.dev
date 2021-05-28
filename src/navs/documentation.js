@@ -14,6 +14,7 @@ export const documentationNav = {
     pages['customizing-wrapt-projects'],
   ],
   'Commands': [
+    pages['add-bus'],
     pages['add-bounded-context'],
     pages['add-entity'],
     pages['add-entity-property'],
@@ -22,6 +23,7 @@ export const documentationNav = {
   ],
   'File Templates': [
     pages['bounded-contexts-template'],
+    pages['bus-template'],
     pages['domain-template'],
     pages['entity-template'],
   ],
