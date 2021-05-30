@@ -50,9 +50,11 @@ and update the associated files to meet your needs.
 ### Features
 Features are one of the pivotal patterns of a Vertical Slice Architecture. Each feature lives in the `Feature` folder of the Web Api project and 
 will correspond to various actions that can be performed on each of your entities. Out of the box, Wrapt will give you basic CRUD features for each of your entities to 
-get a list, get a record, create a record, update a record, partially update a record, and delete a record.
+get a list, get a record, create a record, update a record, partially update a record, and delete a record. 
 
-In practice, each controller is essentially acting as a router to a feature and that's all. All the business logic behind the endpoint lives in the feature. The features themselves are 
+As your project grows, you can continue to add more features (or update these existing ones) to meet your business needs.
+
+In practice, each controller is essentially acting as a router to a feature and that's all. All the business logic behind the endpoint lives in the feature (or, even better, in the domain layer that is used by the feature). The features themselves are 
 [MediatR commands or queries](https://github.com/jbogard/MediatR) that are fed into a handler that return a response.
 
 
