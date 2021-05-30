@@ -44,6 +44,7 @@ export const documentationNav = {
   ],
   'Additional Resources': [
     pages['all-about-auth-in-dotnet-core'],
+    pages['communicating-between-bounded-contexts'],
     pages['logging'],
     pages['migrations'],
   ],

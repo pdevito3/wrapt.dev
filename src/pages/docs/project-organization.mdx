@@ -202,15 +202,103 @@ Command validation is where we have more complex business validations come into 
 This validation can be added in your command handler or, even better, encapsulated in your domain entity as a new method.
 
 
+### Eventing
+Wrapt projects support scaffolding for event driven features like producers and consumers in an event bus, messages, and more.
+
+Messages are stored in a distinct project at the solution root as they are generally used to communicate across bounded contexts and shouldn't belong to any particular bounded context.
+
+Producers and consumers can both be added as distinct features using the `add:producer` and `add:consumer` commands. 
+
+A common requirement is to add a producer to an existing feature. If that's the case, you can add an `IPublishEndpoint` to your command and publish your message like you usually would. For instance:
+
+```csharp
+public class Handler : IRequestHandler<SubmitReportRequestCommand, ReportRequestDto>
+{
+    private readonly ReportingDbContext _db;
+    private readonly IMapper _mapper;
+    private readonly IPublishEndpoint _publishEndpoint;
+
+    public Handler(ReportingDbContext db, IMapper mapper, IPublishEndpoint publishEndpoint)
+    {
+        _mapper = mapper;
+        _db = db;
+        _publishEndpoint = publishEndpoint;
+    }
+
+    public async Task<ReportRequestDto> Handle(SubmitReportRequestCommand request, CancellationToken cancellationToken)
+    {
+        if (await _db.ReportRequests.AnyAsync(r => r.ReportId == request.RequestToAdd.ReportId))
+        {
+            throw new ConflictException("Reporting Request already exists with this primary key.");
+        }
+
+        var reportRequest = _mapper.Map<ReportRequest>(request.ReportRequestToAdd);
+        _db.ReportRequests.Add(reportRequest);
+        var saveSuccessful = await _db.SaveChangesAsync() > 0;
+
+        if (saveSuccessful)
+        {
+            var message = new
+            {
+              ReportId = reportRequest.ReportRequestId,
+              Provider = reportRequest.Provider.ToString(),
+              Target = reportRequest.Target.ToString()
+            };
+            await _publishEndpoint.Publish<ISendReportRequest>(message);
+
+            return await _db.ReportRequests
+                .ProjectTo<ReportRequestDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(r => r.ReportId == reportRequest.ReportId);
+        }
+        else
+        {
+            throw new Exception("Unable to save the new record. Please check the logs for more information.");
+        }
+    }
+}
+```
+
+> Note that adding a producer to a MediatR command like this will currently break the tests associated to it.
+
+
 ### Automated Tests
 Wrapt will automatically scaffold out unit, integration and functional tests for each of your bounded contexts using NUnit. 
 
-- **Unit tests** are meant to confirm that individual operations are working as expected 
-(e.g. PagedList calculations). 
+- **Unit tests** are meant to confirm that individual operations are working as expected (e.g. PagedList calculations). 
 
 - **Integration tests** are meant to check that different areas are working together as expected (e.g. our features folder). These tests will spin up a real database in docker 
-and run each of your feature tests in an actual representation of your database. 
+and run each of your feature tests in an actual representation of your database. If you're using eventing, an in-memory test harness for MassTransit will be set up for you to run eventing tests as well.
 
 - **Functional tests** are meant to check an entire slice of functionality with all the code running together. 
 These are generally more involved to write and maintain, but with this project setup, our controllers are essentially just routers to our feature queries and commands, so we have 
 already done the meat of our testing in our integration tests. This means that our functional tests can just confirm that we are getting the expected responses from our routes and we can call it a day.
+
+#### Adding Tests for Consumers
+Craftsman will scaffold out a myriad of tests for you, but will not do this for consumers at this time. If you want to add tests for your consumers, you can add your tests manually for the time being. 
+Craftsman will register your consumers in the test harness of integration testing project whenever you add them in, so you should generally be able to just add a test without much hassle.
+
+This is a basic example test for a consumer.
+```csharp
+        [Test]
+        public async Task bus_consumer_test()
+        {
+            // Arrange
+            var message = new
+            {
+                ReportId = Guid.NewGuid(),
+                Provider = "string",
+                Target = "string",
+            };
+
+            // Act
+            await PublishMessage<ISendReportRequest>(message);
+
+            // Assert
+            // did the endpoint consume the message
+            Assert.That(await _harness.Consumed.Any<ISendReportRequest>());
+
+            // ensure that no faults were published by the consumer
+            Assert.That(await _harness.Published.Any<Fault<ISendReportRequest>>(), Is.False);
+        }
+
+```
