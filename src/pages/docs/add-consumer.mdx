@@ -1,0 +1,43 @@
+---
+title: Add Consumer Command
+shortTitle: Add Consumer
+description: Adds a event driven message consumer to your project.
+---
+
+This command will add a MassTransit consumer to an existing Wrapt project using a formatted yaml or json file. The [input file template](/docs/consumer-template).
+
+This command will:
+* Add a skelton for a consumer feature
+* Create a consumer registration file
+* Add the consumer registration to the MassTransit registration
+* Add the consumer to the MassTransit harness in the integration tests
+
+> This command must to be ran from one of your *bounded context* directories for a project.
+
+```shell
+craftsman add:consumer [options] <filepath>
+#OR
+craftsman add:consumers [options] <filepath>
+```
+
+## Add Consumer Arguments
+| Argument        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| filepath        | The full filepath for the yaml or json file that lists the new entities that you want to add to your API.
+
+## Add Consumer Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+
+
+## Add Consumer Example Commands
+```shell
+craftsman add:consumer -h
+craftsman add:consumer C:\fullpath\newconsumer.yaml
+craftsman add:consumer C:\fullpath\newconsumer.yml
+craftsman add:consumer C:\fullpath\newconsumer.json
+```
+
+## Add Consumer Example
+When using the `add:consumer` command, your template file is pretty simple. Check out the [Adding a Consumer to an Existing Project](/docs/consumer-template#adding-a-consumer-to-an-existing-project) example for more details.

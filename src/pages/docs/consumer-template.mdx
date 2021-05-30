@@ -1,0 +1,97 @@
+---
+title: Consumer Template
+description: The template for the file used when adding a message bus to a project using the `add:consumer`, `add:bc`, or `new:domain` commands.
+---
+
+
+## Add Consumer Template Properties
+
+| Name       | Required | Description                                                         | Default                          | 
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- | 
+| EndpointRegistrationMethodName        | Yes      | A deliberately long name to try and promote readability. This is a string that will determine the name of the method used to register the consumer inside MassTransit. | *None*   |
+| ConsumerName        | Yes      | A string that determines the name of the consumer. | *None*   |
+| MessageName        | Yes      | A string that determines the name of the message the consumer will, well, consume! | *None*   |
+| QueueName        | Yes      | A string that determines the name of the queue that you want this particular consumer to be linked to for getting messages. | *None*   |
+| ExchangeName        | Yes      | A string that determines the name of the exchange that this consumer will be tied to. Note that this should match exchange name in the producer that you want this to be linked to. | *None*   |
+| ExchangeType        | No      | The type of exchange you want to use. This can be set to `fanout`, `direct`, or `topic`. | *direct* |
+| RoutingKey        | No      | A string value that determines the routing key that you want to use if you are working with a `direct` or `topic` exchange. This can be excluded for `fanout` exchanges. | *None* |
+| IsQuorum        | No      | A boolean that determines whether or not you want to use a quorum queue. This is [generally recommended as a best practice](https://www.cloudamqp.com/blog/part1-rabbitmq-best-practice.html#use-quorum-queues). | *true* |
+| IsLazy        | No      | A boolean that determines whether or not you want to use a lazy queue. This is [generally recommended as a best practice](https://www.cloudamqp.com/blog/part1-rabbitmq-best-practice.html#enable-lazy-queues-to-get-predictable-performance). Generally, these can be disabled if you require really high performance, if the queues are always short, or if you have set a max-length policy | *true* |
+| UsesDb        | No      | A boolean that determines whether ot not the scaffolded consumer feature will inject the db context in the project.  | *true* |
+
+
+> When adding consumers to an existing project, be sure to run the `add:bus` command if you don't already have a message bus in your project. This bus command should be completed *before* running an `add:consumer` command.
+
+
+## Add Consumer Template Examples
+
+### Adding a Consumer with Your Domain or Bounded Context
+In this example, we're adding a message bus, consumer, message, and producer to our project. Notice how the exchange and message names match between the producer and the consumer.
+
+```yaml
+DomainName: WeSendReportsCompany
+BoundedContexts:
+- SolutionName: Reporting
+  Producers:
+  - EndpointRegistrationMethodName: SubmitReportRequest
+    ExchangeName: report-requests
+    MessageName: ISendReportRequest
+    ExchangeType: fanout
+    ProducerName: ReportWasRequested
+    UsesDb: true
+  Consumers:
+  - EndpointRegistrationMethodName: AllReportsGetSentFromHereEndpoint
+    ConsumerName: SenderOfAllReports
+    ExchangeName: report-requests
+    MessageName: ISendReportRequest
+    QueueName: all-reports
+    ExchangeType: fanout
+  Messages:
+  - Name: ISendReportRequest
+    Properties:
+    - Name: ReportId
+      Type: guid
+    - Name: Provider
+      Type: string
+    - Name: Target
+      Type: string
+  Bus:
+    AddBus: true
+  # additional new:domain properties here
+```
+
+
+### Adding a Consumer to an Existing Project
+If you've already created your Wrapt project and want to add one or more consumers after the fact, you can use the `add:consumer` command to pass through one or more consumers to your project. 
+Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add:bus` command.
+
+This particular example will add consumers using a direct exchange.
+
+```yaml
+Consumers:
+- EndpointRegistrationMethodName: EmailReportsEndpoint
+  ConsumerName: EmailConsumer
+  ExchangeName: report-requests
+  QueueName: email-reports
+  ExchangeType: direct
+  RoutingKey: email
+- EndpointRegistrationMethodName: FaxReportsEndpoint
+  ConsumerName: FaxConsumer
+  ExchangeName: report-requests
+  QueueName: fax-reports
+  ExchangeType: direct
+  RoutingKey: fax
+  IsLazy: false
+  IsQuorum: false
+```
+
+If you wanted to do a `topic` exchange, it might look like this:
+```yaml
+Consumers:
+- EndpointRegistrationMethodName: CloudReportsEndpoint
+  ConsumerName: CloudConsumer
+  ExchangeName: report-requests
+  QueueName: cloud-reports
+  ExchangeType: topic
+  RoutingKey: public.*
+  ```

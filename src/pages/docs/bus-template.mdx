@@ -1,6 +1,6 @@
 ---
 title: Bus Template
-description: The template for the file used when adding a message bus to a project using the `add:bus` or `new:domain` commands.
+description: The template for the file used when adding a message bus to a project using the `add:bus`, `add:bc`, or `new:domain` commands.
 ---
 
 
@@ -11,14 +11,19 @@ description: The template for the file used when adding a message bus to a proje
 | AddBus        | Yes      | A boolean to indicate that you are adding a bus. | *None*   | **Not required for the `add:bus` command.**  |
 | [Environments](/docs/multiple-environments)    | No      | The environments that get scaffolded out in this project. You only need to use the `EnvironmentName` and the `BrokerSettings` with this command.  | *None*   | |
 
+
 ## Add Bus Template Examples
 
-### Adding a Bus with Your Domain
+### Adding a Bus with Your Domain or Bounded Context
 
-If you're adding a bus in your `new:domain` command, then you can add the appropriate broker details to your `Environments` property and add an `AddBus` property to make sure Craftsman knows to add the bus.
+If you're adding a bus in your `new:domain` command, then you can add the appropriate broker details to your `Environments` property (**in your bounded context**) and add an `AddBus` property to make sure Craftsman knows to add the bus.
+
+
+> When adding a bus in a bounded context, you should set the `Environment` properties on the bounded context, not the bus, but you **do** need to set `AddBus` to true within the `Bus`.
+
 
 ```yaml
-DomainName: WeSendReportsCompanyWithBusAndTestSetup
+DomainName: WeSendReportsCompany
 BoundedContexts:
 - SolutionName: Reporting
   Environments:

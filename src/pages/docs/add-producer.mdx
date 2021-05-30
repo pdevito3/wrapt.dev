@@ -1,0 +1,43 @@
+---
+title: Add Producer Command
+shortTitle: Add Producer
+description: Adds a event driven message producer to your project.
+---
+
+This command will add a MassTransit producer to an existing Wrapt project using a formatted yaml or json file. The [input file template](/docs/producer-template).
+
+This command will:
+* Add a skelton for a producer feature
+* Create a producer registration file
+* Add the producer registration to the MassTransit registration
+* Add the producer to the MassTransit harness in the integration tests
+
+> This command must to be ran from one of your *bounded context* directories for a project.
+
+```shell
+craftsman add:producer [options] <filepath>
+#OR
+craftsman add:producers [options] <filepath>
+```
+
+## Add Producer Arguments
+| Argument        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| filepath        | The full filepath for the yaml or json file that lists the new entities that you want to add to your API.
+
+## Add Producer Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+
+
+## Add Producer Example Commands
+```shell
+craftsman add:producer -h
+craftsman add:producer C:\fullpath\newproducer.yaml
+craftsman add:producer C:\fullpath\newproducer.yml
+craftsman add:producer C:\fullpath\newproducer.json
+```
+
+## Add Producer Example
+When using the `add:producer` command, your template file is pretty simple. Check out the [Adding a Producer to an Existing Project](/docs/producer-template#adding-a-producer-to-an-existing-project) example for more details.

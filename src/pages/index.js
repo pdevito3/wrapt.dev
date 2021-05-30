@@ -516,6 +516,9 @@ export default function Home() {
             <FeatureBlock 
               title={'Authorization and Scope Protection'} 
             />  
+            <FeatureBlock 
+              title={'Pub/Sub Scaffolding with MassTransit'} 
+            />  
           </div>
         </div>
       </div>
