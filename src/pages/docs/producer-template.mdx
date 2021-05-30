@@ -49,6 +49,15 @@ In this example, we're adding a message bus, consumer, message, and producer to 
 
 ```yaml
 DomainName: WeSendReportsCompany
+Messages:
+- Name: ISendReportRequest
+  Properties:
+  - Name: ReportId
+    Type: guid
+  - Name: Provider
+    Type: string
+  - Name: Target
+    Type: string
 BoundedContexts:
 - SolutionName: Reporting
   Producers:
@@ -65,15 +74,6 @@ BoundedContexts:
     MessageName: ISendReportRequest
     QueueName: all-reports
     ExchangeType: fanout
-  Messages:
-  - Name: ISendReportRequest
-    Properties:
-    - Name: ReportId
-      Type: guid
-    - Name: Provider
-      Type: string
-    - Name: Target
-      Type: string
   Bus:
     AddBus: true
   # additional new:domain properties here
