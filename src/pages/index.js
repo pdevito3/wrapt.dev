@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react"
+import React, { useState, useRef, Fragment } from "react"
 import Vimeo from "@u-wave/react-vimeo"
 import Head from 'next/head'
 import NextLink from 'next/link'
@@ -15,9 +15,12 @@ import VideoSlider from "src/components/VideoSlider"
 import LogoNoText from '../components/Logo/LogoNoText';
 import LogoWithText from '../components/Logo/LogoWithText';
 import { useRouter } from 'next/router'
+import { Dialog, Menu, Transition } from '@headlessui/react'
+import { MenuAlt2Icon, XIcon } from '@heroicons/react/outline'
 
 export default function Home() {
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   let [searchIsOpen, setSearchIsOpen] = useState()
   let isMounted = useIsMountedRef();
 
@@ -161,7 +164,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener"
                 href="https://twitter.com/pdevito3"
-                className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+                className="hidden md:block text-gray-400 hover:text-gray-500 transition-colors duration-200"
               >
                 <span className="sr-only">Craftsman Creator on Twitter</span>
                 <svg className="w-6" aria-hidden="true" data-prefix="fab" data-icon="twitter" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -172,7 +175,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener"
                 href="https://github.com/pdevito3/craftsman"
-                className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+                className="hidden md:block text-gray-400 hover:text-gray-500 transition-colors duration-200"
               >
                 <span className="sr-only">Craftsman on GitHub</span>
                 <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor">
@@ -182,6 +185,15 @@ export default function Home() {
                   />
                 </svg>
               </a>
+              <button
+                type="button"
+                className="px-4 border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 md:hidden"
+                onClick={() => setSidebarOpen(true)}
+              >
+                <span className="sr-only">Open sidebar</span>
+                <MenuAlt2Icon className="h-6 w-6" aria-hidden="true" />
+              </button>
+              <MainMobileSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}/>
             </div>
           </div>
           {/* <Logo className="w-auto h-7 sm:h-8" /> */}
@@ -579,5 +591,130 @@ function AspectRatio({ ratio, children }) {
     >
       <div className="absolute inset-0 w-full h-full">{children}</div>
     </div>
+  )
+}
+
+
+function MainMobileSidebar({sidebarOpen, setSidebarOpen}) {
+  return (
+    <Transition.Root show={sidebarOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          static
+          className="fixed inset-0 flex z-40 md:hidden"
+          open={sidebarOpen}
+          onClose={setSidebarOpen}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="transition-opacity ease-linear duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="transition-opacity ease-linear duration-300"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <Dialog.Overlay className="fixed inset-0 bg-gray-600 bg-opacity-75" />
+          </Transition.Child>
+          <Transition.Child
+            as={Fragment}
+            enter="transition ease-in-out duration-300 transform"
+            enterFrom="-translate-x-full"
+            enterTo="translate-x-0"
+            leave="transition ease-in-out duration-300 transform"
+            leaveFrom="translate-x-0"
+            leaveTo="-translate-x-full"
+          >
+            <div className="relative flex-1 flex flex-col max-w-xs w-full pt-5 pb-4 bg-gray-100">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-in-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in-out duration-300"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <div className="absolute top-0 right-0 -mr-12 pt-2">
+                  <button
+                    type="button"
+                    className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <span className="sr-only">Close sidebar</span>
+                    <XIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                  </button>
+                </div>
+              </Transition.Child>
+              <div className="flex-shrink-0 flex items-center px-4">
+                <LogoWithText className={"h-8 w-auto"} alt="Wrapt" />
+              </div>
+              <div className="mt-5 flex-1 h-0 overflow-y-auto">
+                <nav className="px-2 space-y-1">
+                  <MobileNavItem text={"Docs"} isWrapt={true} href={"/docs"}>
+                    <svg className="mr-4 flex-shrink-0 h-6 w-6 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </MobileNavItem>
+
+                  <MobileNavItem text={"Blog"} isWrapt={true} href={"/blog"}>
+                    <svg className="mr-4 flex-shrink-0 h-6 w-6 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+                  </MobileNavItem>
+
+                  <MobileNavItem text={"Github"} href={"https://github.com/pdevito3/craftsman"} newTab={true}>
+                    <svg className="mr-4 flex-shrink-0 h-6 w-6 text-violet-400" viewBox="0 0 16 16" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                      />
+                    </svg>
+                  </MobileNavItem>
+
+                  <MobileNavItem text={"Twitter"} href={"https://twitter.com/pdevito3"} newTab={true}>
+                    <svg className="mr-4 flex-shrink-0 h-6 w-6 text-violet-400" aria-hidden="true" data-prefix="fab" data-icon="twitter" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                      <path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z" />
+                    </svg>
+                  </MobileNavItem>
+                </nav>
+              </div>
+            </div>
+          </Transition.Child>
+          <div className="flex-shrink-0 w-14" aria-hidden="true">
+            {/* Dummy element to force sidebar to shrink to fit close icon */}
+          </div>
+        </Dialog>
+      </Transition.Root>
+  )
+}
+
+function MobileNavItem({children, text, href, isWrapt, newTab}){
+
+  var target = newTab ? `_blank` : null;
+
+  if(isWrapt){
+    return(
+      <NextLink href={href}>
+        <a
+          key={text}
+          target={{target}}
+          className={'text-violet-600 hover:bg-violet-100 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer'}
+        >
+          {children}
+          {text}
+        </a>
+      </NextLink>
+    )
+  }
+
+  return (
+    <a
+      key={text}
+      target={{target}}
+      href={href}
+      className={'text-violet-600 hover:bg-violet-100 group flex items-center px-2 py-2 text-base font-medium rounded-md cursor-pointer'}
+    >
+      {children}
+      {text}
+    </a>
   )
 }
