@@ -86,7 +86,7 @@ function index() {
             <Menu as="div" className="relative inline-block text-left pt-5 md:pt-0">
               {({ open }) => (
                 <>
-                  <div>
+                  <div >
                     <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
                     <TagIcon className="mr-2 h-5 w-5" aria-hidden="true" />
                       Tags
@@ -193,7 +193,7 @@ function index() {
             </Menu>
           </div>
         </div>
-        <div className={tagFilter || categoryFilter ? "block" : "hidden"}>
+        <div className={`pt-2 sm:pt-0 ${tagFilter || categoryFilter ? "block" : "hidden"}`}>
           <span className="inline-flex rounded-full items-center py-1 pl-3 pr-2 text-sm font-medium bg-indigo-100 text-indigo-700">
             {tagFilter ?? categoryFilter}
             <button
