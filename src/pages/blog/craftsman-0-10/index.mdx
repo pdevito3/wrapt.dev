@@ -1,0 +1,102 @@
+import { pauldevito } from 'src/data/authors'
+import image from './card.png'
+import demo from './spectre-demo.gif'
+
+export const blogmeta = {
+  title: 'Craftsman 0.10 - .NET 5 Event Scaffolding and More!',
+  description: `The new feature release for Craftsman brings event driven scaffolding to your .NET projects (and a ton more)!`,
+  date: '2021-06-01 07:55:41', // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: 'Releases',
+  image,
+  tags: ['event driven architecture', 'dotnet', 'net5', 'craftsman', 'masstransit', 'rabbitmq']
+}
+
+
+The major focus of the latest feature update for Craftsman was adding some initial event driven scaffolding support, but there were a ton of other goodies added as well! 
+
+Here are some of the highlights:
+* [Message bus scaffolding](/docs/craftsman-0-10#message-bus-scaffolding)
+* [Pub/Sub and message scaffolding](/docs/craftsman-0-10#pub/sub-and-message-scaffolding)
+* [Spectre Console](/docs/craftsman-0-10#pub/spectre-console)
+
+## Message Bus Scaffolding
+So the first step of the event driven push this release was a message bus. I debated between NServiceBus and [MassTransit](https://masstransit-project.com/) pretty heavily, 
+but ended up going with MassTransit so I didn't force something paid into the mix and because the community was great. Honestly, I also picked it up pretty quickly which helped. 
+There are still some nuances around through testing that I need to deep dive some more at some point but it works well for now. Also, if there's enough interest for an NServiceBus 
+adaptation, I could definitely see adding that option in down the road, so please speak up if you're in that boat.
+
+Now, as far as the new feature, I added a new `add:bus` command that essentially just captures your message broker settings at this point, in particular, for RabbitMQ. You can also add a bus
+to a bounded context when creating a new project or adding a bounded context.
+
+```yaml
+Environments:
+  - EnvironmentName: Development
+    BrokerSettings:
+      Host: rmqlocal
+      VirtualHost: dash
+      Username: test
+      Password: test
+  - EnvironmentName: Production
+    BrokerSettings:
+      Host: rmqlocalprod
+      VirtualHost: dashprod
+      Username: testprod
+      Password: testprod
+```
+
+I'll very probably need to add some more options here once I focus on the deployable aspects of the project in a future release, but for now, this should get you close. It also provides a target to get 
+to the publishers and subscribers.
+
+## Pub/Sub and Message Scaffolding
+Speaking of publishers and subscribers, I added new `add:producer` and `add:consumer` commands as well as an `add:message` command to scaffold out messages to be pub/sub'ed.
+
+This example shows all three inside of a `new:domain` template as another way to add them to your project, but each of the 3 commands have their own stand alone templates for addition separately as well.
+
+```yaml
+DomainName: VsaLab
+Messages:
+- Name: IPatientUpdated
+  Properties:
+  - Name: PatientId
+    Type: guid
+BoundedContexts:
+  Bus:
+    AddBus: true
+  Producers:
+  - EndpointRegistrationMethodName: PatientUpdatedEndpoint
+    ExchangeName: patient-updated
+    MessageName: IPatientUpdated
+    ExchangeType: fanout
+    ProducerName: PatientUpdated
+  Consumers:
+  - EndpointRegistrationMethodName: SyncPatientEndpoint
+    ConsumerName: SyncPatient
+    ExchangeName: patient-updated
+    MessageName: IPatientUpdated
+    QueueName: sync-billing-patient
+    ExchangeType: fanout
+  # more BC props...
+```
+
+## Spectre Console
+I saw [Spectre Console](https://spectreconsole.net/) on Twitter right before I released v0.9.0 and knew that I had to add it into Craftsman. For those that aren't familiar with it, 
+Spectre brings a TON of beautiful visualization capabilities to your console applications. I am not even remotely close to artsy, and I want to take another crack at making the Craftsman CLI 
+experience even more amazing in the future, but this release really makes it much more pleasant. 
+
+The bottom line for this release is no more wall of text after your commands, just a basic [status display](https://spectreconsole.net/live/status) as your project builds.
+
+<img className="mx-auto" src={demo} alt="spectre demo" />
+
+Something I'm hoping to add in the upcoming release is some performance updates to enable async project scaffolding which will play really great into the status display as well.
+
+## Solution Consolidation
+This one seems pretty minor but it feels important to call out. In v0.9.0, I set the bounded contexts up to be separate solutions and made sense at the time, but even then it nagged at 
+me a bit. I thought about it some more and did a bit of dog fooding for this release around eventing and solidified that I didn't want to force the multi-solution approach. If 
+that's something that makes sense for your project, it's easy enough to create a second project, but consolidating everything to a single solution makes things much more manageable as a starting point.
+
+## Learn More
+I've update the docs across the [Wrapt site](https://wrapt.dev/docs) to go into all the juicy details. 
+**Please reach out** if you are seeing any gaps or clarifications that should be made. Any other questions are welcome as well!
+
+Regardless, I hope this latest release is helpful! I'd love to hear your thoughts and insights [on Twitter](https://twitter.com/pdevito3) @pdevito3.
