@@ -47,11 +47,13 @@ getAllPostPreviews().forEach(({ link, module: { default: Content } }) => {
       link: `${blogUrl}/blog${link}`,
       description: blogmeta.description,
       content: null,
-      author: [{
-        name: 'Paul DeVito',
-        email: 'pdevito3@gmail.com',
-        link: 'https://twitter.com/@pdevito3',
-      }],
+      author: [
+        {
+          name: 'Paul DeVito',
+          email: 'pdevito3@gmail.com',
+          link: 'https://twitter.com/@pdevito3',
+        }
+      ],
       date: new Date(blogmeta.date),
       image:  siteUrl + blogmeta.image,
       // ...(blogmeta.discussion
