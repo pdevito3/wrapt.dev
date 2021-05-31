@@ -1,0 +1,43 @@
+---
+title: Add Bus Command
+shortTitle: Add Bus
+description: Adds a message bus to your project.
+---
+
+This command will add a MassTransit message bus to an existing Wrapt project using a formatted yaml or json file. The [input file template](/docs/bus-template).
+
+This command will:
+* Add a new MassTransit service registration
+* Register it in your startups
+* Add the message broker credentials in your app settings
+* Add a MassTransit harness to your integration tests
+* Add any consumers, producers, and messages designated by the configuration
+* Build a `Messages` project in your root and add reference to it in your `WebApi` project.
+
+> This command must be ran from one of your *bounded context* directories for a project.
+
+```shell
+craftsman add:bus [options] <filepath>
+```
+
+## Add Bus Arguments
+| Argument        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| filepath        | The full filepath for the yaml or json file that lists the new entities that you want to add to your API.
+
+## Add Bus Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+
+
+## Add Bus Example Commands
+```shell
+craftsman add:bus -h
+craftsman add:bus C:\fullpath\newbus.yaml
+craftsman add:bus C:\fullpath\newbus.yml
+craftsman add:bus C:\fullpath\newbus.json
+```
+
+## Add Bus Example
+When using the `add:bus` command, your template file pretty lean (generally just environment variables). Check out the [Adding a Bus to an Existing Project](/docs/bus-template#adding-a-bus-to-an-existing-project) example for more details.

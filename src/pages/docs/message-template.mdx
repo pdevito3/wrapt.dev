@@ -1,0 +1,75 @@
+---
+title: Message Template
+description: The template for the file used when adding a message bus to a project using the `add:message`, `add:bc`, or `new:domain` commands.
+---
+
+
+## Add Message Template Properties
+
+| Name       | Required | Description                                                         | Default                          | 
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- | 
+| Name        | Yes      | The name of the message. Note that it is highly recommended that messages in MassTransit are interfaces, so they should start with an uppercase `I`.  | *None*   |
+| [Properties](/docs/message-template#message-properties)    | No      | The properties of your message. | *None*   |
+
+### Message Properties
+
+| Name               | Required | Description                                                  | Default                          |
+| ------------------ | -------- | ------------------------------------------------------------ | -------------------------------- |
+| Name               | Yes      | The name of the property                                  | *None*                           |
+| Type               | Yes      | The data type for the property. These are *not* case sensitive and they can be set to nullable with a trailing `?`. All standard C# data types can be used here. | *string*                           |
+
+
+> When adding messages to an existing project, be sure to run the `add:bus` command if you don't already have a message bus in your project. This bus command should be completed *before* running an `add:message` command.
+
+
+## Add Message Template Examples
+
+### Adding a Message with Your Domain or Bounded Context
+In this example, we're adding a message bus, message, consumer, and producer to our project. Notice how the exchange and message names match between the producer and the consumer.
+
+```yaml
+DomainName: WeSendReportsCompany
+BoundedContexts:
+- SolutionName: Reporting
+  Producers:
+  - EndpointRegistrationMethodName: SubmitReportRequest
+    ExchangeName: report-requests
+    MessageName: ISendReportRequest
+    ExchangeType: fanout
+    ProducerName: ReportWasRequested
+    UsesDb: true
+  Consumers:
+  - EndpointRegistrationMethodName: AllReportsGetSentFromHereEndpoint
+    ConsumerName: SenderOfAllReports
+    ExchangeName: report-requests
+    MessageName: ISendReportRequest
+    QueueName: all-reports
+    ExchangeType: fanout
+  Messages:
+  - Name: ISendReportRequest
+    Properties:
+    - Name: ReportId
+      Type: guid
+    - Name: Provider
+      Type: string
+    - Name: Target
+      Type: string
+  Bus:
+    AddBus: true
+  # additional new:domain properties here
+```
+
+
+### Adding a Message to an Existing Project
+If you've already created your Wrapt project and want to add one or more messages after the fact, you can use the `add:message` command to pass through one or more messages to your project. 
+Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add:bus` command.
+
+```yaml
+Messages:
+- Name: IProduct
+  Properties:
+  - Name: ProductId
+    Type: guid
+  - Name: ProductType
+    Type: string
+```

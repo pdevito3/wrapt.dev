@@ -41,17 +41,19 @@ getAllPostPreviews().forEach(({ link, module: { default: Content } }) => {
   // const postText = `<p><em>(The post <a href="${blogUrl + link}">${
   //   meta.title
   // }</a> appeared first on <a href="${blogUrl}">Wrapt Blog</a>.)</em></p>`
-  console.log('author',blogmeta.authors)
     feed.addItem({
       title: blogmeta.title,
       id: blogmeta.title,
-      link: `/blog${link}`,
+      link: `${blogUrl}/blog${link}`,
       description: blogmeta.description,
       content: null,
-      author: {
-        name: blogmeta.authors[0].name,
-        link: `https://twitter.com/@${blogmeta.authors[0].name}`,
-      },
+      author: [
+        {
+          name: 'Paul DeVito',
+          email: 'pdevito3@gmail.com',
+          link: 'https://twitter.com/@pdevito3',
+        }
+      ],
       date: new Date(blogmeta.date),
       image:  siteUrl + blogmeta.image,
       // ...(blogmeta.discussion

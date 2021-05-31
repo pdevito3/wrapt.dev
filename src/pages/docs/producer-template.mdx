@@ -1,0 +1,97 @@
+---
+title: Producer Template
+description: The template for the file used when adding a message bus to a project using the `add:producer`, `add:bc`, or `new:domain` commands.
+---
+
+
+## Add Producer Template Properties
+
+| Name       | Required | Description                                                         | Default                          | 
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- | 
+| EndpointRegistrationMethodName        | Yes      | A deliberately long name to try and promote readability. This is a string that will determine the name of the method used to register the producer inside MassTransit. | *None*   |
+| ProducerName        | Yes      | A string that determines the name of the producer. | *None*   |
+| MessageName        | Yes      | A string that determines the name of the message the producer will, well, consume! | *None*   |
+| ExchangeName        | Yes      | A string that determines the name of the exchange that this producer will be tied to. Note that this should match exchange name in the producer that you want this to be linked to. | *None*   |
+| ExchangeType        | No      | The type of exchange you want to use. This can be set to `fanout`, `direct`, or `topic`. | *direct* |
+| UsesDb        | No      | A boolean that determines whether ot not the scaffolded producer feature will inject the db context in the project.  | *true* |
+
+
+> When adding producers to an existing project, be sure to run the `add:bus` command if you don't already have a message bus in your project. This bus command should be completed *before* running an `add:producer` command.
+
+## The Producer Routing Key Formatter
+If using a `direct` or `topic` exchange, you will need to set the `UseRoutingKeyFormatter` in the producer registration to whatever is appropriate for your project. This formatter will configure what to use for the routing key when sending a message.
+This configuration will be located in a file named with whatever the `EndpointRegistrationMethodName` is followed by "Registration". So, if I had a `EndpointRegistrationMethodName` of "SubmitReportRequest", I would go to my 
+"SubmitReportRequestRegistration" file in the `WebApi.Extensions` directory.
+
+There are some comments in the file giving you an example to reference, but I'll add it here as well.
+
+```csharp
+cfg.Send<IMyMessage>(e =>
+{    
+    //Direct example: uses the `ProductType` message property as a key
+    e.UseRoutingKeyFormatter(context => context.Message.ProductType.ToString());
+    
+    // OR
+    
+    // Topic example: uses the VIP Status and ClientType message properties to make a key.
+    e.UseRoutingKeyFormatter(context =>
+    {
+        var vipStatus = context.Message.IsVip ? "vip" : "normal";
+        return $"{vipStatus}.{context.Message.ClientType};
+    });
+});
+```
+
+## Add Producer Template Examples
+
+### Adding a Producer with Your Domain or Bounded Context
+In this example, we're adding a message bus, consumer, message, and producer to our project. Notice how the exchange and message names match between the producer and the consumer.
+
+```yaml
+DomainName: WeSendReportsCompany
+Messages:
+- Name: ISendReportRequest
+  Properties:
+  - Name: ReportId
+    Type: guid
+  - Name: Provider
+    Type: string
+  - Name: Target
+    Type: string
+BoundedContexts:
+- SolutionName: Reporting
+  Producers:
+  - EndpointRegistrationMethodName: SubmitReportRequest
+    ExchangeName: report-requests
+    MessageName: ISendReportRequest
+    ExchangeType: fanout
+    ProducerName: ReportWasRequested
+    UsesDb: true
+  Consumers:
+  - EndpointRegistrationMethodName: AllReportsGetSentFromHereEndpoint
+    ConsumerName: SenderOfAllReports
+    ExchangeName: report-requests
+    MessageName: ISendReportRequest
+    QueueName: all-reports
+    ExchangeType: fanout
+  Bus:
+    AddBus: true
+  # additional new:domain properties here
+```
+
+
+### Adding a Producer to an Existing Project
+If you've already created your Wrapt project and want to add one or more producers after the fact, you can use the `add:producer` command to pass through one or more producers to your project. 
+Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add:bus` command.
+
+This particular example will add producers using a direct exchange.
+
+```yaml
+Producers:
+- EndpointRegistrationMethodName: EmailRequestor
+  ExchangeName: report-requests
+  MessageName: ISendReportRequest
+  ExchangeType: direct
+  ProducerName: EmailWasRequested
+  UsesDb: true
+```

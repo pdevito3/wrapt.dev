@@ -17,9 +17,14 @@ a clinical domain, I might have front desk, billing, laboratory, and reporting c
 | [SwaggerConfig](/docs/swagger)   | No      | The swagger configuration for this API. | *None*   |
 | [Environments](/docs/multiple-environments)    | No      | The environments that get scaffolded out in this project. | *None*   |
 | [AuthorizationSettings](/docs/authorization-settings)    | No      | The authorization settings assigned to this project. | *None*   |
+| [Producers](/docs/producer-template)    | No      | The MassTransit producers in your project. | *None*   |
+| [Consumers](/docs/consumer-template)    | No      | The MassTransit consumers in your project. | *None*   |
+| [Bus](/docs/bus-template)    | No      | The MassTransit message bus in your project. When used in this context, **the environment properties should be set in the `Environment` property of the bounded context.**   | *None*   |
 | Port    | No      | The port that will be used on localhost for this project. | *5000*   |
 
+
 > Note that the SolutionName should NOT be the same as an entity name or it will cause namespace issues.
+
 
 ## Bounded Context Example
 The example on the [project tutorial](/docs/tutorial#adding-a-new-bounded-context) covers how to add new bounded contexts.

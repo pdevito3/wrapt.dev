@@ -6,7 +6,7 @@ description: Adds a new entity and all associated files to a bounded context.
 
 This command can add one or more new entities to your Wrapt project using a formatted yaml or json file. The [input file template](/docs/entity-template) only requires a list of one or more entities.
 
-> This command must to be run from the *solution* directory for a project that was made using the `new:domain` command.
+> This command must be ran from the *bounded context* directory for a project that was made using the `new:domain` or `add:bc` command.
 
 ```shell
 craftsman add:entity [options] <filepath>
@@ -21,7 +21,6 @@ craftsman add:entity [options] <filepath>
 | Option          | Description                                                  |
 | --------------- | ------------------------------------------------------------ |
 | -h, --help      | Display help message. No filepath is needed to display the help message.
-| -v              | Show verbose output.
 
 
 ## Add Entity Example Commands
