@@ -23,10 +23,13 @@ const feed = new Feed({
     json: `${blogUrl}/feed.json`,
     atom: `${blogUrl}/atom.xml`,
   },
-  author: {
-    name: 'Paul DeVito',
-    link: 'https://twitter.com/@pdevito3',
-  },
+  author: [
+    {
+      name: 'Paul DeVito',
+      email: 'pdevito3@gmail.com',
+      link: 'https://twitter.com/@pdevito3',
+    }
+  ],
 })
 
 getAllPostPreviews().forEach(({ link, module: { default: Content } }) => {
