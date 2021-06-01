@@ -47,7 +47,7 @@ getAllPostPreviews().forEach(({ link, module: { default: Content } }) => {
     feed.addItem({
       title: blogmeta.title,
       id: blogmeta.title,
-      link: `${blogUrl}/blog${link}`,
+      link: `${blogUrl}${link}`,
       description: blogmeta.description,
       content: null,
       author: [
