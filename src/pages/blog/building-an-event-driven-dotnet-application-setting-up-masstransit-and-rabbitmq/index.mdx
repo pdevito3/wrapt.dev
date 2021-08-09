@@ -2,6 +2,7 @@ import { pauldevito } from 'src/data/authors'
 import image from './card.png'
 import directExchange from './direct-exchange.svg'
 import topicExchange from './topic-exchange.svg'
+import WraptAd from 'src/components/WraptAd'
 
 export const blogmeta = {
   title: 'Building an Event Driven .NET Application: Setting Up MassTransit and RabbitMQ',
@@ -51,6 +52,8 @@ There are obviously a myriad of options to use when deploying RabbitMQ, but I wa
 The MassTransit docker image we used for RabbitMQ leverages the `management` plugin to give you a use interface (this what you hit if you went to `localhost:15672` or your CloudAMQP deployment). It isn't the best UI you've ever seen, but it has some pretty good features for managing your RMQ setup. 
 
 CloudAMQP has [a great write up](https://www.cloudamqp.com/blog/part3-rabbitmq-for-beginners_the-management-interface.html) on the different aspects of the UI and I'd definitely recommend checking it out.
+
+<WraptAd />
 
 ## Publishing and Subscribing to Messages Using MassTransit in .NET Web APIs
 
@@ -586,6 +589,9 @@ If you'd like to read on some of the best practices to follow around RabbitMQ, c
 ## Using Craftsman to Add MassTransit Into Your Projects in Minutes
 In the upcoming v0.10.x [release of Craftsman](https://github.com/pdevito3/craftsman), you will have several commands available to you like `add:bus`, `add:message`, `register:consumer`, and `register:producer` to scaffold out your 
 events in minutes. This eventing functionality will continue to be improved in future releases to include scaffolded tests, logging, open telemetry tracing, and more. 
+
+
+<WraptAd />
 
 
 ## Coming in the Next Post

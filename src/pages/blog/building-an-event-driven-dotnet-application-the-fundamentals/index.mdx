@@ -1,5 +1,6 @@
 import { pauldevito } from 'src/data/authors'
 import image from './card.png'
+import WraptAd from 'src/components/WraptAd'
 
 export const blogmeta = {
   title: 'Building an Event Driven .NET Application: The Fundamentals',
@@ -68,6 +69,7 @@ CloudAMQP has [a good writeup on their blog](https://www.cloudamqp.com/blog/the-
 
 Credit: [CloudAMQP RabbitMQ For Beginners Blog Post](https://www.cloudamqp.com/blog/part1-rabbitmq-for-beginners-what-is-rabbitmq.html)
 
+<WraptAd />
 
 ## The Different Parts of a Message Broker
 
@@ -152,6 +154,8 @@ RabbitMQ also has the concept of a `Dead Letter Exchange` which silently drops m
 4. Based on the configuration, the exchange will route the message to the appropriate queue based using whatever matching binding have been established to connect the queues and the exchange.
 5. The message will stay in the queue until it is picked up by a consumer.
 6. One or more subscribing applications will check the queue and consume the message when ready.
+
+<WraptAd />
 
 ## Coming in the Next Post
 
