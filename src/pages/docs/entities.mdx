@@ -35,7 +35,7 @@ A list of properties that can be assigned to an entity.
 | ColumnName         | No       | The database field name for the given property. | *None* |
 | CanManipulate      | No       | When set to false, you will not be able to update this property when calling the associated endpoint. When set to `false`, the property will be able to be established when using the POST endpoint, but will not be able to be updated after that. This is managed by the DTOs if you want to manually adjust this. | true<br/>*false for primary key* |
 | DefaultValue       | No       | Allows you to add a default value to a property. Note that it should be entered exactly as you'd want it, so a string would be something like `"My Default Value"`, a bool might be `true`, and an int might be `0` | *None*                           |
-| ForeignKeyPropName | No       | When adding an object linked by a foreign key, use `ForeignKeyPropName` to enter the name of the property that acts as the foreign key | *None*                           |
+<!-- | ForeignKeyPropName | No       | When adding an object linked by a foreign key, use `ForeignKeyPropName` to enter the name of the property that acts as the foreign key | *None*                           | -->
 
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 
@@ -77,7 +77,7 @@ Entities:
         CanSort: true
         DefaultValue: false
 ```
-
+<!-- 
 ## Example With Foreign Key
 
 Now let's say that we had a `Sale` entity that has a `ProductId` property that acts as a foreign key to another 'Product' entity:
@@ -99,10 +99,9 @@ Entities:
     - Name: SaleAmount
       Type: int
       CanFilter: true
-```
-
+``` -->
+<!-- 
 If we wanted to return the product in our responses, we could add an additional `Product` property of type `Product` that links to the primary key of `ProductId` in our `Product` entity:
-> If possible, it is recommended that you avoid returning the foreign key object directly in an entity response like this. Instead, have your front end call each necessary endpoint or build a domain object that build this out separately.
 
 ```yaml
 Entities:
@@ -124,9 +123,7 @@ Entities:
     - Name: Product
       Type: Product
       ForeignKeyPropName: ProductId
-```
-
-> Note that adding foreign keys will currently break the `Post` and `Update` integration tests as described in [issue #2](https://github.com/pdevito3/craftsman/issues/2).
+``` -->
 
 ## Composite Keys
 For the time being, composite keys can not be created using Craftsman commands. With that said, you are more than welcome to scaffold out an entity with one of the keys and then 
