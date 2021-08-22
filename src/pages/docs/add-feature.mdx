@@ -22,8 +22,8 @@ craftsman new:feature [options]
 ## Add Feature Prompts
 1. **Feature Name**: The name of the feature. This is the name of the feature's method and would generally be something like `AddCustomer` or `GetCustomer`.
 2. **Command Name**: The name of the command. This is the name of the feature's class and would generally be something like `AddCustomerCommand` or `GetCustomerQuery`.
-3. **Response Type**: Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. **DEFAULT: `bool`**
-4. **IsProducer** : Determines whether or not this feature is an event producer. If so, it will add a message bus to the dependency injection. **DEFAULT: `false`**
+3. **Response Type**: Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. **Default: `bool`**
+4. **IsProducer** : Determines whether or not this feature is an event producer. If so, it will add a message bus to the dependency injection. **Default: `false`**
 5. **EntityName**: The name of the entity that the feature will be added to. You can leave this blank to add it to the `Domain` directory directly.
 
 ## Add Feature Example Commands
