@@ -326,21 +326,6 @@ Then, we can add that entity to our project using the [add:entity command](/docs
 craftsman add:entity C:\Users\Paul\Documents\WraptTemplates\ShoppingListEntity.yaml
 ```
 
-## Adding a New Property
-Now what if we wanted to add a new property to determine whether or not that shopping list item has been acquired and put into our cart. There's [a command](/docs/add-entity-property) for that too! And we 
-don't even need a file this time!
-
-Let's say we wanted to add a nullable boolean called 'Acquired' that can be filtered and sorted. We could do something like this:
-
-```shell
-craftsman add:prop --entity ShoppingListItem --name Acquired --type bool? --filter true -sort true
-```
-
-We could also use shorthand and do something like this:
-```shell
-craftsman add:property -e ShoppingListItem -n Acquired -t bool? -f true -s true
-```
-
 ## Adding a New Bounded Context
 So we built out the bounded context for our `Recipes`, but what if we wanted to add the `Shopping` bounded context? Let's make a 
 new file (using a [bounded-contexts template](/docs/bounded-contexts) to capture those details:
