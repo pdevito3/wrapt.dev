@@ -25,12 +25,12 @@ DomainName: CarbonKitchen
 
 Next, we need to lay out each of the logical contextual boundaries within our domain (a.k.a. bounded contexts).
 In this domain, three come to mind: 1) `Recipes` to store our recipes 2) `Planning` to store our meal plans and 3) `Shopping` to store our shopping lists. 
-Let's start out with the `RecipeManagement` bounded context and name it with a property called `SolutionName`. 
+Let's start out with the `RecipeManagement` bounded context and name it with a property called `ProjectName`. 
 
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: RecipeManagement
+- ProjectName: RecipeManagement
 ```
 
 Then, we'll describe our database set up for each bounded context using the [DbContext](/docs/db-context) 
@@ -39,7 +39,7 @@ property. I'm also going to set port to run on locally, but this is optional.
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: RecipeManagement
+- ProjectName: RecipeManagement
   Port: 5005
   DbContext:
    ContextName: RecipesDbContext
@@ -50,13 +50,13 @@ BoundedContexts:
 ### Entity Setup
 Then let's add in our `Recipe` [Entity](/docs/entities) with a variety of 
 properties based on our requirements. Be sure to check the [entity properties](/docs/entities#entity-properties) page to 
-see what's required and what defaults are used.
+see what's required and what defaults are used. We're also going to add the [features](/docs/entities#features) that we want for this particular entity.
 
 
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: RecipeManagement
+- ProjectName: RecipeManagement
   Port: 5005
   DbContext:
    ContextName: RecipesDbContext
@@ -64,6 +64,12 @@ BoundedContexts:
    Provider: SqlServer
   Entities:
   - Name: Recipe
+    Features:
+    - Type: AddRecord
+    - Type: GetRecord
+    - Type: GetList
+    - Type: UpdateRecord
+    - Type: DeleteRecord
     Properties:
     - Name: RecipeId
       IsPrimaryKey: true
@@ -97,7 +103,7 @@ Note that `Entities` is a list, so we can add more than one if we want:
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: RecipeManagement
+- ProjectName: RecipeManagement
   Port: 5005
   DbContext:
    ContextName: RecipesDbContext
@@ -105,10 +111,16 @@ BoundedContexts:
    Provider: SqlServer
   Entities:
   - Name: Recipe
+    Features:
+    - Type: AddRecord
+    - Type: GetRecord
+    - Type: GetList
+    - Type: UpdateRecord
+    - Type: DeleteRecord
     Properties:
     - Name: RecipeId
       IsPrimaryKey: true
-      Type: int
+      Type: guid
       CanFilter: true
       CanSort: true
     - Name: Title
@@ -132,6 +144,12 @@ BoundedContexts:
       CanFilter: true
       CanSort: true
   - Name: Ingredient
+    Features:
+    - Type: AddRecord
+    - Type: GetRecord
+    - Type: GetList
+    - Type: UpdateRecord
+    - Type: DeleteRecord
     Properties:
     - Name: IngredientId
       IsPrimaryKey: true
@@ -163,7 +181,7 @@ but good to have. You can also add other optional properties like [authorization
 ```yaml
 DomainName: CarbonKitchen
 BoundedContexts:
-- SolutionName: RecipeManagement
+- ProjectName: RecipeManagement
   Port: 5005
   DbContext:
    ContextName: RecipesDbContext
@@ -171,10 +189,16 @@ BoundedContexts:
    Provider: SqlServer
   Entities:
   - Name: Recipe
+    Features:
+    - Type: AddRecord
+    - Type: GetRecord
+    - Type: GetList
+    - Type: UpdateRecord
+    - Type: DeleteRecord
     Properties:
     - Name: RecipeId
       IsPrimaryKey: true
-      Type: int
+      Type: guid
       CanFilter: true
       CanSort: true
     - Name: Title
@@ -198,6 +222,12 @@ BoundedContexts:
       CanFilter: true
       CanSort: true
   - Name: Ingredient
+    Features:
+    - Type: AddRecord
+    - Type: GetRecord
+    - Type: GetList
+    - Type: UpdateRecord
+    - Type: DeleteRecord
     Properties:
     - Name: IngredientId
       IsPrimaryKey: true
@@ -237,8 +267,8 @@ BoundedContexts:
       Url: https://www.carbonkitchen.com
 ```
 
-## Creating a New Domain Project
-Now that we've put together our domain layout, let's actually build our project. To start, make sure you've followed the [install instructions](/docs/installation).
+## Creating a New Domain Solution
+Now that we've put together our domain layout, let's actually build our solution. To start, make sure you've followed the [install instructions](/docs/installation).
 Then, open Command Prompt, Powershell, Terminal, etc. and `cd` to whatever directory you want to create your project repository in. Finally, we just need to run [one command](/docs/new-domain):
 
 ```shell
@@ -250,16 +280,22 @@ craftsman new:domain C:\Users\Paul\Documents\WraptTemplates\NewCarbonKitchen.yam
 Once that's done, Craftsman will have added an entire API for you in whatever directory you ran this in. Check out the [project architecture and organization](/docs/project-organization) page for more details.
 
 ### Using Your API 
-Now you can `cd` into your bounded context directory and run `dotnet run --project {SolutionName}.webapi` and your API is up and all the boilerplate taken care of 🥳
+Now you can `cd` into your bounded context directory and run `dotnet run --project {ProjectName}` and your API is up and all the boilerplate taken care of 🥳
 
 ## Adding a New Entity
-But hold on, we have this existing project, but what if we wanted to add a new entity to capture shopping list items so that we can add ingredients we need for our grocery outing? 
+So, we have this existing project, but what if we wanted to add a new entity to capture shopping list items so that we can add ingredients we need for our grocery outing? 
 All we need to do is create another `yaml` or `json` file (based on the [add entity template](/docs/entity-template)) that describes this new entity. Something like this:
 
 ```yaml
 AddSwaggerComments: true
 Entities:
 - Name: ShoppingListItem
+  Features:
+  - Type: AddRecord
+  - Type: GetRecord
+  - Type: GetList
+  - Type: UpdateRecord
+  - Type: DeleteRecord
   Properties:
   - Name: ShoppingListItemId
     IsPrimaryKey: true
@@ -290,28 +326,13 @@ Then, we can add that entity to our project using the [add:entity command](/docs
 craftsman add:entity C:\Users\Paul\Documents\WraptTemplates\ShoppingListEntity.yaml
 ```
 
-## Adding a New Property
-Now what if we wanted to add a new property to determine whether or not that shopping list item has been acquired and put into our cart. There's [a command](/docs/add-entity-property) for that too! And we 
-don't even need a file this time!
-
-Let's say we wanted to add a nullable boolean called 'Acquired' that can be filtered and sorted. We could do something like this:
-
-```shell
-craftsman add:prop --entity ShoppingListItem --name Acquired --type bool? --filter true -sort true
-```
-
-We could also use shorthand and do something like this:
-```shell
-craftsman add:property -e ShoppingListItem -n Acquired -t bool? -f true -s true
-```
-
 ## Adding a New Bounded Context
 So we built out the bounded context for our `Recipes`, but what if we wanted to add the `Shopping` bounded context? Let's make a 
 new file (using a [bounded-contexts template](/docs/bounded-contexts) to capture those details:
 
 ```yaml
 BoundedContexts:
-- SolutionName: ShoppingManagement
+- ProjectName: ShoppingManagement
   Port: 5010
   DbContext:
    ContextName: ShoppingDbContext
@@ -319,6 +340,12 @@ BoundedContexts:
    Provider: Postgres
   Entities:
   - Name: ShoppingList
+    Features:
+    - Type: AddRecord
+    - Type: GetRecord
+    - Type: GetList
+    - Type: UpdateRecord
+    - Type: DeleteRecord
     Properties:
     - Name: ShoppingListId
       IsPrimaryKey: true

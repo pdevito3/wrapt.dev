@@ -19,7 +19,7 @@ export const documentationNav = {
     pages['add-consumer'],
     pages['add-producer'],
     pages['add-entity'],
-    pages['add-entity-property'],
+    pages['add-feature'],
     pages['add-message'],
     pages['new-domain'],
     pages['version-command'],
