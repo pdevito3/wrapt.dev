@@ -14,6 +14,7 @@ A list of database entities in your project. These entities are added as dbsets 
 | ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Name       | Yes      | The name of the entity                                       | *None*                           |
 | Properties | Yes      | A list of properties assigned to your entity described in the [entity properties](#properties) section.| *None*                           |
+| [Features](#features)   | Yes      | This is a list of features that you want to add for a particular entity. | *None*                           |
 | Plural     | No       | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`) | Entity Name appended with an `s` |
 | Lambda     | No       | The value to use in lambda expressions for this entity. | First letter of the entity name. |
 | TableName  | No       | The name of the table in the database. | Defaulted to the singular `Name`. |
@@ -35,9 +36,35 @@ A list of properties that can be assigned to an entity.
 | ColumnName         | No       | The database field name for the given property. | *None* |
 | CanManipulate      | No       | When set to false, you will not be able to update this property when calling the associated endpoint. When set to `false`, the property will be able to be established when using the POST endpoint, but will not be able to be updated after that. This is managed by the DTOs if you want to manually adjust this. | true<br/>*false for primary key* |
 | DefaultValue       | No       | Allows you to add a default value to a property. Note that it should be entered exactly as you'd want it, so a string would be something like `"My Default Value"`, a bool might be `true`, and an int might be `0` | *None*                           |
+
 <!-- | ForeignKeyPropName | No       | When adding an object linked by a foreign key, use `ForeignKeyPropName` to enter the name of the property that acts as the foreign key | *None*                           | -->
 
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
+
+### Features
+
+| Name       | Required | Description                                                  | Default                          |
+| ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
+| Type       | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!)                               | *None*                           |
+
+
+`GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, and `AddRecord` are all standard CRUD features along with their endpoints and associated tests. 
+
+> ℹ DTOs, validators, profiles and functional test routes associated to all features will be added regardless of whether or not a given feature was added. This is due to the complexity of all 
+the minute management around handling these so dynamically. Obviously feel free to delete whatever you're not using.
+
+#### Ad Hoc Features
+You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, there's a bit more that needs to be done. In addition to `Type` above, you'll want to provide the below:
+
+| Name       | Required | Description                                                  | Default                          |
+| ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
+| Name | Yes     | The name of the feature. This is the name of the feature's method and would generally be something like `AddCustomer` or `GetCustomer`. | *None*        
+| Command | Yes     | The name of the command. This is the name of the feature's class and would generally be something like `AddCustomerCommand` or `GetCustomerQuery`.| *[NAME]Command*        
+| EntityPlural | No (but recommended) | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly. | *""*      
+| ResponseType | No | Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. | *bool*        
+
+> You can also add `AdHoc` features after the fact using the [`add:feature` command](/docs/add-feature).
+
 
 ## Entity Example
 This example would create a supplier entity with several properties. Note:
@@ -45,10 +72,21 @@ This example would create a supplier entity with several properties. Note:
 - We have normal and nullable primitives in the `Type` option
 - We have marked the properties as sortable and filterable
 - We have given a default value for `IsVip`
+- We are adding all the available features except for `PatchRecord`. We're also adding an `AdHoc` feature for use for batch adding suppliers.
 
 ```yaml
 Entities:
   - Name: Supplier
+    Features:
+    - Type: AddRecord
+    - Type: GetRecord
+    - Type: GetList
+    - Type: UpdateRecord
+    - Type: DeleteRecord
+    - Type: AdHoc
+      Name: BatchAddSuppliers
+      Command: BatchAddSuppliersCommand
+      EntityPlural: Suppliers
     Properties:
       - Name: SupplierId
         IsPrimaryKey: true
