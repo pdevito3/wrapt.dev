@@ -139,15 +139,6 @@ And that's it for our configuration for now. At this point, my `Startup.cs` look
       // This method gets called by the runtime. Use this method to add services to the container.
       public void ConfigureServices(IServiceCollection services)
       {
-          services.AddCors(options =>
-          {
-              options.AddPolicy("CorsPolicy",
-                  builder => builder.AllowAnyOrigin()
-                      .AllowAnyMethod()
-                      .AllowAnyHeader()
-                      .WithExposedHeaders("X-Pagination"));
-          });
-
           services.AddControllersWithViews();
 
           services.AddBff();
