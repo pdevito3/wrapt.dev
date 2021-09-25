@@ -119,8 +119,8 @@ So how do we use this `code` flow?
 client that can be used to make authorized requests to your API. This access token is generally a JWT that includes the access token as well as a refresh token that we can use to 
 refresh our token after it expires. Depending on the scopes you requested, you could also get an identity token as well to designate user information.
 
-When does this PKCE thing come into play though? Well, the PKCE part of this essentially just means that, instead of providing client secret with your `/authorize` request that is managed between the authorization 
-server and the client, a secret is essentially dynamically generated per request. 
+When does this PKCE thing come into play though? Well, the PKCE part of this essentially just means that, in addition to providing client secret with your `/authorize` request that is managed between the authorization 
+server and the client, a secret hash will be dynamically generated per request. 
 
 > [This video by Dominick Baier](https://youtu.be/jeRALmfyoqg?t=1491) has a great walkthrough of recent best practices, specifically for the `code` flow at this timestamp.
 
@@ -186,7 +186,8 @@ Identity Server 4 is a staple of the .NET community that has recently transition
         {
             new ApiResource("invoice", "Invoice API")
             {
-                Scopes = { "invoice.read", "invoice.pay", "manage", "enumerate" }
+                Scopes = { "invoice.read", "invoice.pay", "manage", "enumerate" },
+                ApiSecrets = { new Secret("secret".Sha256()) },
             },
     
             new ApiResource("customer", "Customer API")
@@ -195,6 +196,8 @@ Identity Server 4 is a staple of the .NET community that has recently transition
             }
         };
     ```
+
+    > Note that the secret included in the ApiResource should include any client secrets using it below 
 
     You'll also need to register the `ApiResource` service in your `Startup.cs` file. This should make your in-memory block look like this:
 
@@ -237,7 +240,7 @@ Identity Server 4 is a staple of the .NET community that has recently transition
           {
               ClientId = "Swagger",
               ClientName = "Swagger UI",
-              // no secret required because we're using PKCE
+              ClientSecrets = { new Secret("secret".Sha256()) },
 
               AllowedGrantTypes = GrantTypes.Code,
               AllowOfflineAccess = true,
@@ -254,7 +257,7 @@ Identity Server 4 is a staple of the .NET community that has recently transition
           {
               ClientId = "Postman",
               ClientName = "Postman UI",
-              // no secret required because we're using PKCE
+              ClientSecrets = { new Secret("secret".Sha256()) },
 
               AllowedGrantTypes = GrantTypes.Code,
               AllowOfflineAccess = true,
@@ -291,7 +294,8 @@ using System.Collections.Generic;
             {
                 new ApiResource("patients", "Patients API")
                 {
-                    Scopes = { "patients.read", "patients.add", "patients.update", "patients.delete" }
+                    Scopes = { "patients.read", "patients.add", "patients.update", "patients.delete" },
+                    ApiSecrets = { new Secret("secret".Sha256()) },
                 }
             };
 
@@ -314,12 +318,12 @@ using System.Collections.Generic;
                 {
                     ClientId = "Swagger",
                     ClientName = "Swagger UI",
-                    // no secret required because we're using PKCE
+                    ClientSecrets = { new Secret("secret".Sha256()) },
 
                     AllowedGrantTypes = GrantTypes.Code,
                     AllowOfflineAccess = true,
                     RequirePkce = true,
-                    RequireClientSecret = false,
+                    RequireClientSecret = true,
 
                     RedirectUris = {"https://localhost:5000/swagger/oauth2-redirect.html"},
                     PostLogoutRedirectUris = { "http://localhost:5000/" },
@@ -331,12 +335,12 @@ using System.Collections.Generic;
                 {
                     ClientId = "Postman",
                     ClientName = "Postman UI",
-                    // no secret required because we're using PKCE
+                    ClientSecrets = { new Secret("secret".Sha256()) },
 
                     AllowedGrantTypes = GrantTypes.Code,
                     AllowOfflineAccess = true,
                     RequirePkce = true,
-                    RequireClientSecret = false,
+                    RequireClientSecret = true,
 
                     RedirectUris = { "https://oauth.pstmn.io/v1/callback" },
                     AllowedScopes = { "patients.read", "patients.add", "patients.update", "patients.delete", "openid", "profile" },
