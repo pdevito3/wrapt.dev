@@ -181,21 +181,19 @@ Identity Server 4 is a staple of the .NET community that has recently transition
     This Resource should include the scopes allowed by this resource. In relation to Wrapt projects. This can generally map 1:1 to the `WebAPI` projects generated with Craftsman.
 
     ```csharp
-    public static readonly IEnumerable<ApiResource> GetApiResources()
-    { 
-        return new List<ApiResource>
+    public static IEnumerable<ApiResource> ApiResources =>
+        new List<ApiResource>
         {
             new ApiResource("invoice", "Invoice API")
             {
                 Scopes = { "invoice.read", "invoice.pay", "manage", "enumerate" }
             },
-            
+    
             new ApiResource("customer", "Customer API")
             {
                 Scopes = { "customer.read", "customer.contact", "manage", "enumerate" }
             }
         };
-    }
     ```
 
     You'll also need to register the `ApiResource` service in your `Startup.cs` file. This should make your in-memory block look like this:
