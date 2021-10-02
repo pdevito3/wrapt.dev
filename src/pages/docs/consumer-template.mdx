@@ -72,6 +72,7 @@ Consumers:
 - EndpointRegistrationMethodName: EmailReportsEndpoint
   ConsumerName: EmailConsumer
   ExchangeName: report-requests
+  MessageName: ISendReportRequest
   QueueName: email-reports
   ExchangeType: direct
   RoutingKey: email
@@ -79,6 +80,7 @@ Consumers:
   ConsumerName: FaxConsumer
   ExchangeName: report-requests
   QueueName: fax-reports
+  MessageName: ISendReportRequest
   ExchangeType: direct
   RoutingKey: fax
   IsLazy: false
@@ -92,6 +94,7 @@ Consumers:
   ConsumerName: CloudConsumer
   ExchangeName: report-requests
   QueueName: cloud-reports
+  MessageName: ISendReportRequest
   ExchangeType: topic
   RoutingKey: public.*
   ```

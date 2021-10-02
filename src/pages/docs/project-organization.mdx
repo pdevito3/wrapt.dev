@@ -273,31 +273,36 @@ and run each of your feature tests in an actual representation of your database.
 These are generally more involved to write and maintain, but with this project setup, our controllers are essentially just routers to our feature queries and commands, so we have 
 already done the meat of our testing in our integration tests. This means that our functional tests can generally just confirm that we are getting the expected responses from our routes and we can call it a day.
 
-#### Adding Tests for Consumers
-Craftsman will scaffold out a myriad of tests for you, but will not do this for consumers at this time. If you want to add tests for your consumers, you can add your tests manually for the time being. 
-Craftsman will register your consumers in the test harness of integration testing project whenever you add them in, so you should generally be able to just add a test without much hassle.
+#### Adding Tests for MassTransit
+Craftsman will scaffold out a myriad of tests for you, but will not do this for consumers or producers at this time. If you want to add these, you'll need to add them manually for the time being. 
+
+For consumers, Craftsman will register your consumers in the test harness of integration testing project whenever you add them in, so you should generally be able to just add a test without much hassle.
 
 This is a basic example test for a consumer.
 ```csharp
-        [Test]
-        public async Task bus_consumer_test()
-        {
-            // Arrange
-            var message = new
-            {
-                ReportId = Guid.NewGuid(),
-                Provider = "string",
-                Target = "string",
-            };
+[Test]
+public async Task bus_consumer_test()
+{
+    // Arrange
+    var message = new
+    {
+        ReportId = Guid.NewGuid(),
+        Provider = "string",
+        Target = "string",
+    };
 
-            // Act
-            await PublishMessage<ISendReportRequest>(message);
+    // Act
+    await PublishMessage<ISendReportRequest>(message);
 
-            // Assert
-            // did the endpoint consume the message
-            Assert.That(await _harness.Consumed.Any<ISendReportRequest>());
+    // Assert
+    // did the endpoint consume the message
+    Assert.That(await _harness.Consumed.Any<ISendReportRequest>());
 
-            // ensure that no faults were published by the consumer
-            Assert.That(await _harness.Published.Any<Fault<ISendReportRequest>>(), Is.False);
-        }
+    // ensure that no faults were published by the consumer
+    Assert.That(await _harness.Published.Any<Fault<ISendReportRequest>>(), Is.False);
+
+    // the particular consumer i'm testing consumed the message
+    var consumerHarness = _provider.GetRequiredService<ISendReportRequest<SendEmailReport>>();
+    Assert.That(await consumerHarness.Consumed.Any<ISendReportRequest>());
+}
 ```
