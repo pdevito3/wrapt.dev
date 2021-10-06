@@ -1,18 +1,13 @@
+import clsx from 'clsx'
+import Link from 'next/link'
 import {
-  useState,
-  useEffect,
   createContext,
-  Fragment,
-  useCallback,
-  isValidElement,
-  useContext,
+  Fragment, isValidElement, useCallback, useContext, useEffect, useState
 } from 'react'
 import { ClassTable } from 'src/components/ClassTable'
-import { usePrevNext } from 'src/hooks/usePrevNext'
-import Link from 'next/link'
-import { SidebarLayout, SidebarContext } from 'src/layouts/SidebarLayout'
 import { PageHeader } from 'src/components/PageHeader'
-import clsx from 'clsx'
+import { usePrevNext } from 'src/hooks/usePrevNext'
+import { SidebarContext, SidebarLayout } from 'src/layouts/SidebarLayout'
 
 export const ContentsContext = createContext()
 
@@ -28,10 +23,10 @@ function TableOfContents({ tableOfContents, currentSection }) {
 
   return (
     <div className="pr-2">
-      <h5 className="text-gray-900 uppercase tracking-wide font-semibold mb-3 text-sm lg:text-xs">
+      <h5 className="mb-3 text-sm font-semibold tracking-wide text-gray-900 uppercase lg:text-xs">
         On this page
       </h5>
-      <ul className="overflow-x-hidden text-gray-500 font-medium">
+      <ul className="overflow-x-hidden font-medium text-gray-500">
         {tableOfContents.map((section) => {
           let sectionIsActive =
             currentSection === section.slug ||
@@ -84,8 +79,8 @@ function TableOfContents({ tableOfContents, currentSection }) {
         })}
       </ul>
     
-      <div className="mt-5 px-4 py-2 bg-white rounded-lg shadow space-y-2 border">
-        <p className="text-gray-800 text-lg font-medium">
+      <div className="px-6 py-4 mt-5 space-y-2 bg-white border rounded-lg shadow">
+        <p className="text-lg font-medium text-gray-800">
           👀 Feedback
         </p>
         <p className="text-gray-500">
@@ -195,8 +190,8 @@ export function ContentsLayout({ children, meta, classes, tableOfContents }) {
   let { prev, next } = usePrevNext()
 
   return (
-    <div id={meta.containerId} className="pt-10 pb-24 lg:pb-16 w-full flex">
-      <div className="min-w-0 flex-auto px-4 sm:px-6 xl:px-8">
+    <div id={meta.containerId} className="flex w-full pt-10 pb-24 lg:pb-16">
+      <div className="flex-auto min-w-0 px-4 sm:px-6 xl:px-8">
         <PageHeader
           title={meta.title}
           description={meta.description}
@@ -213,8 +208,8 @@ export function ContentsLayout({ children, meta, classes, tableOfContents }) {
         </ContentsContext.Provider>
         {(prev || next) && (
           <>
-            <hr className="border-gray-200 mt-10 mb-4" />
-            <div className="flex justify-between leading-7 font-medium">
+            <hr className="mt-10 mb-4 border-gray-200" />
+            <div className="flex justify-between font-medium leading-7">
               {prev && (
                 <Link href={prev.href}>
                   <a>← {prev.shortTitle || prev.title}</a>
@@ -229,7 +224,7 @@ export function ContentsLayout({ children, meta, classes, tableOfContents }) {
           </>
         )}
       </div>
-      <div className="hidden xl:text-sm xl:block flex-none w-64 pl-8 mr-8">
+      <div className="flex-none hidden w-64 pl-8 mr-8 xl:text-sm xl:block">
         <div className="flex flex-col justify-between overflow-y-auto sticky max-h-(screen-18) -mt-10 pt-10 pb-4 top-18">
           {toc.length > 0 && (
             <div className="mb-8">
