@@ -220,7 +220,7 @@ export default function Home() {
               </p>
             </div>
           <div className="flex flex-wrap justify-center space-y-4 text-center sm:space-y-0 sm:space-x-4">
-              <NextLink href="/docs/how-it-works">
+              <NextLink href="/docs/installation">
                 <a className="flex-none w-full px-6 py-3 text-lg font-semibold leading-6 text-white transition-colors duration-200 border border-transparent sm:w-auto bg-violet-700 hover:bg-violet-500 rounded-xl focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-violet-700 focus:outline-none">
                   Get Started
                 </a>
