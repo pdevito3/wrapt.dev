@@ -6,12 +6,8 @@ description: Settings for scaffolding out multiple environments in your Web API.
 
 ## Multiple Environments
 
-Wrapt templates are configured with Development (`StartupDevelopment`) and Production (`Startup`) environments by default, with the ability to add as many additional environments as you'd like. 
-
-The project will run `StartupDevelopment` locally by default using an in-memory database. This environment should generally not be connected to a live database to ensure that devs will 
-be able to clone your API down and run the solution without needing to go through additional database set up.
-
-Additional environments can be add added using an `Environments` list in your initial build file. This will use a multiple startup approach as described [in the aspnetcore docs](https://aspnetcore.readthedocs.io/en/stable/fundamentals/environments.html). This means that there will be a `Startup{EnvironmentName}.cs` class, and `appsettings.{environment}.json` file, and a `launchsettings.json` profile added for each environment.
+Wrapt templates are configured with a single startup file that will be used for all environments. When settings values for environments as described below, 
+an `appsettings` file will be created for each. 
 
 ## Environment Properties
 
@@ -37,19 +33,18 @@ Additional environments can be add added using an `Environments` list in your in
 | Username           | Yes      | The username for the broker connection                       | *guest*                           |
 | Password           | Yes      | The password for the broker connection.                      | *guest*                           |
 
-> IMPORTANT
+> ⚠️ IMPORTANT
 >
 > Note that the connection strings, broker passwords, and client secrets will currently be added to `appsettings.{environment}.json`, so they will be committed to source control. You should NOT be adding anything with credentials in here. 
 >
-> There are plans to support secret manager and integration with external secret managers in AWS, Azure, etc. in the future.
+> There are plans to support better, production ready scaffolding here in an upcoming release.
 
+### Database Connection
+The project configuration will use an in memory database by default for the `Development` environment. This does not need to be created here and will be added automatically for you 
 
 ## Example Setting Up Multiple Environments
-In this example, we are setting up QA, Staging, and Local environments in addition to the default Startup and Development environments. `Development` does not have to be specified here, 
+In this example, we are setting up QA, Staging, and Local environments. `Development` does not have to be specified here, 
 but we can use `Startup` to specify our production settings, as we are in this case. 
-
-> Note that the `Local` environment here would be using a local db stored on my computer which is separate from the `Development` environment which will use an in memory database.
-
 ```yaml
 Environments:
   - EnvironmentName: Startup
