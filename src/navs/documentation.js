@@ -14,6 +14,7 @@ export const documentationNav = {
     pages['customizing-wrapt-projects'],
   ],
   'Commands': [
+    pages['add-auth-server'],
     pages['add-bus'],
     pages['add-bounded-context'],
     pages['add-consumer'],
@@ -22,9 +23,11 @@ export const documentationNav = {
     pages['add-feature'],
     pages['add-message'],
     pages['new-domain'],
+    pages['new-example'],
     pages['version-command'],
   ],
   'File Templates': [
+    pages['auth-server-template'],
     pages['bounded-contexts-template'],
     pages['bus-template'],
     pages['consumer-template'],

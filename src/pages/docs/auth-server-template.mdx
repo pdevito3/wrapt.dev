@@ -1,0 +1,224 @@
+---
+title: Auth Server Template
+description: The template used for creating an Auth Server using the `add:authserver` or `new:domain` commands.
+---
+
+For more information on Duende and how to configure an auth server, please see [their docs](https://docs.duendesoftware.com/).
+
+## Add Auth Server Template Properties
+
+| Name       | Required | Description                                                         | Default                          | Notes |
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- | --------|
+| Name        | Yes      | The name of your auth server | *None*   | |
+| Port  | Yes      | A 4 digit integer that designates your auth server port. | *None*   | |
+| Scopes  | No      | A list of the api Scopes that you'd like to add to your auth server.  | *None*   | |
+| Clients  | No      | A list of the various clients (applications) using your auth server.  | *None*   | |
+| Apis  | No      | A list of the apis that will be using your auth server. This would generally be a boundary scaffolded by an `add:bc` command | *None*   | |
+
+
+### Scopes
+| Name       | Required | Description                                                         | Default                          | Notes |
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- | --------|
+| Name        | Yes      | The name of the api scope. | *None*   | |
+| DisplayName  | Yes      | The user friendly name of this scope. | *None*   | |
+| UserClaims  | No      | The claims you'd like to add for your user.  | *None*   | |
+
+### Clients
+| Name       | Required | Description                                                         | Default                          | Notes |
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- | --------|
+| Id        | Yes      | The client id for this app. | *None*   | |
+| Name  | Yes      | The name of your client | *None*   | |
+| Secrets  | No      | A list of secrets you'd like to add to your client.  | *Random Guid*  | |
+| GrantType  | No      | The grant type to dictate which auth flow you want to configure. Can be set to `ClientCredentials` or `Code`. Case insensitive.  | *`Code`*   | |
+| RedirectUris  | Yes      | A list of strings to determine your acceptable callback URIs. This is generally going to be your front end client. | *None*   | |
+| PostLogoutRedirectUris | Yes | A list of strings to determine your acceptable post logout URIs. Again, this is generally going to be your front end client.  | *None*   | |
+| AllowedCorsOrigins  | Yes    | A list of strings to determine the allowed origins to accommodate CORS. | *None*   | |
+| FrontChannelLogoutUri  | Yes    | Specifies logout URI at client for HTTP front-channel based logout. | *None*   | |
+| AllowOfflineAccess  | No      | Determines whether or not this client is accessible offline. | *true*   | |
+| RequirePkce  | No      | Specifies whether a proof key is required for authorization code based token requests. | *true*   | |
+| RequireClientSecret  | No      | If set to false, no client secret is needed to request tokens at the token endpoint. | *true*   | |
+| AllowedScopes  | No      | Specifies the api scopes that the client is allowed to request. If empty, the client can't access any scope. | If `Code` grant, `openid & profile`, otherwise *None*  | |
+
+### Apis
+| Name       | Required | Description                                                         | Default                          | Notes |
+| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- | --------|
+| Name        | Yes      | The name of the api. | *None*   | |
+| DisplayName  | Yes      | The user friendly name of this api. | *None*   | |
+| ScopeNames  | Yes      | The names of the scopes that this api cares about. This should match with values in the `Name` property of a `Scope`. | *None*   | |
+| Secrets  | No      | A list of secrets you'd like to add to your api.  | *Random Guid*  | |
+| UserClaims  | No      | The claims you'd like to add for your api by default.  | *openid profile*   | |
+
+## Add Auth Server Template Examples
+
+### Adding a Auth Server with Your Domain
+In this example, I'm setting up an auth server on port 3385 with a single client for my swagger page. I also add the recipe management api since that will 
+have protected endpoints configured for this auth server. Finally, we have read only and full access scopes that are also getting used in our API.
+
+> Note that these scopes are purely for authorizing clients, not users. User authorization should be set up elsewhere in your app. 
+
+```yaml
+DomainName: CarbonKitchen
+BoundedContexts:
+- ProjectName: RecipeManagement
+  # db context info here
+  Entities:
+  - Name: Recipe
+    Features:
+    - Type: GetList
+      Policies:
+      - Name: RecipesReadOnly
+        PolicyType: scope
+        PolicyValue: recipemanagement.readonly
+    - Type: GetRecord
+      Policies:
+      - Name: RecipesReadOnly
+        PolicyType: scope
+        PolicyValue: recipemanagement.readonly
+    - Type: AddRecord
+      Policies:
+      - Name: RecipesReadOnly
+        PolicyType: scope
+        PolicyValue: recipemanagement.readonly
+    - Type: UpdateRecord
+      Policies:
+      - Name: RecipesReadOnly
+        PolicyType: scope
+        PolicyValue: recipemanagement.readonly
+    - Type: DeleteRecord
+      Policies:
+      - Name: RecipesFullAccess
+        PolicyType: scope
+        PolicyValue: recipemanagement.fullaccess
+    Properties:
+      # entity properties here
+  Environments:
+  - EnvironmentName: Development
+    Authority: https://localhost:3385
+    Audience: recipe_management
+    AuthorizationUrl: https://localhost:3385/connect/authorize
+    TokenUrl: https://localhost:3385/connect/token
+    ClientId: recipemanagement.swagger
+    ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
+AuthServer:
+  Name: CarbonAuthServer
+  Port: 3385
+  Clients:
+    - Id: recipemanagement.swagger
+      Name: RM Swagger
+      Secrets:
+        - 974d6f71-d41b-4601-9a7a-a33081f80687
+      GrantType: Code
+      RedirectUris:
+        - 'https://localhost:5375/swagger/oauth2-redirect.html'
+      PostLogoutRedirectUris:
+        - 'http://localhost:5375/'
+      AllowedCorsOrigins:
+        - 'https://localhost:5375'
+      FrontChannelLogoutUri: 'http://localhost:5375/signout-oidc'
+      AllowOfflineAccess: true
+      RequirePkce: true
+      RequireClientSecret: true
+      AllowPlainTextPkce: false
+      AllowedScopes:
+        - recipemanagement.readonly
+        - recipemangement.fullaccess
+        - openid
+        - profile
+  Scopes:
+    - Name: recipemanagement.readonly
+      DisplayName: Recipes - Read Only
+      UserClaims:
+        - recipes.read
+    - Name: recipemangement.fullaccess
+      DisplayName: Recipes - Full Access
+  Apis:
+    - Name: recipe_management
+      DisplayName: Recipe Management
+      ScopeNames:
+        - recipemanagement.readonly
+        - recipemangement.fullaccess
+      Secrets:
+        - 4653f605-2b36-43eb-bbef-a93480079f20
+      UserClaims:
+        - openid
+        - profile
+```
+
+If you were configuring a Duende BFF, the clinet might look like this:
+```yaml
+Clients:
+  - Id: react.bff
+    Name: React BFF
+    Secrets:
+      - b7449b67-f691-4200-a944-9787b02da60a
+    GrantType: Code
+    RedirectUris:
+      - 'https://localhost:bffPort/signin-oidc'
+    PostLogoutRedirectUris:
+      - 'https://localhost:bffPort/signout-callback-oidc'
+    AllowedCorsOrigins:
+      - 'https://localhost:apiPort'
+      - 'https://localhost:bffPort'
+    FrontChannelLogoutUri: 'https://localhost:bffPort/signout-oidc'
+    AllowOfflineAccess: true
+    RequirePkce: true
+    RequireClientSecret: true
+    AllowPlainTextPkce: false
+    AllowedScopes:
+      - recipemanagement.readonly
+      - recipemangement.fullaccess
+      - openid
+      - profile
+```
+
+
+### Adding a Auth Server to an Existing Project
+If you've already created your Wrapt project and want to add an Auth Server after the fact, you can use the `add:authserver` command to scaffold it out as well. 
+This looks the same as above, you just need the auth server part:
+
+```yaml
+AuthServer:
+  Name: CarbonAuthServer
+  Port: 3385
+  Clients:
+    - Id: recipemanagement.swagger
+      Name: RM Swagger
+      Secrets:
+        - 974d6f71-d41b-4601-9a7a-a33081f80687
+      GrantType: Code
+      RedirectUris:
+        - 'https://localhost:5375/swagger/oauth2-redirect.html'
+      PostLogoutRedirectUris:
+        - 'http://localhost:5375/'
+      AllowedCorsOrigins:
+        - 'https://localhost:5375'
+      FrontChannelLogoutUri: 'http://localhost:5375/signout-oidc'
+      AllowOfflineAccess: true
+      RequirePkce: true
+      RequireClientSecret: true
+      AllowPlainTextPkce: false
+      AllowedScopes:
+        - recipemanagement.readonly
+        - recipemangement.fullaccess
+        - openid
+        - profile
+  Scopes:
+    - Name: recipemanagement.readonly
+      DisplayName: Recipes - Read Only
+      UserClaims:
+        - recipes.read
+    - Name: recipemangement.fullaccess
+      DisplayName: Recipes - Full Access
+  Apis:
+    - Name: recipe_management
+      DisplayName: Recipe Management
+      ScopeNames:
+        - recipemanagement.readonly
+        - recipemangement.fullaccess
+      Secrets:
+        - 4653f605-2b36-43eb-bbef-a93480079f20
+      UserClaims:
+        - openid
+        - profile
+```
+

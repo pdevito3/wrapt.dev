@@ -18,8 +18,10 @@ With that said, if you want to create an aggregate, you can scaffold out an enti
 | [Features](#features)   | Yes      | This is a list of features that you want to add for a particular entity. | *None*                           |
 | Plural     | No       | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`) | *Entity Name appended with an `s`* |
 | Lambda     | No       | The value to use in lambda expressions for this entity. | First letter of the entity name. |
-| TableName  | No       | The name of the table in the database. | Defaulted to the singular `Name`. |
+| TableName  | No (Yes if you want to set a `Schema`)   | The name of the table in the database. | Defaulted to the singular `Name`. |
 | Schema     | No       | The schema to use in the database. | *None*, which will equate to `dbo` in SqlServer, `public` in Postgres, or `mydb` in MySQL |
+
+> `TableName` is required if you want to set a schema
 
 ### Properties
 
@@ -39,8 +41,16 @@ A list of properties that can be assigned to an entity.
 | ForeignEntityName         | No       | Captures the name of the entity this property is linked to as a foreign key. | *None* |
 | ForeignEntityPlural         | No       | The plural value for the foreign entity, if applicable. | *Entity Name appended with an `s`* |
 
+#### Keys
+There are a couple of important pieces of information to know about settings keys for scaffolding:
 
-> 🔑 Note that as v0.12+, you do not need to add a primary key property to your entities as they will automatically be inherited from the `BaseEntity` 
+- As v0.12+, you do not need to add a primary key property to your entities as they will automatically be inherited from the `BaseEntity`.
+- Foreign keys can be set as shown in the example below, but note that:
+  - Foreign keys are not added to DTOs with scaffolding and will need to be added manually
+  
+  
+
+
 
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 

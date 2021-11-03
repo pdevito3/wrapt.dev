@@ -1,16 +1,11 @@
 ---
 title: Logging
-description: Details on the Serilog logging implementation in Wrapt projects.
+description: Details on the the logging setup in Wrapt projects.
 ---
 
 ## Wrapt Serilog Implementation
-[Serilog](https://serilog.net/) is added by default to all Wrapt APIs for easy logging. This includes [Console](https://github.com/serilog/serilog-sinks-console) 
-and [Seq](https://datalust.co/seq) sinks logging by default in `Development`. If there is enough interest and input down the road, I may add some prebuilt 
-configurations for other environments, but for now, non-Development environments will need to add whatever logging you're 
-interested in to their respective `appsettings` files. Regardless, some manual updates will likely be needed regardless as there are just too many options to create a whole API on top of Serilog 🙂
-
-### Working with Seq
-Wrapt sets up Seq on the default port of `5341` in the local `Development` Startup. The simplest approach for this is running a docker script, usually something along the lines of `docker run --name seq -e ACCEPT_EULA=Y -p 5341:80 datalust/seq:latest `. For more details, please check out [the Seq documentation](https://docs.datalust.co/docs/getting-started-with-docker).
+[Serilog](https://serilog.net/) is added by default to all Wrapt APIs for easy logging. This is set in `AddLoggingConfiguration` and configured with basic presets, 
+enrichments, and logging levels based on environment. These can be modified to suit your needs however you see fit for your project.
 
 ## Additional Serilog Resources
 * [Serilog Best Practices](https://benfoster.io/blog/serilog-best-practices/)

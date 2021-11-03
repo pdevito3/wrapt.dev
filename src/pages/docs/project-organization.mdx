@@ -43,9 +43,7 @@ For those that want to read up more on VSA, here's some links.
 Entities are set up to represent distinct tables in your database. These entities should not be exposed outside of the API and accordingly each have their own read, create, 
 and update data transfer objects (DTOs). There is also a common `Manipulation` DTO that the update and create DTOs inherit from to share common requirements.
 
-#### Domain Entities
-At some point you may want to make a domain entity that is not directly linked to a database table. You can either do this manually or use the `add:entity` command 
-and update the associated files to meet your needs.
+These entities will always inherit from a `BaseEntity` with a Guid `Id` property for consistency across your domain.
 
 ### Features
 Features are one of the pivotal patterns of a Vertical Slice Architecture. Each feature lives in the `Feature` folder of the Web Api project and 
