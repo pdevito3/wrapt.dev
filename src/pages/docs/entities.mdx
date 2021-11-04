@@ -41,17 +41,6 @@ A list of properties that can be assigned to an entity.
 | ForeignEntityName         | No       | Captures the name of the entity this property is linked to as a foreign key. | *None* |
 | ForeignEntityPlural         | No       | The plural value for the foreign entity, if applicable. | *Entity Name appended with an `s`* |
 
-#### Keys
-There are a couple of important pieces of information to know about settings keys for scaffolding:
-
-- As v0.12+, you do not need to add a primary key property to your entities as they will automatically be inherited from the `BaseEntity`.
-- Foreign keys can be set as shown in the example below, but note that:
-  - Foreign keys are not added to DTOs with scaffolding and will need to be added manually
-  
-  
-
-
-
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 
 ### Features
@@ -88,8 +77,90 @@ You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, t
 | EntityPlural | No | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly. | *[ENTITYNAME]s*      
 | ResponseType | No | Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. | *bool*        
 
-
 > You can also add any of the above features after the fact using the [`add:feature` command](/docs/add-feature).
+
+
+#### Keys
+There are a couple of important pieces of information to know about settings keys for scaffolding:
+
+1. As v0.12+, you do not need to add a primary key property to your entities as they will automatically be inherited from the `BaseEntity`.
+2. Foreign keys can be set as shown in the examples below, but note that, in many cases, these will break some of your tests. You will likely need to update your tests fakers and
+3. The 'Many' side of a foreign key will not be added to DTOs with scaffolding and will need to be added manually if you want to use it there. The 'Id' of a 'One' relationship will be added though.
+  
+#### Updating Tests That Use Foreign Keys to Green
+This is the most noteworthy of the items above and will require the most manual intervention. Scaffolding here is tricky due to the variety of situations that can arise, so they 
+need to be resolved manually. Here are a few tricks that may help:
+
+1. Update your fakers. Autofaker will, by default, try and scaffold out your child or parent objects which can break your tests. Depending on your situation, you 
+may need to set the foreign key to a particular value. Here are a couple rules that you could add:
+
+  ```csharp
+  // you could create an empty list so that your tests don't have to accommodate the default of 3. only add them if you need them for a test
+  RuleFor(s => s.Organizations, _ => new List<Organization>());
+
+  // if you have a single foreign key, you may want to set the object and/or the id to null
+  RuleFor(r => r.RecipeId, _ => null);
+  RuleFor(r => r.Recipe, _ => null);
+
+  // in some cases, your object may not make sense in your domain without having the object, so could generate a fake for it using your designated faker that has its own rules.
+  RuleFor(i => i.Recipe, _ => new FakeRecipe().Generate()); 
+  ```
+
+2. Update the Arrange in your tests. 
+
+  For example, this could mean inserting a parent object into the database that can be assigned to the child to prevent a foreign key conflict.
+  ```csharp
+  [Test]
+  public async Task can_add_new_ingredient_to_db()
+  {
+      // Arrange
+      var fakeRecipeOne = new FakeRecipe { }.Generate();
+      await InsertAsync(fakeRecipeOne);
+      
+      var fakeIngredientOne = new FakeIngredientForCreationDto { }.Generate();
+      fakeIngredientOne.RecipeId = fakeRecipeOne.Id;
+
+      // Act
+      var command = new AddIngredient.AddIngredientCommand(fakeIngredientOne);
+      var ingredientReturned = await SendAsync(command);
+      var ingredientCreated = await ExecuteDbContextAsync(db => db.Ingredients.SingleOrDefaultAsync());
+
+      // Assert
+      ingredientReturned.Should().BeEquivalentTo(fakeIngredientOne, options =>
+          options.ExcludingMissingMembers());
+      ingredientCreated.Should().BeEquivalentTo(fakeIngredientOne, options =>
+          options.ExcludingMissingMembers());
+  }
+  ```
+
+  Or making sure that you don't try and insert a user id that isn't in the db.
+
+  ```csharp
+  [Test]
+  public async Task can_update_existing_ingredient_in_db()
+  {
+      // Arrange
+      var fakeIngredientOne = new FakeIngredient { }.Generate();
+      await InsertAsync(fakeIngredientOne);
+      
+      var updatedIngredientDto = new FakeIngredientForUpdateDto { }.Generate();
+      updatedIngredientDto.UserId = fakeIngredientOne.User.Id;
+
+      var ingredient = await ExecuteDbContextAsync(db => db.Ingredients.SingleOrDefaultAsync());
+      var id = ingredient.Id;
+
+      // Act
+      var command = new UpdateIngredient.UpdateIngredientCommand(id, updatedIngredientDto);
+      await SendAsync(command);
+      var updatedIngredient = await ExecuteDbContextAsync(db => db.Ingredients.Where(u => u.Id == id).SingleOrDefaultAsync());
+
+      // Assert
+      updatedIngredient.Should().BeEquivalentTo(updatedIngredientDto, options =>
+          options.ExcludingMissingMembers());
+  }
+  ```
+
+
 
 ### Policies Properties
 
@@ -153,7 +224,7 @@ Entities:
         CanSort: true
         DefaultValue: false
       - Name: OrganizationId
-        Type: Guid
+        Type: Guid?
         ForeignEntityName: Organization
 ```
 
@@ -168,7 +239,7 @@ Entities:
     - Name: Name
       Type: string
     - Name: UserProfileId
-      Type: Guid
+      Type: Guid?
       ForeignEntityName: UserProfile
       ForeignEntityPlural: UserProfiles
   - Name: UserProfile
@@ -183,7 +254,8 @@ Entities:
 
 ### One to Many Relationships
 Here, we have a `Blog` with many `Posts`. The `Type` of the foreign id doesn't have to be a Guid, but is in this example. 
-Additionally, the many `Posts` can be any collection that works for a normal .NET relationship, in this example, an `ICollection`.
+Additionally, the many `Posts` can be any collection that works for a normal .NET relationship, in this example, an `ICollection`. It does also need a `ForeignEntityPlural` to
+allow for a proper using statement.
 
 ```yaml
 Entities:
@@ -192,7 +264,7 @@ Entities:
     - Name: Name
       Type: string
     - Name: PostId
-      Type: Guid
+      Type: Guid?
       ForeignEntityName: Post
       ForeignEntityPlural: Posts
   - Name: Post
@@ -201,11 +273,13 @@ Entities:
       Type: string
     - Name: Blogs
       Type: ICollection<Blog>
+      ForeignEntityPlural: Blogs
 ```
 
 
 ### Many to Many Relationships
-Here, we have many `Books` that can also have many `Categories`. Like the One to Many relationship, the `Type` can be any collection that works for a normal .NET relationship.
+Here, we have many `Books` that can also have many `Categories`. Like the One to Many relationship, the `Type` can be any collection that works for a normal .NET relationship. As 
+with one to many, they need a `ForeignEntityPlural` to allow for a proper using statement.
 
 ```yaml
 Entities:
@@ -215,12 +289,14 @@ Entities:
       Type: string
     - Name: Categories
       Type: ICollection<Category>
+      ForeignEntityPlural: Categories
   - Name: Category
     Properties:
     - Name: Name
       Type: string
     - Name: Books
       Type: ICollection<Book>
+      ForeignEntityPlural: Books
 ```
 
 ### Composite Keys
