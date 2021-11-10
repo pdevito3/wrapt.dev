@@ -1,27 +1,30 @@
 ---
-title: Environments File Settings
+title: Environments Settings
 shortTitle: Multiple Environments
-description: Settings for scaffolding out multiple environments in your Web API.
+description: Notes on working with multiple environments in a Wrapt project.
 ---
 
 ## Multiple Environments
 
-Wrapt templates are configured with a single startup file that will be used for all environments. When settings values for environments as described below, 
-an `appsettings` file will be created for each. 
+By default, Wrapt projects will have a `Development` environment. Wrapt templates are configured with a single startup file that will be used for all environments with the environment specific configurations below getting added as environment variables in a launch settings profile.
+This is will be enhanced in future releases to accommodate user secrets and other useful infrastructure scaffolding.
+
+> ⚠️ You can scaffold as many environment profiles as you want, but it's recommended to only scaffold a `Development` profile. If you want to support additional environments, 
+you can pass in new values to the environment variables as needed. I plan to have proper built in support for this in the future.
 
 ## Environment Properties
 
 | Name             | Required | Description                                                  | Default |
 | ---------------- | -------- | ------------------------------------------------------------ | ------- |
-| EnvironmentName  | Yes      | The name of the environment that will set `ASPNETCORE_ENVIRONMENT`, the suffix of your `Startup.cs` etc. Note that `Development` and `Startup` are reserved strings for the in memory and production environments respectively. `Startup` can be used to add settings to the production environment. | *None*  |
-| ConnectionString | Yes      | The connection string for the database. The connection string will just be added in between quotes and treated like a string, so will need to be valid in that format. Backslashes will automatically be escaped for you. | *None*  |
+| EnvironmentName  | Yes      | The name of the environment. It's recommended to just do scaffolding for `Development`. | *None* |
+| ConnectionString | Yes, if not Development       | Not needed for `Development`, but available if you need it. This is the connection string for the database. The connection string will just be added in between quotes and treated like a string, so will need to be valid in that format. Backslashes will automatically be escaped for you. | *local*  |
 | ProfileName      | No       | The name of the profile that is added into your `launchsettings.json` to run this environment. | *SOLUTIONNAME (Development)*  |
 | Authority        | No       | The authority url for the auth server. | *None*  |
 | Audience         | No       | The unique id of the audience for an issued token (Identified in a JWT `aud` claim). In this case, this is usually going to be the identifier given to your **API** on your Authorization Server. | *None*  |
 | AuthorizationUrl | No       | The url to the authentication server to authenticate yourself and get an authorization code or access token. | *None*  |
 | TokenUrl         | No       | The url to the authentication server to refresh your access token. | *None*  |
 | ClientId         | No       | The client id of the client as configured on your authorization server. | *None*  |
-| ClientSecret     | No       | The client secret known only to your application and authorization server. If your client is configured for a [PKCE-enhanced authorization code flow](https://auth0.com/docs/flows/authorization-code-flow-with-proof-key-for-code-exchange-pkce) on your Authorization Sever, this is not needed.  | *None*  |
+| ClientSecret     | No       | The client secret known only to your application and authorization server. | *None*  |
 | [BrokerSettings](/docs/multiple-environments#broker-settings)    | No      | The settings for the message broker, if you are adding one. | *None*   |
 
 ### Broker Settings
@@ -33,58 +36,23 @@ an `appsettings` file will be created for each.
 | Username           | Yes      | The username for the broker connection                       | *guest*                           |
 | Password           | Yes      | The password for the broker connection.                      | *guest*                           |
 
-> ⚠️ IMPORTANT
->
-> Note that the connection strings, broker passwords, and client secrets will currently be added to `appsettings.{environment}.json`, so they will be committed to source control. You should NOT be adding anything with credentials in here. 
->
-> There are plans to support better, production ready scaffolding here in an upcoming release.
+> ⚠️ IMPORTANT: Note that the connection strings, broker passwords, and client secrets will currently be added to `launchsettings.json` and will, in turn, be committed to source control. You should NOT be adding anything with credentials in here. 
+As mentioned above, it is only recommended to scaffold a `Development` profile, which is generally ran locally and doesn't have sensitive material, but in case it does, you should be aware of this.
 
-### Database Connection
-The project configuration will use an in memory database by default for the `Development` environment. This does not need to be created here and will be added automatically for you 
+
 
 ## Example Setting Up Multiple Environments
-In this example, we are setting up QA, Staging, and Local environments. `Development` does not have to be specified here, 
-but we can use `Startup` to specify our production settings, as we are in this case. 
+A `Development` environment will be created for us automatically. In this example, we are also setting up a `Local` environment so we can run our api locally against a real database. 
+With that said, you'd also have the option to just modify your database registration to point to your local database instead of the in memory one.
 ```yaml
 Environments:
-  - EnvironmentName: Startup
-    ConnectionString: "Data Source=prodserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
-    ProfileName: Prod
-  - EnvironmentName: Qa
-    ConnectionString: "Data Source=qaserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
-    ProfileName: Qa
-  - EnvironmentName: Staging
-    ConnectionString: "Data Source=stagingserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
-    ProfileName: Staging
   - EnvironmentName: Local
-    ConnectionString: "Data Source=localhost\SqlExpress;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
+    ConnectionString: "Data Source=mylocaldb;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
     ProfileName: Local
 ```
 
-### Example with Auth
-In this example, we are not adding any new environments, but adding auth info for `Development` (our local, in memory project) and `Startup` to act as our production environment. 
-
-```yaml
-Environments:
-  - EnvironmentName: Development
-    ProfileName: Development
-    Authority: https://localhost:5010
-    Audience: patients
-  - EnvironmentName: Startup
-    ConnectionString: "Data Source=prodserver;Initial Catalog=MyDbName;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
-    ProfileName: Prod
-    Authority: https://myprod.auth0.com/
-    Audience: patients
-```
-
-## Additional Auth Resources
-* Here is great talk from an Okta rep about [the authentication flow in plain english](https://www.youtube.com/watch?v=996OiexHze0&feature=youtu.be). Definitely one of the better videos I've seen.
-* Kevin Dockx has a [great course on securing microservices](https://app.pluralsight.com/library/courses/securing-microservices-asp-dot-net-core/table-of-contents) that will likely teach you a lot around Auth regardless of whether or not you are working with microservices or a monolith.
-* [JWT.io is a great resource](https://jwt.io/) for destructuring and investigating encoded JWTs to see what's in your tokens.
-
-
-## Example with Broker Settings
-In this example, we are not adding any new environments, but adding auth info for `Development` (our local, in memory project) and `Startup` to act as our production environment. 
+### Example with Auth and Broker Settings
+In this example, we are not adding any new environments, but adding auth and broker info for `Development` (our local, in memory project).
 
 ```yaml
   Environments:
