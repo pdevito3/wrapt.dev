@@ -44,7 +44,7 @@ BoundedContexts:
   DbContext:
    ContextName: RecipesDbContext
    DatabaseName: RecipeManagement
-   Provider: SqlServer
+   Provider: postgres
 ```
 
 ### Entity Setup
@@ -61,7 +61,7 @@ BoundedContexts:
   DbContext:
    ContextName: RecipesDbContext
    DatabaseName: RecipeManagement
-   Provider: SqlServer
+   Provider: postgres
   Entities:
   - Name: Recipe
     Features:
@@ -108,7 +108,7 @@ BoundedContexts:
   DbContext:
    ContextName: RecipesDbContext
    DatabaseName: RecipeManagement
-   Provider: SqlServer
+   Provider: postgres
   Entities:
   - Name: Recipe
     Features:
@@ -174,9 +174,8 @@ BoundedContexts:
       CanSort: true
 ```
 
-### Environment and Swagger Setup
-Now I'm going to add in a few environments as well as some Swagger documentation. Both of these are optional, 
-but good to have. You can also add other optional properties like [authorization settings](/docs/authorization-settings) if you'd like to include those here.
+### Swagger Setup
+Now I'm going to add in some Swagger documentation to provide a little extra context. Optional, but nice to have. You can also add other optional properties like [authorization settings](/docs/authorization-settings) if you'd like to include those here.
 
 ```yaml
 DomainName: CarbonKitchen
@@ -186,7 +185,7 @@ BoundedContexts:
   DbContext:
    ContextName: RecipesDbContext
    DatabaseName: RecipeManagement
-   Provider: SqlServer
+   Provider: postgres
   Entities:
   - Name: Recipe
     Features:
@@ -250,17 +249,9 @@ BoundedContexts:
       Type: double?
       CanFilter: true
       CanSort: true
-  Environments:
-    - EnvironmentName: Production
-      ConnectionString: "Data Source=myprodserver;Initial Catalog=CarbonKitchen;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
-      ProfileName: Prod
-    - EnvironmentName: Qa
-      ConnectionString: "Data Source=myqaserver;Initial Catalog=CarbonKitchen;Integrated Security=True;Encrypt=True;TrustServerCertificate=True;"
-      ProfileName: Qa
   SwaggerConfig:
     Title: Carbon Kitchen Recipes
     Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
-    AddSwaggerComments: true
     ApiContact: 
       Name: Carbon Kitchen
       Email: devsupport@CarbonKitchen.com
@@ -356,17 +347,9 @@ BoundedContexts:
       Type: string
       CanFilter: true
       CanSort: true
-  Environments:
-    - EnvironmentName: Production
-      ConnectionString: "User ID=postgres;Password=password;Host=prodserver;Port=5432;Database=Shopping;"
-      ProfileName: Prod
-    - EnvironmentName: Qa
-      ConnectionString: "User ID=postgres;Password=password;Host=qaserver;Port=5432;Database=Shopping;"
-      ProfileName: Qa
   SwaggerConfig:
     Title: Carbon Kitchen Shopping
     Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
-    AddSwaggerComments: true
     ApiContact: 
       Name: Carbon Kitchen
       Email: devsupport@CarbonKitchen.com

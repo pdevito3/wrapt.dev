@@ -515,7 +515,7 @@ export default function Home() {
               // details={"Wrapt Web APIs will not only set up the basic Swagger scaffolding that comes with .NET 5, but can also provide detailed documentation for your endpoint's operations.""} 
             />
             <FeatureBlock 
-              title={'Multi-Environment Support'} 
+              title={'Auth Server Scaffolding'} 
               // details={"Built in support to scaffold out as many environments as you'd like."} 
             />
             <FeatureBlock 
