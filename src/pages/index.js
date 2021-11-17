@@ -121,18 +121,18 @@ export default function Home() {
             <meta
               key="twitter:title"
               name="twitter:title"
-              content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+              content="Wrapt - Scaffold an entire .NET 6 Web API with a simple yaml or json file."
             />
             <meta
               key="og:title"
               property="og:title"
-              content="Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+              content="Wrapt - Scaffold an entire .NET 6 Web API with a simple yaml or json file."
             />
             <meta
               name="description"
-              content="Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+              content="Scaffold an entire .NET 6 Web API with a simple yaml or json file."
             />
-            <title>Wrapt - Scaffold an entire .NET 5 Web API with a simple yaml or json file.</title>
+            <title>Wrapt - Scaffold an entire .NET 6 Web API with a simple yaml or json file.</title>
           </>
         }
       </Head>
@@ -216,7 +216,7 @@ export default function Home() {
             </h1>
             <div className="flex items-center justify-center w-full">
               <p className="max-w-lg mb-10 text-lg font-medium md:max-w-3xl sm:text-2xl sm:leading-10 sm:mb-11 ">
-                Scaffold an entire .NET 5 Web API with a simple yaml or json file so you can focus on the high value features in your web app.
+                Scaffold an entire .NET 6 Web API with a simple yaml or json file so you can focus on the high value features in your web app.
               </p>
             </div>
           <div className="flex flex-wrap justify-center space-y-4 text-center sm:space-y-0 sm:space-x-4">
@@ -512,7 +512,7 @@ export default function Home() {
             />
             <FeatureBlock 
               title={'Enhanced Swagger Documentation'} 
-              // details={"Wrapt Web APIs will not only set up the basic Swagger scaffolding that comes with .NET 5, but can also provide detailed documentation for your endpoint's operations.""} 
+              // details={"Wrapt Web APIs will not only set up the basic Swagger scaffolding that comes with .NET 6, but can also provide detailed documentation for your endpoint's operations.""} 
             />
             <FeatureBlock 
               title={'Auth Server Scaffolding'} 
@@ -528,7 +528,7 @@ export default function Home() {
             />
             <FeatureBlock 
               title={'Flexible Database Options'} 
-              // details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-release, but will be added with 1st party Wrapt support as soon as it is ready for .NET 5."} 
+              // details={"Easily add a database context for SqlServer or Postgres without any manual setup. The MySql library is currently in pre-release, but will be added with 1st party Wrapt support as soon as it is ready for .NET 6."} 
             />
             <FeatureBlock 
               title={'Serilog Logging'} 
