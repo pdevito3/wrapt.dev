@@ -43,7 +43,7 @@ For those that want to read up more on VSA, here's some links.
 Entities are set up by default to represent distinct tables in your database (though you can modify the scaffolding to change this when needed). These entities should not be exposed outside of the API and accordingly each have their own read, create, 
 and update data transfer objects (DTOs). There is also a common `Manipulation` DTO that the update and create DTOs inherit from to share common requirements.
 
-Additionally, These entities will always inherit from a `BaseEntity` with a Guid `Id` property for consistency across your domain.
+Additionally, These entities will always inherit from a `BaseEntity` with a Guid `Id` property that will be set as the primary key as well as `CreatedOn`, `CreatedBy`, `LastModifiedOn`, and `LastModifiedBy` for auditing and consistency across your domain.
 
 ### Features
 Features are one of the pivotal patterns of a Vertical Slice Architecture. Each feature lives in the `Feature` folder of the within the `Domain` directory and 
