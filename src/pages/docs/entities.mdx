@@ -7,6 +7,7 @@ description: Settings for scaffolding out an entity for your Web API.
 ## Entities
 
 A list of database entities in your project. These entities are added as dbsets to your database context, so they translate 1:1 to tables in your database. 
+With that said, if you want to create an aggregate, you can scaffold out an entity and update it accordingly to reflect that aggregate yourself (e.g. remove the db set).
 
 ## Entity Properties
 
@@ -15,10 +16,12 @@ A list of database entities in your project. These entities are added as dbsets 
 | Name       | Yes      | The name of the entity                                       | *None*                           |
 | Properties | Yes      | A list of properties assigned to your entity described in the [entity properties](#properties) section.| *None*                           |
 | [Features](#features)   | Yes      | This is a list of features that you want to add for a particular entity. | *None*                           |
-| Plural     | No       | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`) | Entity Name appended with an `s` |
+| Plural     | No       | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`) | *Entity Name appended with an `s`* |
 | Lambda     | No       | The value to use in lambda expressions for this entity. | First letter of the entity name. |
-| TableName  | No       | The name of the table in the database. | Defaulted to the singular `Name`. |
+| TableName  | No (Yes if you want to set a `Schema`)   | The name of the table in the database. | Defaulted to the singular `Name`. |
 | Schema     | No       | The schema to use in the database. | *None*, which will equate to `dbo` in SqlServer, `public` in Postgres, or `mydb` in MySQL |
+
+> `TableName` is required if you want to set a schema
 
 ### Properties
 
@@ -29,15 +32,14 @@ A list of properties that can be assigned to an entity.
 | ------------------ | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Name               | Yes      | The name of the property                                     | *None*                           |
 | Type               | Yes      | The data type for the property. These are *not* case sensitive and they can be set to nullable with a trailing `?`. All standard C# data types can be used here. You even do custom properties like classes that act as foreign keys for instance. | *None*                           |
-| IsPrimaryKey       | Yes      | When true, the property will be set as the primary key for the entity. For now, only one primary key is supported, with plans to add compound key support down the road. | false                            |
 | CanFilter          | No       | Will set the property to be filterable in the API endpoint when set to true. | false                            |
 | CanSort            | No       | Will set the property to be filterable in the API endpoint when set to true. | false                            |
 | IsRequired         | No       | When true, the property will be set as required in the database. | false<br/>*true for primary key* |
 | ColumnName         | No       | The database field name for the given property. | *None* |
 | CanManipulate      | No       | When set to false, you will not be able to update this property when calling the associated endpoint. When set to `false`, the property will be able to be established when using the POST endpoint, but will not be able to be updated after that. This is managed by the DTOs if you want to manually adjust this. | true<br/>*false for primary key* |
 | DefaultValue       | No       | Allows you to add a default value to a property. Note that it should be entered exactly as you'd want it, so a string would be something like `"My Default Value"`, a bool might be `true`, and an int might be `0` | *None*                           |
-
-<!-- | ForeignKeyPropName | No       | When adding an object linked by a foreign key, use `ForeignKeyPropName` to enter the name of the property that acts as the foreign key | *None*                           | -->
+| ForeignEntityName         | No       | Captures the name of the entity this property is linked to as a foreign key. | *None* |
+| ForeignEntityPlural         | No       | The plural value for the foreign entity, if applicable. | *Entity Name appended with an `s`* |
 
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 
@@ -46,12 +48,24 @@ A list of properties that can be assigned to an entity.
 | Name       | Required | Description                                                  | Default                          |
 | ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Type       | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!)                               | *None*                           |
+| Policies   | Yes      | A list of policies that should be applied ito your feature. Note that these policies dictate **client** permissions, not user permissions, which should be handled inside your project. | *None*                           |
 
 
-`GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, and `AddRecord` are all standard CRUD features along with their endpoints and associated tests. 
+`GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `AddListByFk` are all standard CRUD features along with their endpoints and associated tests. 
 
 > ℹ DTOs, validators, profiles and functional test routes associated to all features will be added regardless of whether or not a given feature was added. This is due to the complexity of all 
 the minute management around handling these so dynamically. Feel free to delete whatever you're not using.
+
+#### AddListByFk Feature
+The `AddListByFk` will let you add a list or batch of records using a foreign key. For example, you can add a list of ingredients for a recipe, based on the id of a recipe.
+
+| Name       | Required | Description                                                  | Default                          |
+| ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
+| BatchPropertyName | Yes     | The name of the property on the foreign entity you are doing a batch add on. | *None*        
+| BatchPropertyType | Yes     | The data type of the the property you are doing the batch add on. This is for a FK property, so probably a Guid or int.| *None*        
+| ParentEntity | Yes | The name of the parent entity that the FK you using is associated to. For example, if you had a FK of `EventId`, the parent entity might be `Event`. Leave null if you're not batching on a FK. | *None*      
+| BatchPropertyDbSetName | Yes | The name of the DbSet for the FK you are doing a batch add on. Generally, the plural of the FK entity. Leave null if you're not batching on a FK.| *None*        
+
 
 #### Ad Hoc Features
 You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, there's a bit more that needs to be done. In addition to `Type` above, you'll want to provide the below:
@@ -60,10 +74,101 @@ You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, t
 | ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Name | Yes     | The name of the feature. This is the name of the feature's method and would generally be something like `AddCustomer` or `GetCustomer`. | *None*        
 | Command | Yes     | The name of the command. This is the name of the feature's class and would generally be something like `AddCustomerCommand` or `GetCustomerQuery`.| *[NAME]Command*        
-| EntityPlural | No (but recommended) | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly. | *""*      
+| EntityPlural | No | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly. | *[ENTITYNAME]s*      
 | ResponseType | No | Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. | *bool*        
 
-> You can also add `AdHoc` features after the fact using the [`add:feature` command](/docs/add-feature).
+> You can also add any of the above features after the fact using the [`add:feature` command](/docs/add-feature).
+
+
+#### Keys
+There are a couple of important pieces of information to know about settings keys for scaffolding:
+
+1. As v0.12+, you do not need to add a primary key property to your entities as they will automatically be inherited from the `BaseEntity`.
+2. Foreign keys can be set as shown in the examples below, but note that, in many cases, these will break some of your tests. You will likely need to update your tests fakers and
+3. The 'Many' side of a foreign key will not be added to DTOs with scaffolding and will need to be added manually if you want to use it there. The 'Id' of a 'One' relationship will be added though.
+  
+#### Updating Tests That Use Foreign Keys to Green
+This is the most noteworthy of the items above and will require the most manual intervention. Scaffolding here is tricky due to the variety of situations that can arise, so they 
+need to be resolved manually. Here are a few tricks that may help:
+
+1. Update your fakers. Autofaker will, by default, try and scaffold out your child or parent objects which can break your tests. Depending on your situation, you 
+may need to set the foreign key to a particular value. Here are a couple rules that you could add:
+
+  ```csharp
+  // you could create an empty list so that your tests don't have to accommodate the default of 3. only add them if you need them for a test
+  RuleFor(s => s.Organizations, _ => new List<Organization>());
+
+  // if you have a single foreign key, you may want to set the object and/or the id to null
+  RuleFor(r => r.RecipeId, _ => null);
+  RuleFor(r => r.Recipe, _ => null);
+
+  // in some cases, your object may not make sense in your domain without having the object, so could generate a fake for it using your designated faker that has its own rules.
+  RuleFor(i => i.Recipe, _ => new FakeRecipe().Generate()); 
+  ```
+
+2. Update the Arrange in your tests. 
+
+  For example, this could mean inserting a parent object into the database that can be assigned to the child to prevent a foreign key conflict.
+  ```csharp
+  [Test]
+  public async Task can_add_new_ingredient_to_db()
+  {
+      // Arrange
+      var fakeRecipeOne = new FakeRecipe { }.Generate();
+      await InsertAsync(fakeRecipeOne);
+      
+      var fakeIngredientOne = new FakeIngredientForCreationDto { }.Generate();
+      fakeIngredientOne.RecipeId = fakeRecipeOne.Id;
+
+      // Act
+      var command = new AddIngredient.AddIngredientCommand(fakeIngredientOne);
+      var ingredientReturned = await SendAsync(command);
+      var ingredientCreated = await ExecuteDbContextAsync(db => db.Ingredients.SingleOrDefaultAsync());
+
+      // Assert
+      ingredientReturned.Should().BeEquivalentTo(fakeIngredientOne, options =>
+          options.ExcludingMissingMembers());
+      ingredientCreated.Should().BeEquivalentTo(fakeIngredientOne, options =>
+          options.ExcludingMissingMembers());
+  }
+  ```
+
+  Or making sure that you don't try and insert a user id that isn't in the db.
+
+  ```csharp
+  [Test]
+  public async Task can_update_existing_ingredient_in_db()
+  {
+      // Arrange
+      var fakeIngredientOne = new FakeIngredient { }.Generate();
+      await InsertAsync(fakeIngredientOne);
+      
+      var updatedIngredientDto = new FakeIngredientForUpdateDto { }.Generate();
+      updatedIngredientDto.UserId = fakeIngredientOne.User.Id;
+
+      var ingredient = await ExecuteDbContextAsync(db => db.Ingredients.SingleOrDefaultAsync());
+      var id = ingredient.Id;
+
+      // Act
+      var command = new UpdateIngredient.UpdateIngredientCommand(id, updatedIngredientDto);
+      await SendAsync(command);
+      var updatedIngredient = await ExecuteDbContextAsync(db => db.Ingredients.Where(u => u.Id == id).SingleOrDefaultAsync());
+
+      // Assert
+      updatedIngredient.Should().BeEquivalentTo(updatedIngredientDto, options =>
+          options.ExcludingMissingMembers());
+  }
+  ```
+
+
+
+### Policies Properties
+
+| Name               | Required | Description                                                  | Default                          |
+| ------------------ | -------- | ------------------------------------------------------------ | -------------------------------- |
+| Name               | Yes      | The name of the policy (e.g. `CanReadPatient`). | *None*   |
+| PolicyType         | Yes      | The type of policy that will be used. The only valid policy type at the moment is `scope` to authorize based on a scope. | *None*   |
+| PolicyValue        | Yes      | The value of the policy that is going to be added (e.g. `patients.read`). | *None*   |
 
 
 ## Entity Example
@@ -83,9 +188,13 @@ Entities:
     - Type: GetList
     - Type: UpdateRecord
     - Type: DeleteRecord
+    - Type: AddListByFk
+      BatchPropertyName: OrganizationId
+      BatchPropertyType: Guid
+      ParentEntity: Organization
     - Type: AdHoc
-      Name: BatchAddSuppliers
-      Command: BatchAddSuppliersCommand
+      Name: MySpecialLookup
+      Command: MySpecialLookupQuery
       EntityPlural: Suppliers
     Properties:
       - Name: SupplierId
@@ -114,55 +223,118 @@ Entities:
         CanFilter: true
         CanSort: true
         DefaultValue: false
+      - Name: OrganizationId
+        Type: Guid?
+        ForeignEntityName: Organization
 ```
-<!-- 
+
 ## Example With Foreign Key
+Foreign keys can be added in any of the below ways. At a high level, you'll notice there is a syntax for adding the `1` relationship type and the `many` relationship type.
 
-Now let's say that we had a `Sale` entity that has a `ProductId` property that acts as a foreign key to another 'Product' entity:
+### One to One Relationships
+```yaml
+Entities:
+  - Name: User
+    Properties:
+    - Name: Name
+      Type: string
+    - Name: UserProfileId
+      Type: Guid?
+      ForeignEntityName: UserProfile
+      ForeignEntityPlural: UserProfiles
+  - Name: UserProfile
+    Properties:
+    - Name: Name
+      Type: string
+    - Name: UserId
+      Type: Guid
+      ForeignEntityName: User
+      ForeignEntityPlural: Users
+```
+
+### One to Many Relationships
+Here, we have a `Blog` with many `Posts`. The `Type` of the foreign id doesn't have to be a Guid, but is in this example. 
+Additionally, the many `Posts` can be any collection that works for a normal .NET relationship, in this example, an `ICollection`. It does also need a `ForeignEntityPlural` to
+allow for a proper using statement.
 
 ```yaml
 Entities:
-  - Name: Sale
+  - Name: Blog
     Properties:
-    - Name: SaleId
-      IsPrimaryKey: true
-      Type: int
-      CanFilter: true
-    - Name: ProductId
-      Type: int
-      CanFilter: true
-    - Name: SaleDate
-      Type: DateTimeOffset?
-      CanFilter: true
-    - Name: SaleAmount
-      Type: int
-      CanFilter: true
-``` -->
-<!-- 
-If we wanted to return the product in our responses, we could add an additional `Product` property of type `Product` that links to the primary key of `ProductId` in our `Product` entity:
+    - Name: Name
+      Type: string
+    - Name: PostId
+      Type: Guid?
+      ForeignEntityName: Post
+      ForeignEntityPlural: Posts
+  - Name: Post
+    Properties:
+    - Name: Name
+      Type: string
+    - Name: Blogs
+      Type: ICollection<Blog>
+      ForeignEntityPlural: Blogs
+```
+
+
+### Many to Many Relationships
+Here, we have many `Books` that can also have many `Categories`. Like the One to Many relationship, the `Type` can be any collection that works for a normal .NET relationship. As 
+with one to many, they need a `ForeignEntityPlural` to allow for a proper using statement.
 
 ```yaml
 Entities:
-  - Name: Sale
+  - Name: Book
     Properties:
-    - Name: SaleId
-      IsPrimaryKey: true
-      Type: int
-      CanFilter: true
-    - Name: ProductId
-      Type: int
-      CanFilter: true
-    - Name: SaleDate
-      Type: DateTimeOffset?
-      CanFilter: true
-    - Name: SaleAmount
-      Type: int
-      CanFilter: true
-    - Name: Product
-      Type: Product
-      ForeignKeyPropName: ProductId
-``` -->
+    - Name: Name
+      Type: string
+    - Name: Categories
+      Type: ICollection<Category>
+      ForeignEntityPlural: Categories
+  - Name: Category
+    Properties:
+    - Name: Name
+      Type: string
+    - Name: Books
+      Type: ICollection<Book>
+      ForeignEntityPlural: Books
+```
 
-## Composite Keys
+### Composite Keys
 For the time being, composite keys can not be created using Craftsman commands. With that said, you are more than welcome to scaffold out an entity with one of the keys and then 
 modify the generated entity, repository, tests, etc. to accommodate that composite key.
+
+
+
+## Policies
+Something like the below would add policies to your features.
+
+```yaml
+  Entities:
+  - Name: Recipe
+    Features:
+    - Type: GetList
+      Policies:
+      - Name: RecipesReadOnly
+        PolicyType: scope
+        PolicyValue: recipemanagement.readonly
+    - Type: GetRecord
+      Policies:
+      - Name: RecipesReadOnly
+        PolicyType: scope
+        PolicyValue: recipemanagement.readonly
+    - Type: AddRecord
+      Policies:
+      - Name: RecipesReadOnly
+        PolicyType: scope
+        PolicyValue: recipemanagement.readonly
+    - Type: UpdateRecord
+      Policies:
+      - Name: RecipesReadOnly
+        PolicyType: scope
+        PolicyValue: recipemanagement.readonly
+    - Type: DeleteRecord
+      Policies:
+      - Name: RecipesFullAccess
+        PolicyType: scope
+        PolicyValue: recipemanagement.fullaccess
+```

@@ -1,13 +1,13 @@
 ---
 title: Database Migrations
-description: Details on how to work with EF Database Migrations with .NET 5 APIs built using Wrapt.
+description: Details on how to work with EF Database Migrations with .NET 6 APIs built using Wrapt.
 ---
 
 ## Using Database Migrations
 As of v0.9.0, an initial database migration will automatically be ran during every `new:domain` or `add:bc` command, so you should have an initial migration ready for you from the get go. 
 There is a built in timeout or you might not have the Entity Framework CLI installed, so you may need to run migrations manually after the fact. 
 
-Because Wrapt projects use a multi-environment setup, you will need to set an `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` commands to let 
+Because Wrapt projects use an in-memory db while in the `Development` environment, you will need to set an `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` commands to let 
 the host builder locate the appropriate settings file to use. Here's some examples for 
 [Windows](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10), 
 [Bash](https://askubuntu.com/questions/58814/how-do-i-add-environment-variables), 
@@ -23,41 +23,56 @@ When running migrations, make sure your `UseInMemoryDatabase` setting is set to 
   dotnet tool install -g dotnet-ef
   ```
 
-2. Set your env variable (e.g. Development) that matches the environment name suffixed on Startup. The default `ASPNETCORE_ENVIRONMENT` is `Production` [if none has been been set](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments?view=aspnetcore-5.0).
+2. Make sure your `ASPNETCORE_ENVIRONMENT` variable is et to literally anything except `Development`. This is because the in-memory database is used 
+in the `Development` environment.
 
   *Powershell*
   ```powershell
-  $Env:ASPNETCORE_ENVIRONMENT = "Development"
+  $Env:ASPNETCORE_ENVIRONMENT = "anything"
   ```
 
   *Bash*
   ```bash
-  export ASPNETCORE_ENVIRONMENT=Development
+  export ASPNETCORE_ENVIRONMENT=anything
   ```
 
-3. If you don't have any migrations for whatever reason, you can perform your first migration with something like the below where `Ordering` 
-is the solution name for this bounded context. Note that you should be in the `src` directory of the bounded context that you want to run your migrations on.
+3. If you don't have any migrations for whatever reason, you can perform your first migration with something like the below.
   ```shell
-  dotnet ef migrations add "InitialMigration" --project Ordering.Infrastructure --startup-project Ordering.WebApi --output-dir Migrations
+  cd YourBoundedContextName/src/YourBoundedContextName
+  dotnet ef migrations add InitialMigration
   ```
 
-  > Your migrations should be under the project you are running them on, so in this case `Ordering.Infrastructure`
 
-4. To add additional migrations, you can do something like this with  `Ordering` again being the solution name for this bounded context. Make sure that your `ASPNETCORE_ENVIRONMENT` has been set.
+4. To add additional migrations, just change your migration description.
   ```shell
-  dotnet ef migrations add "added X column to y entity" --project Ordering.Infrastructure --startup-project Ordering.WebApi --output-dir Migrations
+  cd YourBoundedContextName/src/YourBoundedContextName
+  dotnet ef migrations add AddedColumnXToTableY
   ```
 
 5. To push the updates to your database, you can run this (note that we're using the shorthand options in this case, but it doesn't matter which is used in any of the examples):
   ```shell
-  dotnet ef database update -p Ordering.Infrastructure -s Ordering.WebApi
+  cd YourBoundedContextName/src/YourBoundedContextName
+  dotnet ef database update
   ```
 
 ## Common Db Migration Error
 
-If you're getting an error like the below, make sure that your connection string is set in your `appsettings.json` file and `UseInMemoryDatabase` is set to `false`.
+If you're getting an error like the below, make sure that you set your `ASPNETCORE_ENVIRONMENT` to anything but `Development` before running migrations. Literally, you could set it to `anything` and it should work.
 
 ```
 Unable to resolve service for type 'Microsoft.EntityFrameworkCore.Migrations.IMigrator'. This is often because no database provider has been configured for this DbContext. A provider can be configured by overriding the DbContext.OnConfiguring method or by using AddDbContext on the application service provider. If AddDbContext is used, then also ensure that your DbContext type accepts a DbContextOptions<TContext> object in its constructor and passes it to the base constructor for DbContext.
 ```
 
+Additionally, if you are running Integration tests and see something like the below, make sure that you have migrations in your project.
+
+```
+System.InvalidOperationException : CommandText property has not been initialized
+   at Npgsql.NpgsqlCommand.ProcessRawQuery(Boolean standardConformingStrings, Boolean deriveParameters)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(CommandBehavior behavior, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteNonQuery(Boolean async, CancellationToken cancellationToken)
+   at Respawn.Checkpoint.ExecuteDeleteSqlAsync(DbConnection connection)
+   at Respawn.Checkpoint.Reset(DbConnection connection)
+   at RecipeManagement.IntegrationTests.TestFixture.ResetState() in IntegrationTests/TestFixture.cs
+   at RecipeManagement.IntegrationTests.TestBase.TestSetUp() in IntegrationTests/TestBase.cs
+```

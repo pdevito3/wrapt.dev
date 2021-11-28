@@ -17,7 +17,7 @@ After a lot of research and a couple of trial projects, I actually decided that 
 And then I came across a different pattern...
 
 ### Onions Actually Stink — Moving to a Vertical Slice Architecture
-Enter the Vertical Slice Architecture (VSA). I came across one of [Jimmy Bogard's talks on VSA](https://youtu.be/SUiWfhAhgQw) and it really spoke to me. I also found out that [it has worked really well for others as well](https://www.reddit.com/r/dotnet/comments/lw13r2/choosing_between_using_cleanonion_or_vertical/), many of which who came from Clean projects.
+Enter Vertical Slice Architecture (VSA). I came across one of [Jimmy Bogard's talks on VSA](https://youtu.be/SUiWfhAhgQw) and it really spoke to me. I also found out that [it has worked really well for others as well](https://www.reddit.com/r/dotnet/comments/lw13r2/choosing_between_using_cleanonion_or_vertical/), many of which who came from Clean projects.
 
 For those not familiar, the short version is that Clean Architecture aims to separate the business rules from the I/O with [designated layers](https://blog.cleancoder.com/uncle-bob/images/2012-08-13-the-clean-architecture/CleanArchitecture.jpg) 
 while Vertical Slice Architecture aims to [separate the code by features](https://www.ghyston.com/media/insights/2020-06-26-architecting-for-maintainability-through-vertical-slices/vertical-applicaiton.png), aiming to minimize code sharing between features.
@@ -40,21 +40,19 @@ For those that want to read up more on VSA, here's some links.
 
 ## What Boilerplate Do You Get?
 ### Entities & DTOs
-Entities are set up to represent distinct tables in your database. These entities should not be exposed outside of the API and accordingly each have their own read, create, 
+Entities are set up by default to represent distinct tables in your database (though you can modify the scaffolding to change this when needed). These entities should not be exposed outside of the API and accordingly each have their own read, create, 
 and update data transfer objects (DTOs). There is also a common `Manipulation` DTO that the update and create DTOs inherit from to share common requirements.
 
-#### Domain Entities
-At some point you may want to make a domain entity that is not directly linked to a database table. You can either do this manually or use the `add:entity` command 
-and update the associated files to meet your needs.
+Additionally, These entities will always inherit from a `BaseEntity` with a Guid `Id` property that will be set as the primary key as well as `CreatedOn`, `CreatedBy`, `LastModifiedOn`, and `LastModifiedBy` for auditing and consistency across your domain.
 
 ### Features
-Features are one of the pivotal patterns of a Vertical Slice Architecture. Each feature lives in the `Feature` folder of the Web Api project and 
+Features are one of the pivotal patterns of a Vertical Slice Architecture. Each feature lives in the `Feature` folder of the within the `Domain` directory and 
 will correspond to various actions that can be performed on each of your entities. Out of the box, Wrapt will give you basic CRUD features for each of your entities to 
 get a list, get a record, create a record, update a record, partially update a record, and delete a record. 
 
 As your project grows, you can continue to add more features (or update these existing ones) to meet your business needs.
 
-In practice, each controller is essentially acting as a router to a feature and that's all. All the business logic behind the endpoint lives in the feature (or, even better, in the domain layer that is used by the feature). The features themselves are 
+In practice, each controller is essentially acting as a router to a feature and that's all. All the business logic behind the endpoint lives in the feature (or, even better, in the domain entity that is used by the feature). The features themselves are 
 [MediatR commands or queries](https://github.com/jbogard/MediatR) that are fed into a handler that return a response.
 
 
@@ -63,7 +61,8 @@ In practice, each controller is essentially acting as a router to a feature and 
 
 > It's worth noting that these features do NOT have repositories. In fact, there are no repositories in this architecture at all by design. This gives you 
 the ability to control how each feature accesses the data however is appropriate for that particular feature. There are other benefits here as well that I'll detail in my blog
-and repositories do have their place, but they are not forced on you by default.
+and repositories do have their place, but they are not forced on you by default. With that said, **you are more than welcome to use repositories in your projects, you'll 
+just need to update the features manually**.
 
 <!-- iamge like so? https://youtu.be/SUiWfhAhgQw?t=2224 -->
 
@@ -138,8 +137,8 @@ will automatically return a complete list of pagination metadata in the response
 | HasNext | A boolean that denotes whether or not there is a next page. |
 
 ### Encapsulated Domain
-Generally, we want to push our behaviors down into our domain model or (a domain layer if the level of complexity calls for it). This means that our handler gets thinner and thinner and is really just performing data access logic (no need for 
-an extra repository layer) so we can get delegate all the meat of the work in the domain logic. This means we have a fully encapsulated domain.
+Generally, we want to push our behaviors down into our domain entity. This means that our CQRS handlers get thinner and thinner and is really just performing data access logic (no need for 
+an extra repository layer) so we can get delegate all the meat of the work in the domain logic. This means we have a fully encapsulated, 'always valid' domain.
 
 Now, before we do all that work in the handler/domain logic, we need to check if we actually *can* do that thing that we want to do. Enter validation. So we want to center our validation around our requests and our handlers.
 
@@ -152,10 +151,11 @@ Validation can generally be broken up into two main categories 1) request valida
 #### Request Validation
 Request validation is just us making sure that the data in the request itself is valid to be submitted. Do we have all of the required fields, is a particular field a certain minimum length, etc.
 
-In Wrapt, our requests will validate themselves using [Fluent Validation](https://fluentvalidation.net/) (Data Annotations is another viable option here if you'd like to go that route). No rules are added by default, 
-but you can add any rules that fit your business needs in `Domain.ENTITYPLURAL.Validation`. Validation rules can be assigned to the `ENTITYForManipulationDtoValidator` class 
-if you'd like the rule to be run on both creation (POST calls) and update (PUT, PATCH). If you'd like a rule to just be ran on one or the other, you can add the rule to 
-the respective validator class.
+Wrapt projects bring in [Fluent Validation](https://fluentvalidation.net/) for you to use if you would like. Data annotations or built in domain validation are two other options as well. Feel free to use whatever works best for you!
+The main goal here is that you are able to validate the data that is coming in to your API.
+
+If you're using fluent validation, validation rules can be assigned to the `ENTITYForManipulationDtoValidator` class if you'd like the rule to be run on both creation (POST calls) and update (PUT, PATCH). If you'd like a rule to just be ran on one or the other, you can add the rule to 
+the respective validator class. You might also consider a validator for your domain entity directly. 
 
 The OOTB rules for Fluent Validation are pretty robust, but if you need to make a custom validation rule, something like 
 the below [from this blog]((https://www.locktar.nl/programming/net-core/creating-custom-validators-with-fluentvalidation/)) is a good example.
@@ -199,7 +199,8 @@ Command validation is where we have more complex business validations come into 
 - A name is unique and can't be added again
 - We can't approve cancelled invoices
 
-This validation can be added in your command handler or, even better, encapsulated in your domain entity as a new method.
+This validation can be added in your command handler or, even better, encapsulated in your domain entity. This could go so far as needing to be 
+a service that is passed in to a creation factory as an interface with the capability to perform whatever validation needs to happen. 
 
 
 ### Eventing
@@ -272,37 +273,3 @@ and run each of your feature tests in an actual representation of your database.
 - **Functional tests** are meant to check an entire slice of functionality with all the code running together. 
 These are generally more involved to write and maintain, but with this project setup, our controllers are essentially just routers to our feature queries and commands, so we have 
 already done the meat of our testing in our integration tests. This means that our functional tests can generally just confirm that we are getting the expected responses from our routes and we can call it a day.
-
-#### Adding Tests for MassTransit
-Craftsman will scaffold out a myriad of tests for you, but will not do this for consumers or producers at this time. If you want to add these, you'll need to add them manually for the time being. 
-
-For consumers, Craftsman will register your consumers in the test harness of integration testing project whenever you add them in, so you should generally be able to just add a test without much hassle.
-
-This is a basic example test for a consumer.
-```csharp
-[Test]
-public async Task bus_consumer_test()
-{
-    // Arrange
-    var message = new
-    {
-        ReportId = Guid.NewGuid(),
-        Provider = "string",
-        Target = "string",
-    };
-
-    // Act
-    await PublishMessage<ISendReportRequest>(message);
-
-    // Assert
-    // did the endpoint consume the message
-    Assert.That(await _harness.Consumed.Any<ISendReportRequest>());
-
-    // ensure that no faults were published by the consumer
-    Assert.That(await _harness.Published.Any<Fault<ISendReportRequest>>(), Is.False);
-
-    // the particular consumer i'm testing consumed the message
-    var consumerHarness = _provider.GetRequiredService<ISendReportRequest<SendEmailReport>>();
-    Assert.That(await consumerHarness.Consumed.Any<ISendReportRequest>());
-}
-```

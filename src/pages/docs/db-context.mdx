@@ -12,7 +12,8 @@ An object that describes the basic information for your database. At the moment,
 | ------------- | -------- | ------------------------------------------------------------ | --------- |
 | DbContextName | Yes      | A single key value pair that designates the name you want to use for your API. | *None*    |
 | DatabaseName  | Yes      | The name of your database.                                   | *None*    |
-| Provider      | No       | An enumerator that designated the database provider for your DbContext. | SqlServer |
+| Provider      | No       | An enumerator that designated the database provider for your DbContext. Case insensitive.   | SqlServer |
+| NamingConvention  | No      | The naming convention for your database. Case insensitive.                                 | *SnakeCase*    |
 
 ### Providers
 These are the valid options for the `Provider` property:
@@ -21,7 +22,15 @@ These are the valid options for the `Provider` property:
 - MySQL (Coming Soon)
 
 > You can still add MySql to your project manually. It has not been built in directly yet because, as of writing this, the MySQl nuget package is 
-currently in pre-release for .NET 5, so you'll either want to add the prerelease or drop back to .NET Core 3.1 until it's ready.
+currently in pre-release, so you'll either want to add the prerelease or drop back to .NET Core 3.1 until it's ready.
+
+
+### Naming Conventions
+- `Class` uses the built in .NET styling
+- SnakeCase
+- LowerCase
+- CamelCase
+- UpperCase
 
 ## Example
 In this example, we are creating a Sql Server database with a database name of `VetClinic` and a DbContext of `VetClinicDbContext`.

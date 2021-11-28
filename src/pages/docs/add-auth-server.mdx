@@ -1,0 +1,35 @@
+---
+title: Add Auth Server Command
+shortTitle: Add Auth Server
+description: Adds a Duende auth server to your solution.
+---
+
+This command will scaffold out a Duende auth server for your solution. For the time being, this is just the in-memory portion of the auth server, useful for dev, 
+but will be enhanced with Identity in the coming months. It's also worth noting that consent forms are not scaffolded out yet, but will be added in a future release.
+
+You can find more info and examples in the [input file template](/docs/auth-server-template).
+
+> This command must be ran from your *root* solution directory.
+
+```shell
+craftsman add:auth-server [options] <filepath>
+```
+
+## Add Auth Server Arguments
+| Argument        | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| filepath        | The full filepath for the yaml or json file that lists the new entities that you want to add to your API.
+
+## Add Auth Server Options
+| Option          | Description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| -h, --help      | Display help message. No filepath is needed to display the help message.
+
+
+## Add Auth Server Example Commands
+```shell
+craftsman add:authserver -h
+craftsman add:authserver C:\fullpath\newauthserver.yaml
+craftsman add:authserver C:\fullpath\newauthserver.yml
+craftsman add:authserver C:\fullpath\newauthserver.json
+```
