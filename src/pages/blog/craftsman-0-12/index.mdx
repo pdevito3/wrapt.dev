@@ -1,0 +1,42 @@
+import { pauldevito } from 'src/data/authors'
+import image from './card.png'
+
+export const blogmeta = {
+  title: 'Craftsman v0.12 is out with .NET 6 scaffolding and more!',
+  description: `Craftsman v0.12 is out with .NET 6 scaffolding, in memory authorization server scaffolding, and lots of optimizations and improvements!`,
+  date: '2021-11-29 08:35:29', // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: 'Releases',
+  image,
+  tags: ['dotnet', 'net6', 'craftsman']
+}
+
+## Craftsman v0.12 is here!
+
+Lots and lots of updates to this release of Craftsman with things I've been wanting to add and more lessons learned as I continue to dogfood things.
+
+### Highlights
+Some of the major items are:
+  * .NET 6 scaffolding. Everything is now scaffolded using .NET 6, implicit usings, shortened namespacing, and more. I didn't consolidate Startup and Program yet, but may in v0.13.
+  * In memory Authorization Server scaffolding. This is a step towards a what I hope will be a ton of time savings. You can now scaffold out an in memory duende auth server along with your new projects. It is mostly based one the official duende template, with some slight differences. For example, I didn't add consent pages in yet, but has some additional features like Tailwind CSS styling for the main pages. You can easily check out an exmaple with...
+  * A new `new:example` command. I wanted to make it really easy to see examples for different types of scenarios, so I added a new command to easily get something together. Just run `craftsman new:example` and follow the prompts!
+  * All entities will now inherit from a `BaseEntitiy` that has a standardized Id guid for your primary key and audit fields as well. These will be updated for you OOTB in db context now.
+
+Some of the the other items I'm excited about are:
+* Fluent docker database setup for integration tests
+* Foreign key support
+* New error handling filter
+* Better environment variable support
+* Startup consolidation
+* Database naming conventions
+
+I think the project scaffolding is really moving in a good direction and is getting closer to a more stable position. Lots to add still, but it's at least starting to feel more mature. 
+Check out the [full release notes here](https://github.com/pdevito3/craftsman/releases/tag/v0.12.0).
+
+Also, [I started a discord channel](https://discord.gg/TBq2rVkSEj) if you want to come join us!
+
+## Learn More 
+
+[Get started with Wrapt](https://wrapt.dev/docs/installation) here. **Please reach out** if you are seeing any gaps or clarifications that should be made. Any other questions are welcome as well!
+
+Regardless, I hope this latest release is helpful! I'd love to hear your thoughts and insights [on Twitter](https://twitter.com/pdevito3) @pdevito3.

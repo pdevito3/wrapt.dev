@@ -1,10 +1,10 @@
-import { SidebarLayout } from 'src/layouts/SidebarLayout'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 // import twitterSquare from 'src/img/twitter-square.jpg'
 import { Title } from 'src/components/Title'
-import { documentationNav } from 'src/navs/documentation'
 import twitterSquare from 'src/img/twitter-square.jpg'
+import { SidebarLayout } from 'src/layouts/SidebarLayout'
+import { documentationNav } from 'src/navs/documentation'
 
 export function DocumentationLayout(props) {
   const router = useRouter();
@@ -27,7 +27,7 @@ export function DocumentationLayout(props) {
             />
             <meta
               name="description"
-              content="Documentation for the Wrapt framework. Scaffold an entire .NET 5 Web API with a simple yaml or json file."
+              content="Documentation for the Wrapt framework. Scaffold an entire .NET 6 Web API with a simple yaml or json file."
             />
           </>
         }
