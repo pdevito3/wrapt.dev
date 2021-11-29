@@ -23,10 +23,10 @@ export default function Home() {
   let isMounted = useIsMountedRef();
 
   let segments = {
-    apiDescription: { start: 0, end: 35.12 },
-    apiBuild: { start: 35.12, end: 67.03 },
-    apiRun: { start: 67.03, end: 113.00 },
-    apiGrow: { start: 113.00, end: 149.18 },
+    apiDescription: { start: 0, end: 19.25 },
+    apiBuild: { start: 19.25, end: 42.09 },
+    apiRun: { start: 42.09, end: 113.03 },
+    apiGrow: { start: 113.03, end: 109.21 },
   }
   let videoPlayer = useRef()
   let [currentTime, setCurrentTime] = useState(0)
@@ -258,7 +258,7 @@ export default function Home() {
             <ReactPlayer
               ref={videoPlayer}
               className='react-player'
-              url='https://vimeo.com/535347492'
+              url='https://vimeo.com/650977593'
               playing={isPlaying}
               width='100%'
               height='100%'
