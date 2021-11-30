@@ -71,11 +71,6 @@ BoundedContexts:
     - Type: UpdateRecord
     - Type: DeleteRecord
     Properties:
-    - Name: RecipeId
-      IsPrimaryKey: true
-      Type: int
-      CanFilter: true
-      CanSort: true
     - Name: Title
       Type: string
       CanFilter: true
@@ -118,11 +113,6 @@ BoundedContexts:
     - Type: UpdateRecord
     - Type: DeleteRecord
     Properties:
-    - Name: RecipeId
-      IsPrimaryKey: true
-      Type: guid
-      CanFilter: true
-      CanSort: true
     - Name: Title
       Type: string
       CanFilter: true
@@ -151,11 +141,6 @@ BoundedContexts:
     - Type: UpdateRecord
     - Type: DeleteRecord
     Properties:
-    - Name: IngredientId
-      IsPrimaryKey: true
-      Type: guid
-      CanFilter: true
-      CanSort: true
     - Name: RecipeId
       Type: int?
       CanFilter: true
@@ -195,11 +180,6 @@ BoundedContexts:
     - Type: UpdateRecord
     - Type: DeleteRecord
     Properties:
-    - Name: RecipeId
-      IsPrimaryKey: true
-      Type: guid
-      CanFilter: true
-      CanSort: true
     - Name: Title
       Type: string
       CanFilter: true
@@ -228,11 +208,6 @@ BoundedContexts:
     - Type: UpdateRecord
     - Type: DeleteRecord
     Properties:
-    - Name: IngredientId
-      IsPrimaryKey: true
-      Type: guid
-      CanFilter: true
-      CanSort: true
     - Name: RecipeId
       Type: int?
       CanFilter: true
@@ -288,11 +263,6 @@ Entities:
   - Type: UpdateRecord
   - Type: DeleteRecord
   Properties:
-  - Name: ShoppingListItemId
-    IsPrimaryKey: true
-    Type: guid
-    CanFilter: true
-    CanSort: true
   - Name: Amount
     Type: double?
     CanFilter: true
@@ -338,11 +308,6 @@ BoundedContexts:
     - Type: UpdateRecord
     - Type: DeleteRecord
     Properties:
-    - Name: ShoppingListId
-      IsPrimaryKey: true
-      Type: guid
-      CanFilter: true
-      CanSort: true
     - Name: Store
       Type: string
       CanFilter: true
