@@ -254,21 +254,21 @@ allow for a proper using statement.
 
 ```yaml
 Entities:
-  - Name: Blog
-    Properties:
-    - Name: Name
-      Type: string
-    - Name: PostId
-      Type: Guid?
-      ForeignEntityName: Post
-      ForeignEntityPlural: Posts
   - Name: Post
     Properties:
     - Name: Name
       Type: string
-    - Name: Blogs
-      Type: ICollection<Blog>
+    - Name: BlogId
+      Type: Guid?
+      ForeignEntityName: Blog
       ForeignEntityPlural: Blogs
+  - Name: Blog
+    Properties:
+    - Name: Name
+      Type: string
+    - Name: Posts
+      Type: ICollection<Post>
+      ForeignEntityPlural: Posts
 ```
 
 
