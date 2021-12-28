@@ -112,8 +112,8 @@ function Search({setSearchIsOpen}) {
             }}
             onClose={onClose}
             indexName="wrapt"
-            apiKey="6f27d54591339cbb9983fc5344626dff"
-            appId="BH4D9OD16A"
+            apiKey="e729bf81dfc9f30d362cf7c89aa5f710"
+            appId="6U6UDZNSBM"
             navigator={{
               navigate({ suggestionUrl }) {
                 setIsOpen(false)
