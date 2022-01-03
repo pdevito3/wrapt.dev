@@ -316,7 +316,7 @@ public void ConfigureServices(IServiceCollection services)
 2. `AutomaticallyCheckPermissions` is optional, but a big timesaver. 
 When this is added, you HeimGuard will automatically check the user's permissions against any controller that has an `Authorize` attribute. Without this, you can manually check a user's permissions like so:
     
-    ```csharp
+```csharp
     using HeimGuard;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -341,7 +341,7 @@ When this is added, you HeimGuard will automatically check the user's permission
               : Forbidden();
         }
     }
-    ```
+```
     
 3. `MapAuthorizationPolicies` will automatically map authorization attributes to ASP.NET Core authorization policies that haven't already been mapped. That means you don't have to do something like this for all your policies:
     
