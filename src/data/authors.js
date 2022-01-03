@@ -1,4 +1,4 @@
-import pauldevitoAvatar from 'src/assets/images/pauldevito.jpg'
+import pauldevitoAvatar from 'src/assets/images/pauldevito.png'
 
 export const pauldevito = {
   name: 'Paul DeVito',
