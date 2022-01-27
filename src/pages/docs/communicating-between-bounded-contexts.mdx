@@ -5,7 +5,10 @@ description: Details on how to publish and consume messages using MassTransit to
 
 ## Introduction
 Wrapt projects are broken up into distinct boundaries called [bounded contexts](/docs/bounded-contexts#bounded-contexts). With this kind of separation you may need to communicate between bounded 
-contexts for whatever reason. Generally, this would be one bounded context sending out a notification that an event occurred and one or more additional bounded contexts reacting to that notification 
+contexts for whatever reason. 
+
+to do this, you can either call another boundary in process using a REST request from your feature or out of process by queuing up a message in a message broker. 
+Generally, this would be one bounded context sending out a notification that an event occurred and one or more additional bounded contexts reacting to that notification 
 to perform some action in response. Some examples might be:
 
 1. A `OrderRequested` notification being sent and and getting consumed by a `BillOrder` consumer as well as a `ConfirmOrder` consumer. You could even take this a step further and create a saga or routing slip to orchestrate the process.

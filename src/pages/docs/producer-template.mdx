@@ -12,7 +12,7 @@ description: The template for the file used when adding a message bus to a proje
 | ProducerName        | Yes      | A string that determines the name of the producer. | *None*   |
 | MessageName        | Yes      | A string that determines the name of the message the producer will, well, consume! | *None*   |
 | ExchangeName        | Yes      | A string that determines the name of the exchange that this producer will be tied to. Note that this should match exchange name in the producer that you want this to be linked to. | *None*   |
-| ExchangeType        | No      | The type of exchange you want to use. This can be set to `fanout`, `direct`, or `topic`. | *direct* |
+| ExchangeType        | No      | The type of exchange you want to use. This can be set to `fanout`, `direct`, or `topic`. | *fanout* |
 | UsesDb        | No      | A boolean that determines whether ot not the scaffolded producer feature will inject the db context in the project.  | *true* |
 
 

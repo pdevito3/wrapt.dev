@@ -13,7 +13,7 @@ description: The template for the file used when adding a message bus to a proje
 | MessageName        | Yes      | A string that determines the name of the message the consumer will, well, consume! | *None*   |
 | QueueName        | Yes      | A string that determines the name of the queue that you want this particular consumer to be linked to for getting messages. | *None*   |
 | ExchangeName        | Yes      | A string that determines the name of the exchange that this consumer will be tied to. Note that this should match exchange name in the producer that you want this to be linked to. | *None*   |
-| ExchangeType        | No      | The type of exchange you want to use. This can be set to `fanout`, `direct`, or `topic`. | *direct* |
+| ExchangeType        | No      | The type of exchange you want to use. This can be set to `fanout`, `direct`, or `topic`. | *fanout* |
 | RoutingKey        | No      | A string value that determines the routing key that you want to use if you are working with a `direct` or `topic` exchange. This can be excluded for `fanout` exchanges. | *None* |
 | IsQuorum        | No      | A boolean that determines whether or not you want to use a quorum queue. This is [generally recommended as a best practice](https://www.cloudamqp.com/blog/part1-rabbitmq-best-practice.html#use-quorum-queues). | *true* |
 | IsLazy        | No      | A boolean that determines whether or not you want to use a lazy queue. This is [generally recommended as a best practice](https://www.cloudamqp.com/blog/part1-rabbitmq-best-practice.html#enable-lazy-queues-to-get-predictable-performance). Generally, these can be disabled if you require really high performance, if the queues are always short, or if you have set a max-length policy | *true* |

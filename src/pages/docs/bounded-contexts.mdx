@@ -21,6 +21,7 @@ a clinical domain, I might have front desk, billing, laboratory, and reporting c
 | [Consumers](/docs/consumer-template)    | No      | The MassTransit consumers in your project. | *None*   |
 | [Bus](/docs/bus-template)    | No      | The MassTransit message bus in your project. When used in this context, **the environment properties should be set in the `Environment` property of the bounded context.**   | *None*   |
 | Port    | No      | The port that will be used on localhost for this project. | *5000*   |
+| UseSoftDelete    | No      | A boolean that dictates whether or not your `BaseEntity` and `DbContext` will be configured for a soft delete. | *true*   |
 
 
 > Note that the SolutionName should NOT be the same as an entity name or it will cause namespace issues.

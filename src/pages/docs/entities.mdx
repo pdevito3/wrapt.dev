@@ -48,7 +48,8 @@ A list of properties that can be assigned to an entity.
 | Name       | Required | Description                                                  | Default                          |
 | ---------- | -------- | ------------------------------------------------------------ | -------------------------------- |
 | Type       | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!)                               | *None*                           |
-| Policies   | Yes      | A list of policies that should be applied ito your feature. Note that these policies dictate **client** permissions, not user permissions, which should be handled inside your project. | *None*                           |
+| IsProtected   | No      | Determines whether or not the feature is protected with an authorization policy attribute. | *false*
+| PermissionName   | No      | The name of the authorization policy attribute. | *Can[FEATURENAME]*        
 
 
 `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `AddListByFk` are all standard CRUD features along with their endpoints and associated tests. 
@@ -159,17 +160,6 @@ may need to set the foreign key to a particular value. Here are a couple rules t
           options.ExcludingMissingMembers());
   }
   ```
-
-
-
-### Policies Properties
-
-| Name               | Required | Description                                                  | Default                          |
-| ------------------ | -------- | ------------------------------------------------------------ | -------------------------------- |
-| Name               | Yes      | The name of the policy (e.g. `CanReadPatient`). | *None*   |
-| PolicyType         | Yes      | The type of policy that will be used. The only valid policy type at the moment is `scope` to authorize based on a scope. | *None*   |
-| PolicyValue        | Yes      | The value of the policy that is going to be added (e.g. `patients.read`). | *None*   |
-
 
 ## Entity Example
 This example would create a supplier entity with several properties. Note:
@@ -302,35 +292,34 @@ modify the generated entity, repository, tests, etc. to accommodate that composi
 
 
 ## Policies
-Something like the below would add policies to your features.
+If using auth, you can protect features with a particular permission. In the example below, I 
+have a permission for doing read overall and default permissions for each destructive feature.
 
 ```yaml
   Entities:
   - Name: Recipe
     Features:
     - Type: GetList
-      Policies:
-      - Name: RecipesReadOnly
-        PolicyType: scope
-        PolicyValue: recipemanagement.readonly
+      IsProtected: true
+      PermissionName: CanReadRecipes
     - Type: GetRecord
-      Policies:
-      - Name: RecipesReadOnly
-        PolicyType: scope
-        PolicyValue: recipemanagement.readonly
+      IsProtected: true
+      PermissionName: CanReadRecipes
     - Type: AddRecord
-      Policies:
-      - Name: RecipesReadOnly
-        PolicyType: scope
-        PolicyValue: recipemanagement.readonly
+      IsProtected: true
     - Type: UpdateRecord
-      Policies:
-      - Name: RecipesReadOnly
-        PolicyType: scope
-        PolicyValue: recipemanagement.readonly
+      IsProtected: true
     - Type: DeleteRecord
-      Policies:
-      - Name: RecipesFullAccess
-        PolicyType: scope
-        PolicyValue: recipemanagement.fullaccess
+      IsProtected: true
+    - Type: PatchRecord
+      IsProtected: true
+    Properties:
+    - Name: Title
+      Type: string
+      CanFilter: true
+      CanSort: true
+    - Name: Directions
+      Type: string
+      CanFilter: true
+      CanSort: true
 ```

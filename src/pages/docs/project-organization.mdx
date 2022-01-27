@@ -209,10 +209,12 @@ Messages are stored in a distinct project at the solution root as they are gener
 
 Producers and consumers can both be added as distinct features using the `add:producer` and `add:consumer` commands. 
 
-A common requirement is to add a producer to an existing feature. If that's the case, you can add an `IPublishEndpoint` to your command and publish your message like you usually would. For instance:
+A common requirement is to add a producer to an existing feature. If that's the case, you can add an `IPublishEndpoint` to your command and publish your message 
+like you usually would. Additionally, you can use the [`register:producer` command](/docs/register-producer) to set up your registration. Here is 
+what an updated feature might look like:
 
 ```csharp
-public class Handler : IRequestHandler<SubmitReportRequestCommand, ReportRequestDto>
+public class Handler : IRequestHandler<AddRecipeCommand, ReportRequestDto>
 {
     private readonly ReportingDbContext _db;
     private readonly IMapper _mapper;
@@ -225,41 +227,26 @@ public class Handler : IRequestHandler<SubmitReportRequestCommand, ReportRequest
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task<ReportRequestDto> Handle(SubmitReportRequestCommand request, CancellationToken cancellationToken)
+    public async Task<ReportRequestDto> Handle(AddRecipeCommand request, CancellationToken cancellationToken)
     {
-        if (await _db.ReportRequests.AnyAsync(r => r.ReportId == request.RequestToAdd.ReportId))
-        {
-            throw new ConflictException("Reporting Request already exists with this primary key.");
-        }
+        var recipe = Recipe.Create(request.RecipeToAdd);
+        _db.Recipes.Add(recipe);
 
-        var reportRequest = _mapper.Map<ReportRequest>(request.ReportRequestToAdd);
-        _db.ReportRequests.Add(reportRequest);
-        var saveSuccessful = await _db.SaveChangesAsync() > 0;
+        await _db.SaveChangesAsync(cancellationToken);
 
-        if (saveSuccessful)
+        var message = new
         {
-            var message = new
-            {
-              ReportId = reportRequest.ReportRequestId,
-              Provider = reportRequest.Provider.ToString(),
-              Target = reportRequest.Target.ToString()
-            };
-            await _publishEndpoint.Publish<ISendReportRequest>(message);
+            RecipeId = request.Id,
+        };
+        await _publishEndpoint.Publish<IRecipeAdded>(message);
 
-            return await _db.ReportRequests
-                .ProjectTo<ReportRequestDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(r => r.ReportId == reportRequest.ReportId);
-        }
-        else
-        {
-            throw new Exception("Unable to save the new record. Please check the logs for more information.");
-        }
+        return await _db.Recipes
+            .AsNoTracking()
+            .ProjectTo<RecipeDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync(r => r.Id == recipe.Id, cancellationToken);
     }
 }
 ```
-
-> Note that adding a producer to a MediatR command like this will currently break the tests associated to it.
-
 
 ### Automated Tests
 Wrapt will automatically scaffold out unit, integration and functional tests for each of your bounded contexts using NUnit. 
@@ -272,3 +259,10 @@ and run each of your feature tests in an actual representation of your database.
 - **Functional tests** are meant to check an entire slice of functionality with all the code running together. 
 These are generally more involved to write and maintain, but with this project setup, our controllers are essentially just routers to our feature queries and commands, so we have 
 already done the meat of our testing in our integration tests. This means that our functional tests can generally just confirm that we are getting the expected responses from our routes and we can call it a day.
+
+
+### Shared Kernel
+Starting with v0.13, Wrapt projects will support a shared kernel. 
+This means that you can have a class library that can store domain level abstractions like DTOs, exceptions, and roles (if using auth). 
+
+> ⚠️ Be careful what you put in here as it will be coupled to all of your boundaries!

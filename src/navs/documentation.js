@@ -24,6 +24,7 @@ export const documentationNav = {
     pages['add-message'],
     pages['new-domain'],
     pages['new-example'],
+    pages['register-producer'],
     pages['version-command'],
   ],
   'File Templates': [
@@ -50,6 +51,7 @@ export const documentationNav = {
     pages['communicating-between-bounded-contexts'],
     pages['logging'],
     pages['migrations'],
+    pages['permissions'],
   ],
   'Examples': [
     pages['examples'],
