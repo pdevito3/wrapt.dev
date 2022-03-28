@@ -38,7 +38,6 @@ export const documentationNav = {
     pages['producer-template'],
   ],
   'Template Properties': [
-    pages['authorization-settings'],
     pages['bounded-contexts'],
     pages['db-context'],
     pages['entities'],

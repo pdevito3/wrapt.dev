@@ -5,128 +5,26 @@ description: The template for the file used when adding new entities to a web AP
 
 ## Add Entity Template Properties
 
-| Name       | Required | Description                                                         | Default                          |
-| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- |
-| [Entities](/docs/entities)        | Yes      | A list of entities to create database endpoints. | *None*   |
-| [AuthorizationSettings](/docs/authorization-settings)        | No      | The authorization settings (e.g. policies) that are set for the entity. | *None*   |
-| [AddSwaggerComments](/docs/swagger#add-swagger-comments-property) | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint.| false  |
+| Name                                                              | Required | Description                                                                                          | Default |
+| ----------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------- | ------- |
+| [Entities](/docs/entities)                                        | Yes      | A list of entities to create database endpoints.                                                     | _None_  |
+| [AddSwaggerComments](/docs/swagger#add-swagger-comments-property) | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint. | false   |
 
-## Add Entity Template Examples
+## Entity Template Example
 
-### Basic Add Entity Example
-The add entity template only needs the details for the new entity objects you want to add (one or more entities). You can find more details on the [add entity command page](/docs/add-entity).
-
-```yaml
-AddSwaggerComments: true
-Entities:
-  - Name: Supplier
-    Properties:
-      - Name: Name
-        Type: string
-        CanFilter: true
-        CanSort: true
-      - Name: EmployeeCount
-        Type: int?
-        CanFilter: true
-        CanSort: true
-      - Name: CreationDate
-        Type: datetime?
-        CanFilter: true
-        CanSort: true
-      - Name: SupplierType
-        Type: int?
-        CanFilter: true
-        CanSort: true
-  - Name: Material
-    Properties:
-      - Name: Name
-        Type: string
-        CanFilter: true
-        CanSort: true
-```
-
-### Add Entity Example With Authorization Settings
-If you've configured your app to use authorization, you can add authorization settings as well.
+An entity template is the same as a standalone as it is for a new boundary with the only difference being the `Entities` property is at the root level.
+For example:
 
 ```yaml
-AddSwaggerComments: true
 Entities:
-  - Name: Supplier
+  - Name: Recipe
+    Features:
+      - Type: GetList
+      - Type: GetRecord
+      - Type: AddRecord
+      - Type: UpdateRecord
+      - Type: DeleteRecord
     Properties:
-      - Name: Name
-        Type: string
-        CanFilter: true
-        CanSort: true
-      - Name: EmployeeCount
-        Type: int?
-        CanFilter: true
-        CanSort: true
-      - Name: CreationDate
-        Type: datetime?
-        CanFilter: true
-        CanSort: true
-      - Name: SupplierType
-        Type: int?
-        CanFilter: true
-        CanSort: true
-  - Name: Material
-    Properties:
-      - Name: Name
-        Type: string
-        CanFilter: true
-        CanSort: true
-AuthorizationSettings:
-  Policies:
-    - Name: CanReadSuppliers
-      PolicyType: scope
-      PolicyValue: suppliers.read
-      EndpointEntities:
-        - EntityName: Supplier
-          RestrictedEndpoints:
-            - GetList
-            - GetRecord
-    - Name: CanAddSuppliers
-      PolicyType: scope
-      PolicyValue: suppliers.add
-      EndpointEntities:
-        - EntityName: Supplier
-          RestrictedEndpoints:
-            - AddRecord
-    - Name: CanDeleteSuppliers
-      PolicyType: scope
-      PolicyValue: suppliers.delete
-      EndpointEntities:
-        - EntityName: Supplier
-          RestrictedEndpoints:
-            - DeleteRecord
-    - Name: CanUpdateSuppliers
-      PolicyType: scope
-      PolicyValue: suppliers.update
-      EndpointEntities:
-        - EntityName: Supplier
-          RestrictedEndpoints:
-            - UpdateRecord
-            - UpdatePartial
-    - Name: CanAddMaterials
-      PolicyType: scope
-      PolicyValue: materials.add
-      EndpointEntities:
-        - EntityName: Material
-          RestrictedEndpoints:
-            - AddRecord
-    - Name: CanDeleteMaterials
-      PolicyType: scope
-      PolicyValue: materials.delete
-      EndpointEntities:
-        - EntityName: Material
-          RestrictedEndpoints:
-            - DeleteRecord
-    - Name: CanUpdateMaterials
-      PolicyType: scope
-      PolicyValue: materials.update
-      EndpointEntities:
-        - EntityName: Material
-          RestrictedEndpoints:
-            - UpdateRecord
-            - UpdatePartial
+      - Name: Title
+      - Name: Directions
 ```
