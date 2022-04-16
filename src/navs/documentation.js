@@ -42,7 +42,7 @@ export const documentationNav = {
     pages['db-context'],
     pages['entities'],
     pages['git'],
-    pages['multiple-environments'],
+    pages['environment'],
     pages['swagger'],
   ],
   'Additional Resources': [
