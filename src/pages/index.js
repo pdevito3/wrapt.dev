@@ -25,8 +25,8 @@ export default function Home() {
   let segments = {
     apiDescription: { start: 0, end: 19.25 },
     apiBuild: { start: 19.25, end: 42.09 },
-    apiRun: { start: 42.09, end: 113.03 },
-    apiGrow: { start: 113.03, end: 109.21 },
+    apiRun: { start: 42.09, end: 73.53 },
+    apiGrow: { start: 73.53, end: 109.21 },
   }
   let videoPlayer = useRef()
   let [currentTime, setCurrentTime] = useState(0)
