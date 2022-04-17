@@ -1,0 +1,77 @@
+---
+title: BFF Entities
+shortTitle: BFF Entities
+description: Settings for scaffolding out an entity for your BFF.
+---
+
+## BFF Entities
+
+While you app won't be made up of strictly CRUD based and scaffolded items, this template should help you get some of the boilerplate
+out of the way
+
+## BFF Entity Properties
+
+| Name                                 | Required | Description                                                                                                        | Default                            |
+| ------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
+| Name                                 | Yes      | The name of the entity                                                                                             | _None_                             |
+| Plural                               | No       | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`)                                     | _Entity Name appended with an `s`_ |
+| [Properties](#bff-entity-properties) | Yes      | A list of BFF entity properties assigned to your entity described in the [entity properties](#properties) section. | _None_                             |
+| [Features](#bff-features)            | Yes      | This is a list of BFF features that you want to add for a particular entity.                                       | _None_                             |
+
+### BFF Entity Properties
+
+A list of properties that can be assigned to a BFF entity.
+
+| Name | Required | Description                                                                                                                                                                                                                                                                              | Default  |
+| ---- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Name | Yes      | The name of the property                                                                                                                                                                                                                                                                 | _None_   |
+| Type | Yes      | The data type for the property. These are _not_ case sensitive and they can be set to nullable with a trailing `?`. All standard typescript data types can be used here. You can add custom types for items like foreign objects, but you'll need to do some manual resolution on these. | _string_ |
+
+> 💡 Add a `?` at the end of the type to make the property nullable.
+
+### BFF Features
+
+| Name           | Required | Description                                                                                                                                                                                                                                              | Default            |
+| -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_             |
+| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                               | _false_            |
+| PermissionName | No       | The name of the authorization policy attribute.                                                                                                                                                                                                          | _Can[FEATURENAME]_ |
+
+`GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, and `AddRecord` are all standard CRUD features along with their endpoints and associated tests. Additional
+features from your boundary scaffolding need to be manually configured.
+
+## BFF Entity Template Example
+
+```yaml
+Entities:
+  - Name: Recipe
+    Features:
+      - Type: GetList
+      - Type: GetRecord
+      - Type: AddRecord
+      - Type: UpdateRecord
+      - Type: DeleteRecord
+    Properties:
+      - Name: Title
+      - Name: Directions
+      - Name: RecipeSourceLink
+      - Name: Description
+      - Name: ImageLink
+      - Name: Rating
+        Type: number?
+  - Name: Ingredient
+    Features:
+      - Type: GetList
+      - Type: GetRecord
+      - Type: AddRecord
+      - Type: UpdateRecord
+      - Type: DeleteRecord
+    Properties:
+      - Name: Title
+      - Name: Directions
+      - Name: RecipeSourceLink
+      - Name: Description
+      - Name: ImageLink
+      - Name: Rating
+        Type: number?
+```

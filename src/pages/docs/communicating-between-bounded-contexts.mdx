@@ -94,70 +94,64 @@ The message publishing looks like this. All I'm doing here is adding the patient
 When we're done, our `UpdatePatient` feature will look something like this:
 
 ```csharp
-namespace Ordering.WebApi.Features.Patients
+namespace PatientManagement.Features.Patients;
+
+using SharedKernel.Dtos.PatientManagement.Patient;
+using SharedKernel.Exceptions;
+using SharedKernel.Messages;
+using PatientManagement.Databases;
+using AutoMapper;
+using MediatR;
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using System.Threading.Tasks;
+
+public static class UpdatePatient
 {
-    using Ordering.Core.Entities;
-    using Ordering.Core.Dtos.Patient;
-    using Ordering.Core.Exceptions;
-    using Ordering.Infrastructure.Contexts;
-    using Ordering.WebApi.Features.Patients.Validators;
-    using AutoMapper;
-    using AutoMapper.QueryableExtensions;
-    using MediatR;
-    using Microsoft.EntityFrameworkCore;
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using MassTransit;
-    using Messages;
-
-    public static class UpdatePatient
+    public class UpdatePatientCommand : IRequest<bool>
     {
-        public class UpdatePatientCommand : IRequest<bool>
-        {
-            public Guid PatientId { get; set; }
-            public PatientForUpdateDto PatientToUpdate { get; set; }
+        public Guid PatientId { get; set; }
+        public PatientForUpdateDto PatientToUpdate { get; set; }
 
-            public UpdatePatientCommand(Guid patient, PatientForUpdateDto patientToUpdate)
-            {
-                PatientId = patient;
-                PatientToUpdate = patientToUpdate;
-            }
+        public UpdatePatientCommand(Guid patient, PatientForUpdateDto patientToUpdate)
+        {
+            PatientId = patient;
+            PatientToUpdate = patientToUpdate;
+        }
+    }
+
+    public class Handler : IRequestHandler<UpdatePatientCommand, bool>
+    {
+        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly PatientManagementDbContext _db;
+        private readonly IMapper _mapper;
+
+        public Handler(PatientManagementDbContext db, IMapper mapper, IPublishEndpoint publishEndpoint)
+        {
+            _publishEndpoint = publishEndpoint;
+            _mapper = mapper;
+            _db = db;
         }
 
-        public class Handler : IRequestHandler<UpdatePatientCommand, bool>
+        public async Task<bool> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
         {
-            private readonly IPublishEndpoint _publishEndpoint;
-            private readonly OrderingDbContext _db;
-            private readonly IMapper _mapper;
+            var patientToUpdate = await _db.Patients
+                .FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken);
 
-            public Handler(OrderingDbContext db, IMapper mapper, IPublishEndpoint publishEndpoint)
+            if (patientToUpdate == null)
+                throw new NotFoundException("Patient", request.Id);
+
+            patientToUpdate.Update(request.PatientToUpdate);
+            await _db.SaveChangesAsync(cancellationToken);
+
+            var message = new
             {
-                _publishEndpoint = publishEndpoint;
-                _mapper = mapper;
-                _db = db;
-            }
+                request.PatientId
+            };
+            await _publishEndpoint.Publish<IPatientUpdated>(message);
 
-            public async Task<bool> Handle(UpdatePatientCommand request, CancellationToken cancellationToken)
-            {
-                var patientToUpdate = await _db.Patients
-                    .FirstOrDefaultAsync(i => i.Id == request.Id, cancellationToken);
-
-                if (patientToUpdate == null)
-                    throw new NotFoundException("Patient", request.Id);
-
-                patientToUpdate.Update(request.PatientToUpdate);
-                await _db.SaveChangesAsync(cancellationToken);
-
-                var message = new
-                {
-                    request.PatientId
-                };
-                await _publishEndpoint.Publish<IPatientUpdated>(message);
-
-                return true;
-            }
+            return true;
         }
     }
 }

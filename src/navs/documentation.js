@@ -15,6 +15,8 @@ export const documentationNav = {
   ],
   'Commands': [
     pages['add-auth-server'],
+    pages['add-bff'],
+    pages['add-bff-entity'],
     pages['add-bus'],
     pages['add-bounded-context'],
     pages['add-consumer'],
@@ -29,6 +31,8 @@ export const documentationNav = {
   ],
   'File Templates': [
     pages['auth-server-template'],
+    pages['bff'],
+    pages['bff-entity'],
     pages['bounded-contexts-template'],
     pages['bus-template'],
     pages['consumer-template'],
