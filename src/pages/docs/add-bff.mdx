@@ -1,0 +1,32 @@
+---
+title: Add BFF Command
+shortTitle: Add BFF
+description: Adds a BFF to your project.
+---
+
+This command will add a .NET BFF with a React UI to your solution.
+
+```shell
+craftsman add:bff [options] <filepath>
+```
+
+## Add Bff Arguments
+
+| Argument | Description                                                                                         |
+| -------- | --------------------------------------------------------------------------------------------------- |
+| filepath | The filepath for the yaml or json file that describes the BFF that you want to add to your project. |
+
+## Add Bff Options
+
+| Option     | Description                                                              |
+| ---------- | ------------------------------------------------------------------------ |
+| -h, --help | Display help message. No filepath is needed to display the help message. |
+
+## Add Bff Example Commands
+
+```shell
+craftsman add:bff -h
+craftsman add:bff C:\fullpath\newbff.yaml
+craftsman add:bff C:\fullpath\newbff.yml
+craftsman add:bff C:\fullpath\newbff.json
+```

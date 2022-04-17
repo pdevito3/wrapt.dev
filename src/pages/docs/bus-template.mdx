@@ -3,71 +3,59 @@ title: Bus Template
 description: The template for the file used when adding a message bus to a project using the `add:bus`, `add:bc`, or `new:domain` commands.
 ---
 
-
 ## Add Bus Template Properties
 
-| Name       | Required | Description                                                         | Default                          | Notes |
-| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- | --------|
-| AddBus        | Yes      | A boolean to indicate that you are adding a bus. | *None*   | **Not required for the `add:bus` command.**  |
-| [Environments](/docs/multiple-environments)    | No      | The environments that get scaffolded out in this project. You only need to use the `EnvironmentName` and the `BrokerSettings` with this command.  | *None*   | |
-
+| Name                             | Required | Description                                                                                                            | Default | Notes                                       |
+| -------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------- |
+| AddBus                           | Yes      | A boolean to indicate that you are adding a bus.                                                                       | _None_  | **Not required for the `add:bus` command.** |
+| [Environment](/docs/environment) | No       | The environments that get scaffolded out in this project. You only need to use the `BrokerSettings` with this command. | _None_  |                                             |
 
 ## Add Bus Template Examples
 
 ### Adding a Bus with Your Domain or Bounded Context
 
-If you're adding a bus in your `new:domain` command, then you can add the appropriate broker details to your `Environments` property (**in your bounded context**) and add an `AddBus` property to make sure Craftsman knows to add the bus.
-
-
-> When adding a bus in a bounded context, you should set the `Environment` properties on the bounded context, not the bus, but you **do** need to set `AddBus` to true within the `Bus`.
-
+To add a message bus to your domain or bounded context,you only need to use the `AddBus` property:
 
 ```yaml
 DomainName: WeSendReportsCompany
 BoundedContexts:
-- SolutionName: Reporting
-  Environments:
-  - EnvironmentName: Development
-    BrokerSettings:
-      Host: localhost
-      VirtualHost: /
-      Username: guest
-      Password: guest
-  - EnvironmentName: Production
-    BrokerSettings:
-      Host: rmqlocalprod
-      VirtualHost: dashprod
-      Username: testprod
-      Password: testprod
-  Bus:
-    AddBus: true
-  # additional new:domain properties here
+  - ProjectName: Reporting
+    Bus:
+      AddBus: true
+# additional template info
 ```
 
-
-### Adding a Bus to an Existing Project
-If you've already created your Wrapt project and want to add a bus after the fact, you can use the `add:bus` command which will only require the `Environments` property (`AddBus` can be automatically set to true with the command given the intent behind the command 🙂). 
-Notice how you don't need to add any of the other normal `Environment` properties other than `EnvironmentName` and `BrokerSettings`. 
-
-This particular example will add bus info for Development and Production (Startup).
+Optionally, you can update the bus connection info if you want:
 
 ```yaml
-Environments:
-- EnvironmentName: Development
-  BrokerSettings:
-    Host: localhost
-    VirtualHost: /
-    Username: guest
-    Password: guest
-- EnvironmentName: Production
-  BrokerSettings:
-    Host: rmqlocalprod
-    VirtualHost: dashprod
-    Username: testprod
-    Password: testprod
+DomainName: WeSendReportsCompany
+BoundedContexts:
+  - ProjectName: Reporting
+    Environment:
+      BrokerSettings:
+        Username: specialguest
+        Password: specialguest
+    Bus:
+      AddBus: true
+    # additional new:domain properties here
 ```
 
-> At the moment, if you are connecting to anything outside of development, you may need to make some tweaks to include SSL and a port. For example, this CloudAMQP connection:
+### Adding a Bus to an Existing Project
+
+If you've already created your Wrapt project and want to add a bus after the fact, you can use the `add:bus` command.
+No need to pass a file, but you can if you want to set the environment properties. The `AddBus` property is not necessary
+in this context.
+
+```yaml
+BoundedContexts:
+  - ProjectName: Reporting
+    Environment:
+      BrokerSettings:
+        Username: specialguest
+        Password: specialguest
+```
+
+<!-- > At the moment, if you are connecting to anything outside of development, you may need to make some tweaks to include SSL and a port. For example, this CloudAMQP connection:
 
 ```csharp
 cfg.Host("baboon.rmq.cloudamqp.com", 8983, "kalvak", h =>
@@ -80,4 +68,4 @@ cfg.Host("baboon.rmq.cloudamqp.com", 8983, "kalvak", h =>
         s.Protocol = SslProtocols.Tls12;
     });
 });
-```
+``` -->

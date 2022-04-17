@@ -4,9 +4,9 @@ shortTitle: Git
 description: Settings for managing git in your Web Api.
 ---
 
-
 ## Git
-By default, Wrapt will do some initial git setup for you (`git init`, `git add -a`, `git commit -m "Initial commit"`, and add a `.gitignore`). 
+
+By default, Wrapt will do some initial git setup for you (`git init`, `git add -a`, `git commit -m "Initial commit"`, and add a `.gitignore`).
 
 If you'd like to skip this and do it yourself, you can set the `AddGit` option to `false` on the base level.
 
@@ -14,12 +14,27 @@ If you'd like to skip this and do it yourself, you can set the `AddGit` option t
 AddGit: false
 ```
 
-## Git Example
-In this example we have a `yaml` file that's setting up an API for a Vet Clinic. You can see that `AddGit` is set to false, so no git setup will be performed. 
+## Git User
+
+By default, the git setup will use the system user. If you'd like to change this to use a generic `Craftsman` user, you
+can set `UseSystemGitUser` to `false` on the root level.
+
+## Git Examples
+
+In this example we have a `yaml` file that's setting up an API for a Vet Clinic. You can see that `AddGit` is set to false, so no git setup will be performed.
 
 ```yaml
-SolutionName: VetClinic.Api
+ProjectName: VetClinic.Api
+AddGit: false
 Entities:
 #entity details
-AddGit: false
+```
+
+Here, we are setting up our domain to have our initial commit with Craftsman as the author.
+
+```yaml
+ProjectName: VetClinic.Api
+UseSystemGitUser: false
+Entities:
+#entity details
 ```
