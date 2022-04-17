@@ -6,7 +6,7 @@ description: Settings for adding detailed swagger documentation to your Web API.
 
 ## Swagger
 
-If desired, you can add a basic swagger configuration using the `SwaggerConfig` option. This will scaffold out a bare bones swagger page using [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore#getting-started), which you can update to use any additional features you wish. 
+If desired, you can add a basic swagger configuration using the `SwaggerConfig` option. This will scaffold out a bare bones swagger page using [Swashbuckle](https://github.com/domaindrivendev/Swashbuckle.AspNetCore#getting-started), which you can update to use any additional features you wish.
 
 Of note, you can scaffold out detailed swagger comments for each of your endpoints using the [AddSwaggerComments property](#AddSwaggerComments-property).
 
@@ -14,47 +14,51 @@ To get to your swagger page, you can go to `/swagger`.
 
 ## Swagger Properties
 
-| Name        | Required | Description                          | Default |
-| ----------- | -------- | ------------------------------------ | ------- |
-| Title       | Yes      | The title of the swagger document    | *None*  |
-| Description | No       | The description for your swagger doc | *None*  |
-| ApiContact  | No       | The primary contact for the API      | *None*  |
-| SwaggerEndpointUrl  | No       | The url to use for the swagger documentation.     | /swagger/v1/swagger.json  |
-| SwaggerEndpointName  | No       | The name to use on the main swagger documentation page.     | *None*  |
-| LicenseName | No       | The name of the license on the swagger documentation. | *None*  |
-| LicenseUrl | No       | The url of the license on the swagger documentation. | *None*  |
-| AddSwaggerComments | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint.| false  |
+| Name                | Required | Description                                                                                          | Default                  |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------- | ------------------------ |
+| Title               | Yes      | The title of the swagger document                                                                    | _None_                   |
+| Description         | No       | The description for your swagger doc                                                                 | _None_                   |
+| ApiContact          | No       | The primary contact for the API                                                                      | _None_                   |
+| SwaggerEndpointUrl  | No       | The url to use for the swagger documentation.                                                        | /swagger/v1/swagger.json |
+| SwaggerEndpointName | No       | The name to use on the main swagger documentation page.                                              | _None_                   |
+| LicenseName         | No       | The name of the license on the swagger documentation.                                                | _None_                   |
+| LicenseUrl          | No       | The url of the license on the swagger documentation.                                                 | _None_                   |
+| AddSwaggerComments  | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint. | false                    |
 
 ### ApiContact Properties
 
 | Name  | Required | Description                 | Default |
 | ----- | -------- | --------------------------- | ------- |
-| Name  | No       | The name of the contact     | *None*  |
-| Email | No       | The email of the contact    | *None*  |
-| Url   | No       | The website for the contact | *None*  |
+| Name  | No       | The name of the contact     | _None_  |
+| Email | No       | The email of the contact    | _None_  |
+| Url   | No       | The website for the contact | _None_  |
 
 ### AddSwaggerComments Property
-If set to `true`, Craftsman will scaffold out detailed comments on using each endpoint. The largest impact is on the details of using the GET list/collection endpoint and will discuss how to use pagination, filters, and sorting. 
+
+If set to `true`, Craftsman will scaffold out detailed comments on using each endpoint. The largest impact is on the details of using the GET list/collection endpoint and will discuss how to use pagination, filters, and sorting.
 
 #### Swagger Comments on Parameters
+
 If you'd like to add comments to the parameters directly, you'll need to follow the steps below on the `Application` project.
 
-1) Double click the `Application.csproj` project to open the properties.
+1. Double click the `Application.csproj` project to open the properties.
 
-2) Under the `PropertyGroup` section, add a documentation file line and make sure you have a `1591` item added to `NoWarn:
+2. Under the `PropertyGroup` section, add a documentation file line and make sure you have a `1591` item added to `NoWarn:
+
 ```XML
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>YourSolutionNameHere.Application.xml</DocumentationFile>
+    <DocumentationFile>YourProjectNameHere.Application.xml</DocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
 ```
 
-3) Go to the `WebApi.ServiceExtensions` and add an additional `IncludeXmlComments` line that includes the new path like so:
+3. Go to the `WebApi.ServiceExtensions` and add an additional `IncludeXmlComments` line that includes the new path like so:
+
 ```csharp
-  config.IncludeXmlComments(string.Format(@"{0}\YourSolutionNameHere.Application.xml", AppDomain.CurrentDomain.BaseDirectory));
+  config.IncludeXmlComments(string.Format(@"{0}\YourProjectNameHere.Application.xml", AppDomain.CurrentDomain.BaseDirectory));
 ```
 
-4) Add any comments above specific properties however you wish
+4. Add any comments above specific properties however you wish
 
 ## Swagger Example
 
@@ -66,9 +70,8 @@ SwaggerConfig:
   LicenseName: MIT
   LicenseUrl: https://carbonkitchen.com/license
   AddSwaggerComments: true
-  ApiContact: 
+  ApiContact:
     Name: Carbon Kitchen Support
     Email: support@carbonkitchen.com
     Url: https://www.carbonkitchen.com/support
 ```
-
