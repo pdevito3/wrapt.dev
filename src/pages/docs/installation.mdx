@@ -5,28 +5,28 @@ description: Learn how to get up and running with Wrapt.
 
 ## Prerequisites
 
-- [.Net 6.0 SDK](https://dotnet.microsoft.com/download/dotnet-core/6.0) 
+- [.Net 6.0 SDK](https://dotnet.microsoft.com/download/dotnet-core/6.0)
 
-### Semi-Optional
-Docker and dotnet ef are needed for a mock integration test database. You do NOT need these to run the project, but they will be needed to use the built in tests.
+Docker and dotnet ef are needed for setting up your database and running your integration tests.
 
-- [Docker](https://docs.docker.com/get-docker/) 
+- [Docker](https://docs.docker.com/get-docker/)
 - [dotnet ef](https://docs.microsoft.com/en-us/ef/core/cli/dotnet)
 
 ## Getting Started
+
 1. Install the `Craftsman` tool globally. This is going to be the workhorse behind all of our commands. **Make sure to close your powershell/command prompt/terminal windows after your initial install!**
 
    ```shell
    dotnet tool install -g craftsman
    ```
 
-   > If you are using private NuGet sources you may need to temporarily [disable](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-nuget-disable-source) them to properly install the tool. Unfortunately, the dotnet sdk doesn't 
-   have a `–nuget-source` parameter for `dotnet tool install` commands yet, though I have a [feature request](https://github.com/dotnet/sdk/issues/15477) pending if you'd like to track its progress.`
+   > If you are using private NuGet sources you may need to temporarily [disable](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-nuget-disable-source) them to properly install the tool. Unfortunately, the dotnet sdk doesn't
+   > have a `–nuget-source` parameter for `dotnet tool install` commands yet, though I have a [feature request](https://github.com/dotnet/sdk/issues/15477) pending if you'd like to track its progress.`
 
 2. Run any of the below for a list of available commands
 
    ```shell
-   craftsman 
+   craftsman
    craftsman list
    craftsman -h
    craftsman --help
@@ -37,22 +37,27 @@ Docker and dotnet ef are needed for a mock integration test database. You do NOT
 > You can also run `craftsman new:example` to create one of several example projects.
 
 ## Updating Craftsman
+
 To update to the latest version of Craftsman, you can run:
+
 ```shell
 dotnet tool update -g craftsman
 ```
 
 ## Troubleshooting
+
 Depending on your nuget setup, you might get an issue with your nuget source along the lines of this:
 
 > /usr/local/share/dotnet/sdk/6.0.100/NuGet.targets(130,5): warning : Your request could not be authenticated by the GitHub Packages service. Please ensure your access token is valid and has the appropriate scopes configured.
 
 To resolve this, you can disable and reenable your nuget source and you should be good to go:
+
 ```bash
 dotnet nuget list source
 ```
 
 Should return something like this:
+
 ```
 Registered Sources:
   1.  nuget.org [Enabled]
@@ -60,6 +65,7 @@ Registered Sources:
 ```
 
 Then you want to disable and reenable it:
+
 ```bash
 dotnet nuget disable source nuget.org
 dotnet nuget enable source nuget.org
