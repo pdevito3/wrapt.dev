@@ -32,32 +32,31 @@ You can read more about Duende's Remote Endpoints [in their docs](https://docs.d
 ## BFF Template Example
 
 ```yaml
-Bff:
-  ProjectName: RecipeManagementApp
-  ProxyPort: 4378
-  HeadTitle: Recipe Management App
-  Authority: https://localhost:3385
-  ClientId: recipe_management.bff
-  ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
-  RemoteEndpoints:
-    - LocalPath: /api/recipes
-      ApiAddress: https://localhost:5375/api/recipes
-  BoundaryScopes:
-    - recipe_management
-  Entities:
-    - Name: Recipe
-      Features:
-        - Type: GetList
-        - Type: GetRecord
-        - Type: AddRecord
-        - Type: UpdateRecord
-        - Type: DeleteRecord
-      Properties:
-        - Name: Title
-        - Name: Directions
-        - Name: RecipeSourceLink
-        - Name: Description
-        - Name: ImageLink
-        - Name: Rating
-          Type: number?
+ProjectName: RecipeManagementApp
+ProxyPort: 4378
+HeadTitle: Recipe Management App
+Authority: https://localhost:3385
+ClientId: recipe_management.bff
+ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
+RemoteEndpoints:
+  - LocalPath: /api/recipes
+    ApiAddress: https://localhost:5375/api/recipes
+BoundaryScopes:
+  - recipe_management
+Entities:
+  - Name: Recipe
+    Features:
+      - Type: GetList
+      - Type: GetRecord
+      - Type: AddRecord
+      - Type: UpdateRecord
+      - Type: DeleteRecord
+    Properties:
+      - Name: Title
+      - Name: Directions
+      - Name: RecipeSourceLink
+      - Name: Description
+      - Name: ImageLink
+      - Name: Rating
+        Type: number?
 ```
