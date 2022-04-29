@@ -1,0 +1,172 @@
+import { pauldevito } from "src/data/authors";
+import image from "./card.png";
+import bffExample from "./bff-example.gif";
+
+export const blogmeta = {
+  title: "Scaffold a Duende BFF with React and Vite into Any .NET 6 Project",
+  description: `See how you can scaffold a Duende BFF and React noilerplate into any .NET project!`,
+  date: "2022-05-02 07:00:00", // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: "Security",
+  image,
+  tags: ["security", "dotnet", "net6", "react"],
+};
+
+## Background
+
+I maintain a project called Craftsman that scaffolds backend boilerplate in your .NET applications. Since the early days,
+I always wanted to bring in some kind of complementary front end scaffolding as well and that capability finally
+made it in it's initial stage as part of the recent v0.14 Craftsman release!
+
+More specifically, we can scaffold a .NET Backend-for-Frontend (BFF) powered by [Duende](https://duendesoftware.com/) that uses React for the UI. It's certainly not in a final state, but it's at least in a nice starting point.
+
+> If you're not familiar with BFFs, I have [a blog post](https://wrapt.dev/blog/using-duende-bff-with-react) on an older manual BFF build here and Duende has [a great writeup](https://blog.duendesoftware.com/posts/20210326_bff/) that's worth checking out as well.
+
+For a bit more context our BFF is broken into two main parts:
+
+1. A .NET project to act as the server side aspect and manage the BFF responsibilities
+2. A React app for our UI
+
+The React app is set up using a [bulletproof-react-like](https://github.com/alan2207/bulletproof-react) style and uses some additional configuration options:
+
+- [Vite](https://vitejs.dev/) bundling
+- Typescript
+- [TailwindCSS](https://tailwindcss.com/) v3 styling
+- Prettier formatting
+- [React Query](https://react-query.tanstack.com/) for server state
+
+## Why .NET and Duende Instead of Remix or Next.js?
+
+Before we dive in, I know I'm going to get this question a lot. I debated this a good bit and it's part of the reason I held off for so long on implementing this.
+
+A big problem (from a security perspective) when using a SPA is that you need some kind of server element to store your JWTs in a cookie and proxy your API calls. This is why the BFF concept has been introduced in recent years.
+
+Next.js and Remix bring in a server side component that can handle this capability and offer lots of great wins (this blog is actually built using Next.js), but when using those frameworks, you need to do all the BFF operations yourself.
+
+The benefit of using .NET and Duende is that all of the heavy lifting for the BFF security features get abstracted out for us.
+
+I was hesitant to hand roll the BFF functionality when a great product like Duende takes away all the risk involved with it, but I could definitely see adding a Remix or Next.js scaffolding option in the future if I was confident in the implementation of those BFF operations and the associated security aspects that come with it.
+
+## Scaffolding a .NET BFF
+
+> You can see [an example repo](https://github.com/pdevito3/bff-example-craftsman-v0_14) for reference at any point. The BFF is in the `RecipeManagementApp` project.
+
+So what are we actually scaffolding? Well, we will get some application boilerplate, auth communications to our auth server, and basic crud endpoints that match Craftsman scaffolding along with a basic page to list your items and routing to that page.
+
+Normally, the scaffolding in Craftsman depends on your project being set up in a particular structure, but the bff scaffolding can technically be added to any .NET solution!
+
+### Installing Craftsman
+
+If you don't already have it installed, [install Craftsman](https://wrapt.dev/docs/installation) v0.14+ using the `dotnet tool install -g craftsman` command.
+This is the tool I maintain to scaffold out boilerplate in your .NET projects.
+
+### Making a Template
+
+Now, we need to make a template file so Craftsman knows how to set up our BFF. You can see [the full docs here](https://wrapt.dev/docs/bff) for all the properties and details you can work with, but let's go over an example here.
+
+Start by making a yaml file with some basic project info:
+
+```yaml
+ProjectName: RecipeManagementApp
+ProxyPort: 4378
+HeadTitle: Recipe Management App
+Authority: https://localhost:3385
+ClientId: recipe_management.bff
+ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
+BoundaryScopes:
+  - recipe_management
+```
+
+The `ProjectName` is just the name for your scaffolded project. The `ProxyPort` is the port of the React app. The `HeadTitle` just gives us a nicer `head` title in our html. And the rest of the info is the config info for our auth server.
+
+> The Craftsman scaffolding assumes you are using a Duende server. If you're using another provider like Auth0, you'll have some minor tweaks you'll need to make for your base endpoints for login and such to be managed properly. See the Duende docs for details on this.
+
+Finally, the `BoundaryScopes` list will pass along the scopes that I want to send to my API. (`openid`, `profile` and `offline_access` will all be added automatically).
+
+Next, I'm going to add any endpoints I want to proxy through my BFF to the external world. This tells Duende to pick up traffic from those network calls and pass along your auth information safely to your APIs (see [their docs](https://docs.duendesoftware.com/identityserver/v5/bff/apis/remote/) for more info). In this case, I have a
+
+```yaml
+ProjectName: RecipeManagementApp
+ProxyPort: 4378
+HeadTitle: Recipe Management App
+Authority: https://localhost:3385
+ClientId: recipe_management.bff
+ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
+BoundaryScopes:
+  - recipe_management
+RemoteEndpoints:
+  - LocalPath: /api/recipes
+    ApiAddress: https://localhost:5375/api/recipes
+  - LocalPath: /api/ingredients
+    ApiAddress: https://localhost:5375/api/ingredients
+```
+
+In this case, I want calls that React makes to `/api/recipes` to be routed to my api at `https://localhost:5375/api/recipes` and `/api/ingredients` to route to `https://localhost:5375/api/ingredients`. Note that you might want to be a bit more explicit with these when setting up a full app, but for this example, this will work for our example.
+[See their docs](https://docs.duendesoftware.com/identityserver/v5/bff/apis/remote/) for more info.
+
+Finally, I'm going to add a couple entities (e.g. `Recipe` and `Ingredient`) along with their props and types so Typescript can be happy. This will give me basic crud endpoints that match Craftsman scaffolding as well a basic page to list your items and routing to that page. I will be adding additional scaffolded items for this in the future like add and edit forms, deletes, permissions checks, and more.
+
+```yaml
+ProjectName: RecipeManagementApp
+ProxyPort: 4378
+HeadTitle: Recipe Management App
+Authority: https://localhost:3385
+ClientId: recipe_management.bff
+ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
+BoundaryScopes:
+  - recipe_management
+RemoteEndpoints:
+  - LocalPath: /api/recipes
+    ApiAddress: https://localhost:5375/api/recipes
+  - LocalPath: /api/ingredients
+    ApiAddress: https://localhost:5375/api/ingredients
+Entities:
+  - Name: Recipe
+    Features:
+      - Type: GetList
+      - Type: GetRecord
+      - Type: AddRecord
+      - Type: UpdateRecord
+      - Type: DeleteRecord
+    Properties:
+      - Name: Title
+        Type: string #optional if string
+      - Name: Directions
+      - Name: RecipeSourceLink
+      - Name: Description
+      - Name: Rating
+        Type: number?
+  - Name: Ingredient
+    Features:
+      - Type: GetList
+      - Type: GetRecord
+      - Type: AddRecord
+      - Type: UpdateRecord
+      - Type: DeleteRecord
+    Properties:
+      - Name: Name
+      - Name: Quantity
+      - Name: Measure
+      - Name: RecipeId
+```
+
+Now, just save that file anywhere and keep the path handy.
+
+### Scaffolding the BFF
+
+Next, `cd` into the solution directory you want to add your BFF and run `craftsman add:bff your/file/path.yaml` in your terminal.
+
+And that's it! As a reminder, if you're not using a Craftsman project you'll need to tweak your scaffolded apis and the auth connection assumes you're using Duende, but this gets the ball rolling regardless!
+
+This is what mine looks like when talking to my auth server and api. You can get [this repo here](https://github.com/pdevito3/bff-example-craftsman-v0_14) or by running `craftsman new:example` and selecting the `Complex` option.
+
+As a reminder, this is meant to eliminate boilerplate and make it easier to get started with BFFs. It's not meant to be a full-featured, immediately shippable project.
+
+<img className="mx-auto" src={bffExample} alt="example of bff" />
+
+## Closing Thoughts
+
+Hopefully this is a good reference and saves you some time if you're getting a BFF set up! If you want to see more on
+on the Craftsman tool, you can [check out the docs for the whole framework here](https://wrapt.dev).
+
+Regardless, I'd love to hear your thoughts [on Twitter](https://twitter.com/pdevito3) @pdevito3! Happy coding.
