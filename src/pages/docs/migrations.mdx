@@ -4,56 +4,63 @@ description: Details on how to work with EF Database Migrations with .NET 6 APIs
 ---
 
 ## Using Database Migrations
-As of v0.9.0, an initial database migration will automatically be ran during every `new:domain` or `add:bc` command, so you should have an initial migration ready for you from the get go. 
-There is a built in timeout or you might not have the Entity Framework CLI installed, so you may need to run migrations manually after the fact. 
 
-Because Wrapt projects use an in-memory db while in the `Development` environment, you will need to set an `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` commands to let 
-the host builder locate the appropriate settings file to use. Here's some examples for 
-[Windows](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10), 
-[Bash](https://askubuntu.com/questions/58814/how-do-i-add-environment-variables), 
-and [PowerShell](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7). 
+As of v0.9.0, an initial database migration will automatically be ran during every `new domain` or `add bc` command, so you should have an initial migration ready for you from the get go.
+There is a built in timeout or you might not have the Entity Framework CLI installed, so you may need to run migrations manually after the fact.
+
+Because Wrapt projects use an in-memory db while in the `Development` environment, you will need to set an `ASPNETCORE_ENVIRONMENT` before running `dotnet ef` commands to let
+the host builder locate the appropriate settings file to use. Here's some examples for
+[Windows](https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10),
+[Bash](https://askubuntu.com/questions/58814/how-do-i-add-environment-variables),
+and [PowerShell](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_environment_variables?view=powershell-7).
 
 If you'd like to track the feature request for an inline command in EF, you can follow [the Github issue](https://github.com/dotnet/efcore/issues/8695).
 
 When running migrations, make sure your `UseInMemoryDatabase` setting is set to `false` in your appsettings. This should be the case by default on all environments that are not `Development`.
 
 ## Database Migration Example
+
 1. Make sure you have `dotnet ef` installed. To install it globally run:
-  ```shell
-  dotnet tool install -g dotnet-ef
-  ```
 
-2. Make sure your `ASPNETCORE_ENVIRONMENT` variable is et to literally anything except `Development`. This is because the in-memory database is used 
-in the `Development` environment.
+```shell
+dotnet tool install -g dotnet-ef
+```
 
-  *Powershell*
-  ```powershell
-  $Env:ASPNETCORE_ENVIRONMENT = "anything"
-  ```
+2. Make sure your `ASPNETCORE_ENVIRONMENT` variable is et to literally anything except `Development`. This is because the in-memory database is used
+   in the `Development` environment.
 
-  *Bash*
-  ```bash
-  export ASPNETCORE_ENVIRONMENT=anything
-  ```
+   _Powershell_
+
+```powershell
+$Env:ASPNETCORE_ENVIRONMENT = "anything"
+```
+
+_Bash_
+
+```bash
+export ASPNETCORE_ENVIRONMENT=anything
+```
 
 3. If you don't have any migrations for whatever reason, you can perform your first migration with something like the below.
-  ```shell
-  cd YourBoundedContextName/src/YourBoundedContextName
-  dotnet ef migrations add InitialMigration
-  ```
 
+```shell
+cd YourBoundedContextName/src/YourBoundedContextName
+dotnet ef migrations add InitialMigration
+```
 
 4. To add additional migrations, just change your migration description.
-  ```shell
-  cd YourBoundedContextName/src/YourBoundedContextName
-  dotnet ef migrations add AddedColumnXToTableY
-  ```
+
+```shell
+cd YourBoundedContextName/src/YourBoundedContextName
+dotnet ef migrations add AddedColumnXToTableY
+```
 
 5. To push the updates to your database, you can run this (note that we're using the shorthand options in this case, but it doesn't matter which is used in any of the examples):
-  ```shell
-  cd YourBoundedContextName/src/YourBoundedContextName
-  dotnet ef database update
-  ```
+
+```shell
+cd YourBoundedContextName/src/YourBoundedContextName
+dotnet ef database update
+```
 
 ## Common Db Migration Error
 

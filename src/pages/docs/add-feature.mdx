@@ -6,29 +6,32 @@ description: Adds a new feature and all associated files to a bounded context.
 
 This command will add a new feature file using prompts, so no template needed here! The process will let you select any of the CRUD features as well as an ad hoc feature.
 
-> This command must be ran from the *bounded context* directory for a project that was made using the `new:domain` or `add:bc` command. It should have a `src` and `test` directory.
+> This command must be ran from the _bounded context_ directory for a project that was made using the `new domain` or `add bc` command. It should have a `src` and `test` directory.
 
 ```shell
-craftsman add:feature [options]
+craftsman add feature [options]
 or
-craftsman new:feature [options]
+craftsman new feature [options]
 ```
 
 ## Add Feature Options
-| Option          | Description                                                  |
-| --------------- | ------------------------------------------------------------ |
-| -h, --help      | Display help message. No filepath is needed to display the help message.
+
+| Option     | Description                                                              |
+| ---------- | ------------------------------------------------------------------------ |
+| -h, --help | Display help message. No filepath is needed to display the help message. |
 
 ## Add Feature Prompts
+
 1. **Feature Name**: The name of the feature. This is the name of the feature's method and would generally be something like `AddCustomer` or `GetCustomer`.
 2. **Command Name**: The name of the command. This is the name of the feature's class and would generally be something like `AddCustomerCommand` or `GetCustomerQuery`.
 3. **Response Type**: Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. **Default: `bool`**
 4. **IsProducer** : Determines whether or not this feature is an event producer. If so, it will add a message bus to the dependency injection. **Default: `false`**
-5. **Entity Plural**: The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly. 
+5. **Entity Plural**: The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly.
 
 ## Add Feature Example Commands
+
 ```shell
-craftsman add:feature -h
-craftsman add:feature
-craftsman new:feature
+craftsman add feature -h
+craftsman add feature
+craftsman new feature
 ```

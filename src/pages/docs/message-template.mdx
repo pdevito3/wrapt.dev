@@ -1,6 +1,6 @@
 ---
 title: Message Template
-description: The template for the file used when adding a message bus to a project using the `add:message`, `add:bc`, or `new:domain` commands.
+description: The template for the file used when adding a message bus to a project using the `add message`, `add bc`, or `new domain` commands.
 ---
 
 ## Add Message Template Properties
@@ -17,7 +17,7 @@ description: The template for the file used when adding a message bus to a proje
 | Name | Yes      | The name of the property                                                                                                                                         | _None_   |
 | Type | Yes      | The data type for the property. These are _not_ case sensitive and they can be set to nullable with a trailing `?`. All standard C# data types can be used here. | _string_ |
 
-> When adding messages to an existing project, be sure to run the `add:bus` command if you don't already have a message bus in your project. This bus command should be completed _before_ running an `add:message` command.
+> When adding messages to an existing project, be sure to run the `add bus` command if you don't already have a message bus in your project. This bus command should be completed _before_ running an `add message` command.
 
 ## Add Message Template Examples
 
@@ -54,13 +54,13 @@ BoundedContexts:
             Type: string
     Bus:
       AddBus: true
-    # additional new:domain properties here
+    # additional new domain properties here
 ```
 
 ### Adding a Message to an Existing Project
 
-If you've already created your Wrapt project and want to add one or more messages after the fact, you can use the `add:message` command to pass through one or more messages to your project.
-Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add:bus` command.
+If you've already created your Wrapt project and want to add one or more messages after the fact, you can use the `add message` command to pass through one or more messages to your project.
+Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add bus` command.
 
 ```yaml
 Messages:

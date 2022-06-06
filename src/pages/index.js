@@ -276,6 +276,24 @@ export default function Home() {
               }}
             />
           </AspectRatio>
+
+          <div className="py-3">
+            <div className="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+              <div className="p-2 rounded-lg shadow-lg sm:p-3 bg-gradient-to-r from-emerald-600 to-emerald-500">
+                <div className="flex flex-wrap items-center justify-between">
+                  <div className="flex items-center flex-1 w-24">
+                    <span className="flex items-center justify-center p-2 rounded-full bg-emerald-800">
+                      <p className="w-6 h-6 text-center">🚧</p>
+                    </span>
+                    <p className="ml-3 font-medium text-white whitespace-wrap">
+                      <span className="md:hidden">Craftsman commands now use spaces instead of `:` delimiters. Updated video coming soon!</span>
+                      <span className="hidden md:inline">Craftsman commands now use spaces instead of `:` delimiters (e.g. `craftsman new domain ../myfile.yaml`). Updated video coming soon!</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

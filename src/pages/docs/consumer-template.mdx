@@ -1,6 +1,6 @@
 ---
 title: Consumer Template
-description: The template for the file used when adding a message bus to a project using the `add:consumer`, `add:bc`, or `new:domain` commands.
+description: The template for the file used when adding a message bus to a project using the `add consumer`, `add bc`, or `new domain` commands.
 ---
 
 ## Add Consumer Template Properties
@@ -18,7 +18,7 @@ description: The template for the file used when adding a message bus to a proje
 | IsLazy                         | No       | A boolean that determines whether or not you want to use a lazy queue. This is [generally recommended as a best practice](https://www.cloudamqp.com/blog/part1-rabbitmq-best-practice.html#enable-lazy-queues-to-get-predictable-performance). Generally, these can be disabled if you require really high performance, if the queues are always short, or if you have set a max-length policy | _true_   |
 | UsesDb                         | No       | A boolean that determines whether ot not the scaffolded consumer feature will inject the db context in the project.                                                                                                                                                                                                                                                                            | _true_   |
 
-> When adding consumers to an existing project, be sure to run the `add:bus` command if you don't already have a message bus in your project. This bus command should be completed _before_ running an `add:consumer` command.
+> When adding consumers to an existing project, be sure to run the `add bus` command if you don't already have a message bus in your project. This bus command should be completed _before_ running an `add consumer` command.
 
 ## Add Consumer Template Examples
 
@@ -55,13 +55,13 @@ BoundedContexts:
         ExchangeType: fanout
     Bus:
       AddBus: true
-    # additional new:domain properties here
+    # additional new domain properties here
 ```
 
 ### Adding a Consumer to an Existing Project
 
-If you've already created your Wrapt project and want to add one or more consumers after the fact, you can use the `add:consumer` command to pass through one or more consumers to your project.
-Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add:bus` command.
+If you've already created your Wrapt project and want to add one or more consumers after the fact, you can use the `add consumer` command to pass through one or more consumers to your project.
+Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add bus` command.
 
 This particular example will add consumers using a direct exchange.
 

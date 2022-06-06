@@ -1,13 +1,13 @@
 ---
 title: Bus Template
-description: The template for the file used when adding a message bus to a project using the `add:bus`, `add:bc`, or `new:domain` commands.
+description: The template for the file used when adding a message bus to a project using the `add bus`, `add bc`, or `new domain` commands.
 ---
 
 ## Add Bus Template Properties
 
 | Name                             | Required | Description                                                                                                            | Default | Notes                                       |
 | -------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------- |
-| AddBus                           | Yes      | A boolean to indicate that you are adding a bus.                                                                       | _None_  | **Not required for the `add:bus` command.** |
+| AddBus                           | Yes      | A boolean to indicate that you are adding a bus.                                                                       | _None_  | **Not required for the `add bus` command.** |
 | [Environment](/docs/environment) | No       | The environments that get scaffolded out in this project. You only need to use the `BrokerSettings` with this command. | _None_  |                                             |
 
 ## Add Bus Template Examples
@@ -37,12 +37,12 @@ BoundedContexts:
         Password: specialguest
     Bus:
       AddBus: true
-    # additional new:domain properties here
+    # additional new domain properties here
 ```
 
 ### Adding a Bus to an Existing Project
 
-If you've already created your Wrapt project and want to add a bus after the fact, you can use the `add:bus` command.
+If you've already created your Wrapt project and want to add a bus after the fact, you can use the `add bus` command.
 No need to pass a file, but you can if you want to set the environment properties. The `AddBus` property is not necessary
 in this context.
 

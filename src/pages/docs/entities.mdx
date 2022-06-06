@@ -39,6 +39,7 @@ A list of properties that can be assigned to an entity.
 | DefaultValue        | No       | Allows you to add a default value to a property. Note that it should be entered exactly as you'd want it, so a string would be something like `"My Default Value"`, a bool might be `true`, and an int might be `0`                                                                                                  | _None_                             |
 | ForeignEntityName   | No       | Captures the name of the entity this property is linked to as a foreign key.                                                                                                                                                                                                                                         | _None_                             |
 | ForeignEntityPlural | No       | The plural value for the foreign entity, if applicable.                                                                                                                                                                                                                                                              | _Entity Name appended with an `s`_ |
+| SmartNames          | No       | A list of strings used to create a smart enum property. Each string denotes an option for the smart enum. See [the smart enum example below](#smart-enums) for details. Property attributes like filtering and sorting can be used if desired.                                                                       | _None_                             |
 
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 
@@ -59,12 +60,12 @@ A list of properties that can be assigned to an entity.
 
 The `AddListByFk` will let you add a list or batch of records using a foreign key. For example, you can add a list of ingredients for a recipe, based on the id of a recipe.
 
-| Name                   | Required | Description                                                                                                                                                                                     | Default |
-| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| BatchPropertyName      | Yes      | The name of the property on the foreign entity you are doing a batch add on.                                                                                                                    | _None_  |
-| BatchPropertyType      | Yes      | The data type of the the property you are doing the batch add on. This is for a FK property, so probably a Guid or int.                                                                         | _None_  |
-| ParentEntity           | Yes      | The name of the parent entity that the FK you using is associated to. For example, if you had a FK of `EventId`, the parent entity might be `Event`. Leave null if you're not batching on a FK. | _None_  |
-| BatchPropertyDbSetName | Yes      | The name of the DbSet for the FK you are doing a batch add on. Generally, the plural of the FK entity. Leave null if you're not batching on a FK.                                               | _None_  |
+| Name               | Required | Description                                                                                                                                                                                     | Default |
+| ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| BatchPropertyName  | Yes      | The name of the property on the foreign entity you are doing a batch add on.                                                                                                                    | _None_  |
+| BatchPropertyType  | Yes      | The data type of the the property you are doing the batch add on. This is for a FK property, so probably a Guid or int.                                                                         | _None_  |
+| ParentEntity       | Yes      | The name of the parent entity that the FK you using is associated to. For example, if you had a FK of `EventId`, the parent entity might be `Event`. Leave null if you're not batching on a FK. | _None_  |
+| ParentEntityPlural | Yes      | The plural of the FK entity. Leave null if you're not batching on a FK.                                                                                                                         | _None_  |
 
 #### Ad Hoc Features
 
@@ -77,7 +78,7 @@ You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, t
 | EntityPlural | No       | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly.                  | _[ENTITYNAME]s_ |
 | ResponseType | No       | Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. | _bool_          |
 
-> You can also add any of the above features after the fact using the [`add:feature` command](/docs/add-feature).
+> You can also add any of the above features after the fact using the [`add feature` command](/docs/add-feature).
 
 #### Keys
 
@@ -89,11 +90,11 @@ There are a couple of important pieces of information to know about settings key
 
 #### Updating Tests That Use Foreign Keys to Green
 
-This is the most noteworthy of the items above and will require the most manual intervention. Scaffolding here is tricky due to the variety of situations that can arise, so they
+This is the most noteworthy of the items above and will require the most manual intervention. Scaffolding here is tricky due to the variety of situations that can arise, so they sometimes
 need to be resolved manually. Here are a few tricks that may help:
 
 1. Update your fakers. Autofaker will, by default, try and scaffold out your child or parent objects which can break your tests. Depending on your situation, you
-   may need to set the foreign key to a particular value. Here are a couple rules that you could add:
+   may need to set the foreign key to a particular value. Here are a couple rules that you could add
 
 ```csharp
 // you could create an empty list so that your tests don't have to accommodate the default of 3. only add them if you need them for a test
@@ -185,7 +186,7 @@ Entities:
         BatchPropertyName: OrganizationId
         BatchPropertyType: Guid
         ParentEntity: Organization
-        BatchPropertyDbSetName: Organizations
+        ParentEntityPlural: Organizations
       - Type: AdHoc
         Name: MySpecialLookup
         Command: MySpecialLookupQuery
@@ -326,6 +327,29 @@ Entities:
         CanSort: true
       - Name: Directions
         Type: string
+        CanFilter: true
+        CanSort: true
+```
+
+## Smart Enums
+
+If you want to use smart enums, you can use the `SmartNames` property like so:
+
+```yaml
+Entities:
+  - Name: Recipe
+    Features:
+    #...
+    Properties:
+      - Name: Title
+        Type: string
+        CanFilter: true
+        CanSort: true
+      - Name: Visibility
+        SmartNames:
+          - Public
+          - Friends Only
+          - Private
         CanFilter: true
         CanSort: true
 ```

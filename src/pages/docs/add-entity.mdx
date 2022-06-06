@@ -6,30 +6,33 @@ description: Adds a new entity and all associated files to a bounded context.
 
 This command can add one or more new entities to your Wrapt project using a formatted yaml or json file. The [input file template](/docs/entity-template) only requires a list of one or more entities.
 
-> This command must be ran from the *bounded context* directory for a project that was made using the `new:domain` or `add:bc` command.
+> This command must be ran from the _bounded context_ directory for a project that was made using the `new domain` or `add bc` command.
 
 ```shell
-craftsman add:entity [options] <filepath>
+craftsman add entity [options] <filepath>
 ```
 
 ## Add Entity Arguments
-| Argument        | Description                                                  |
-| --------------- | ------------------------------------------------------------ |
-| filepath        | The full filepath for the yaml or json file that lists the new entities that you want to add to your API.
+
+| Argument | Description                                                                                               |
+| -------- | --------------------------------------------------------------------------------------------------------- |
+| filepath | The full filepath for the yaml or json file that lists the new entities that you want to add to your API. |
 
 ## Add Entity Options
-| Option          | Description                                                  |
-| --------------- | ------------------------------------------------------------ |
-| -h, --help      | Display help message. No filepath is needed to display the help message.
 
+| Option     | Description                                                              |
+| ---------- | ------------------------------------------------------------------------ |
+| -h, --help | Display help message. No filepath is needed to display the help message. |
 
 ## Add Entity Example Commands
+
 ```shell
-craftsman add:entity -h
-craftsman add:entity C:\fullpath\newentity.yaml
-craftsman add:entity C:\fullpath\newentity.yml
-craftsman add:entity C:\fullpath\newentity.json
+craftsman add entity -h
+craftsman add entity C:\fullpath\newentity.yaml
+craftsman add entity C:\fullpath\newentity.yml
+craftsman add entity C:\fullpath\newentity.json
 ```
 
 ## Add Entity Example
+
 The examples on the [project tutorial](/docs/tutorial#adding-a-new-entity) and the [entity template](/docs/entity-template) cover how to add new entities.
