@@ -1,6 +1,6 @@
 ---
 title: Producer Template
-description: The template for the file used when adding a message bus to a project using the `add:producer`, `add:bc`, or `new:domain` commands.
+description: The template for the file used when adding a message bus to a project using the `add producer`, `add bc`, or `new domain` commands.
 ---
 
 ## Add Producer Template Properties
@@ -14,7 +14,7 @@ description: The template for the file used when adding a message bus to a proje
 | ExchangeType                   | No       | The type of exchange you want to use. This can be set to `fanout`, `direct`, or `topic`.                                                                                            | _fanout_ |
 | UsesDb                         | No       | A boolean that determines whether ot not the scaffolded producer feature will inject the db context in the project.                                                                 | _true_   |
 
-> When adding producers to an existing project, be sure to run the `add:bus` command if you don't already have a message bus in your project. This bus command should be completed _before_ running an `add:producer` command.
+> When adding producers to an existing project, be sure to run the `add bus` command if you don't already have a message bus in your project. This bus command should be completed _before_ running an `add producer` command.
 
 ## The Producer Routing Key Formatter
 
@@ -76,13 +76,13 @@ BoundedContexts:
         ExchangeType: fanout
     Bus:
       AddBus: true
-    # additional new:domain properties here
+    # additional new domain properties here
 ```
 
 ### Adding a Producer to an Existing Project
 
-If you've already created your Wrapt project and want to add one or more producers after the fact, you can use the `add:producer` command to pass through one or more producers to your project.
-Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add:bus` command.
+If you've already created your Wrapt project and want to add one or more producers after the fact, you can use the `add producer` command to pass through one or more producers to your project.
+Make sure you have a message bus already in your project. If you don't have a bus, you add one with the `add bus` command.
 
 This particular example will add producers using a direct exchange.
 

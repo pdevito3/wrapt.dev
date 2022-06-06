@@ -77,7 +77,7 @@ You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, t
 | EntityPlural | No       | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly.                  | _[ENTITYNAME]s_ |
 | ResponseType | No       | Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. | _bool_          |
 
-> You can also add any of the above features after the fact using the [`add:feature` command](/docs/add-feature).
+> You can also add any of the above features after the fact using the [`add feature` command](/docs/add-feature).
 
 #### Keys
 
@@ -93,7 +93,7 @@ This is the most noteworthy of the items above and will require the most manual 
 need to be resolved manually. Here are a few tricks that may help:
 
 1. Update your fakers. Autofaker will, by default, try and scaffold out your child or parent objects which can break your tests. Depending on your situation, you
-   may need to set the foreign key to a particular value. Here are a couple rules that you could add:
+   may need to set the foreign key to a particular value. Here are a couple rules that you could add
 
 ```csharp
 // you could create an empty list so that your tests don't have to accommodate the default of 3. only add them if you need them for a test

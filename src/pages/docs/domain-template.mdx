@@ -1,17 +1,18 @@
 ---
 title: Domain Template
-description: The template for the file used when creating a new domain project using the `new:domain` command.
+description: The template for the file used when creating a new domain project using the `new domain` command.
 ---
 
 ## Domain Template Properties
 
-| Name       | Required | Description                                                         | Default                          |
-| ---------- | -------- | ------------------------------------------------------------------- | -------------------------------- |
-| DomainName    | Yes      | The name of the domain. | *None*   |
-| [AddGit](/docs/git)    | No      | Settings for git in your project. | *true*  |
-| [BoundedContexts](/docs/bounded-contexts)    | No      | The logical contextual boundaries within your domain. | *None*   |
-| [Messages](/docs/messages-template)    | No      | The MassTransit messages in your project. | *None*   |
-| [AuthServer](/docs/auth-server-template)    | No      | The auth server of your domain. | *None*   |
+| Name                                      | Required | Description                                           | Default |
+| ----------------------------------------- | -------- | ----------------------------------------------------- | ------- |
+| DomainName                                | Yes      | The name of the domain.                               | _None_  |
+| [AddGit](/docs/git)                       | No       | Settings for git in your project.                     | _true_  |
+| [BoundedContexts](/docs/bounded-contexts) | No       | The logical contextual boundaries within your domain. | _None_  |
+| [Messages](/docs/messages-template)       | No       | The MassTransit messages in your project.             | _None_  |
+| [AuthServer](/docs/auth-server-template)  | No       | The auth server of your domain.                       | _None_  |
 
 ## Domain Template Example
+
 The example on the [project tutorial](/docs/tutorial#adding-a-new-bounded-context) covers how to add new bounded contexts.

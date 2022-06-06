@@ -4,17 +4,18 @@ description: How to customize Wrapt projects.
 ---
 
 ## Customization
-So you've ran your `new:domain` command and have your API scaffolded out, but you want to make some customizations for your business logic. 
 
-At this point you can go anywhere into the project and modify whatever you want! There are a handful of spots throughout the project 
-that are marked with comments or regions that will tell you what needs to be left alone for Craftsman to be able to work with it in 
-the future, but even those can be modified if you'd like. Just keep in mind that you'll no longer to be able to reliably use 
+So you've ran your `new domain` command and have your API scaffolded out, but you want to make some customizations for your business logic.
+
+At this point you can go anywhere into the project and modify whatever you want! There are a handful of spots throughout the project
+that are marked with comments or regions that will tell you what needs to be left alone for Craftsman to be able to work with it in
+the future, but even those can be modified if you'd like. Just keep in mind that you'll no longer to be able to reliably use
 Craftsman commands in your project.
 
-For example, if you go into an Entity file, you'll notice a comment at the bottom like this `// add-on property marker - Do Not 
-Delete This Comment`. This comment is what Craftsman will look for when adding new properties to your entity, so if it were removed,
+For example, if you go into an Entity file, you'll notice a comment at the bottom like this `// add-on property marker - Do Not Delete This Comment`. This comment is what Craftsman will look for when adding new properties to your entity, so if it were removed,
 that operation would no longer be able to run properly.
 
 ## Smart Defaults
-Wrapt projects are set up with some opinionated defaults so you don't have to think about where to put things (though you can put them elsewhere if you so chose). 
+
+Wrapt projects are set up with some opinionated defaults so you don't have to think about where to put things (though you can put them elsewhere if you so chose).
 For more details on this organizational setup, check out the [project organization page](/docs/project-organization) for details on everything from [features](/docs/project-organization#validation) to validation and much more.

@@ -1,6 +1,6 @@
 ---
 title: Auth Server Template
-description: The template used for creating an Auth Server using the `add:authserver` or `new:domain` commands.
+description: The template used for creating an Auth Server using the `add authserver` or `new domain` commands.
 ---
 
 For more information on Duende and how to configure an auth server, please see [their docs](https://docs.duendesoftware.com/).
@@ -13,7 +13,7 @@ For more information on Duende and how to configure an auth server, please see [
 | Port    | Yes      | A 4 digit integer that designates your auth server port.                                                                     | _None_  |       |
 | Scopes  | No       | A list of the api Scopes that you'd like to add to your auth server.                                                         | _None_  |       |
 | Clients | No       | A list of the various clients (applications) using your auth server.                                                         | _None_  |       |
-| Apis    | No       | A list of the apis that will be using your auth server. This would generally be a boundary scaffolded by an `add:bc` command | _None_  |       |
+| Apis    | No       | A list of the apis that will be using your auth server. This would generally be a boundary scaffolded by an `add bc` command | _None_  |       |
 
 ### Scopes
 
@@ -157,7 +157,7 @@ Clients:
 
 ### Adding a Auth Server to an Existing Project
 
-If you've already created your Wrapt project and want to add an Auth Server after the fact, you can use the `add:authserver` command to scaffold it out as well.
+If you've already created your Wrapt project and want to add an Auth Server after the fact, you can use the `add authserver` command to scaffold it out as well.
 This looks the same as above, you just need the auth server part:
 
 ```yaml
