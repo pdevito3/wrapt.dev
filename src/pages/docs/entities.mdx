@@ -39,6 +39,7 @@ A list of properties that can be assigned to an entity.
 | DefaultValue        | No       | Allows you to add a default value to a property. Note that it should be entered exactly as you'd want it, so a string would be something like `"My Default Value"`, a bool might be `true`, and an int might be `0`                                                                                                  | _None_                             |
 | ForeignEntityName   | No       | Captures the name of the entity this property is linked to as a foreign key.                                                                                                                                                                                                                                         | _None_                             |
 | ForeignEntityPlural | No       | The plural value for the foreign entity, if applicable.                                                                                                                                                                                                                                                              | _Entity Name appended with an `s`_ |
+| SmartNames          | No       | A list of strings used to create a smart enum property. Each string denotes an option for the smart enum. See [the smart enum example below](#smart-enums) for details.                                                                                                                                              | _None_                             |
 
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 
@@ -89,7 +90,7 @@ There are a couple of important pieces of information to know about settings key
 
 #### Updating Tests That Use Foreign Keys to Green
 
-This is the most noteworthy of the items above and will require the most manual intervention. Scaffolding here is tricky due to the variety of situations that can arise, so they
+This is the most noteworthy of the items above and will require the most manual intervention. Scaffolding here is tricky due to the variety of situations that can arise, so they sometimes
 need to be resolved manually. Here are a few tricks that may help:
 
 1. Update your fakers. Autofaker will, by default, try and scaffold out your child or parent objects which can break your tests. Depending on your situation, you
@@ -326,6 +327,29 @@ Entities:
         CanSort: true
       - Name: Directions
         Type: string
+        CanFilter: true
+        CanSort: true
+```
+
+## Smart Enums
+
+If you want to use smart enums, you can use the `SmartNames` property like so:
+
+```yaml
+Entities:
+  - Name: Recipe
+    Features:
+    #...
+    Properties:
+      - Name: Title
+        Type: string
+        CanFilter: true
+        CanSort: true
+      - Name: Visibility
+        SmartNames:
+          - Public
+          - Friends Only
+          - Private
         CanFilter: true
         CanSort: true
 ```
