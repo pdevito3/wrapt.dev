@@ -39,7 +39,7 @@ A list of properties that can be assigned to an entity.
 | DefaultValue        | No       | Allows you to add a default value to a property. Note that it should be entered exactly as you'd want it, so a string would be something like `"My Default Value"`, a bool might be `true`, and an int might be `0`                                                                                                  | _None_                             |
 | ForeignEntityName   | No       | Captures the name of the entity this property is linked to as a foreign key.                                                                                                                                                                                                                                         | _None_                             |
 | ForeignEntityPlural | No       | The plural value for the foreign entity, if applicable.                                                                                                                                                                                                                                                              | _Entity Name appended with an `s`_ |
-| SmartNames          | No       | A list of strings used to create a smart enum property. Each string denotes an option for the smart enum. See [the smart enum example below](#smart-enums) for details.                                                                                                                                              | _None_                             |
+| SmartNames          | No       | A list of strings used to create a smart enum property. Each string denotes an option for the smart enum. See [the smart enum example below](#smart-enums) for details. Property attributes like filtering and sorting can be used if desired.                                                                       | _None_                             |
 
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 
@@ -60,12 +60,12 @@ A list of properties that can be assigned to an entity.
 
 The `AddListByFk` will let you add a list or batch of records using a foreign key. For example, you can add a list of ingredients for a recipe, based on the id of a recipe.
 
-| Name                   | Required | Description                                                                                                                                                                                     | Default |
-| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| BatchPropertyName      | Yes      | The name of the property on the foreign entity you are doing a batch add on.                                                                                                                    | _None_  |
-| BatchPropertyType      | Yes      | The data type of the the property you are doing the batch add on. This is for a FK property, so probably a Guid or int.                                                                         | _None_  |
-| ParentEntity           | Yes      | The name of the parent entity that the FK you using is associated to. For example, if you had a FK of `EventId`, the parent entity might be `Event`. Leave null if you're not batching on a FK. | _None_  |
-| BatchPropertyDbSetName | Yes      | The name of the DbSet for the FK you are doing a batch add on. Generally, the plural of the FK entity. Leave null if you're not batching on a FK.                                               | _None_  |
+| Name               | Required | Description                                                                                                                                                                                     | Default |
+| ------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| BatchPropertyName  | Yes      | The name of the property on the foreign entity you are doing a batch add on.                                                                                                                    | _None_  |
+| BatchPropertyType  | Yes      | The data type of the the property you are doing the batch add on. This is for a FK property, so probably a Guid or int.                                                                         | _None_  |
+| ParentEntity       | Yes      | The name of the parent entity that the FK you using is associated to. For example, if you had a FK of `EventId`, the parent entity might be `Event`. Leave null if you're not batching on a FK. | _None_  |
+| ParentEntityPlural | Yes      | The plural of the FK entity. Leave null if you're not batching on a FK.                                                                                                                         | _None_  |
 
 #### Ad Hoc Features
 
