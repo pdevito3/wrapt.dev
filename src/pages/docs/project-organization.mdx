@@ -61,10 +61,27 @@ In practice, each controller is essentially acting as a router to a feature and 
 
 <!-- add an image like so here? https://youtu.be/SUiWfhAhgQw?t=959 -->
 
-> It's worth noting that these features do NOT have repositories. In fact, there are no repositories in this architecture at all by design. This gives you
-> the ability to control how each feature accesses the data however is appropriate for that particular feature. There are other benefits here as well that I'll detail in my blog
-> and repositories do have their place, but they are not forced on you by default. With that said, **you are more than welcome to use repositories in your projects, you'll
-> just need to update the features manually**.
+#### Repositories
+
+Yeah, I know this is a very controversial topic (I know and agree that EF is already a repository + UoW pattern). I pushed against them in the project for a while,
+but after dog fooding projects, I added them in for a couple reasons below (and no i'm not making the argument that it's nice because i can switch my RDS provider at a whim).
+
+- One of the biggest reasons is testing. I've found that, in practice, features can frequently have business logic paths that you want to write tests for,
+  but you don't want to write expensive integration tests to accomplish that. By adding a repository, using can easily mock the repository in a unit test and
+  test your logic path there without a big integration test cost.
+- Another is validation. If i want to check for uniqueness of a record in the database, before I create or update it I either need to 1. know to add it in
+  every feature where the entity is added/updated or 2. pass a service into the factory methods and use them there. In order to do this, you need a service
+  to pass through as you don't want to pass dbcontext directly to your domain entity. By using a repository here, we our domain entity just know that it has
+  this service than can perform a particular check for it and all is good.
+  - Another option could be to create a factory method layer over the domain entity itself that manages these service level things, but the current wrapt set
+    up isn't built this way.
+
+Note that the repositories are very simple abstractions on top of EF. This is by design and **it is highly recommended to not create complex abstractions on top
+of an already well though out repository + uow pattern that EF provides**.
+
+- Of note, none of the repository methods have an option to save inside of them. Saving should generally be done using the `IUnitOfWork` interface, but some
+  situations might call for an immeidate save. If that's the case, you could consider adding an ad hoc method to the entity repository like `UpdateImmediately` if necessary.
+- For includes, either write a custom repository method on the entity repository for that use case, or pull in the other entity repository and get the info separately.
 
 <!-- iamge like so? https://youtu.be/SUiWfhAhgQw?t=2224 -->
 
@@ -217,7 +234,26 @@ Command validation is where we have more complex business validations come into 
 This validation can be added in your command handler or, even better, encapsulated in your domain entity. This could go so far as needing to be
 a service that is passed in to a creation factory as an interface with the capability to perform whatever validation needs to happen.
 
+#### Value Objects
+
+A `ValueObject` class is scaffolded to `SharedKernel` to be used in your domain if you would like to use them. Here are a couple examples from other projects:
+
+- [Example 1](https://github.com/ardalis/pluralsight-ddd-fundamentals/blob/main/ClinicManagement/src/ClinicManagement.Core/ValueObjects/AnimalType.cs) in use [here](https://github.com/ardalis/pluralsight-ddd-fundamentals/blob/main/ClinicManagement/src/ClinicManagement.Core/Aggregates/Patient.cs)
+- [Example 2](https://github.com/asc-lab/better-code-with-ddd/blob/ef_core/LoanApplication.TacticalDdd/LoanApplication.TacticalDdd/DomainModel/Percent.cs) in use [here](https://github.com/asc-lab/better-code-with-ddd/blob/abbf03586ee9287c302841f0ce85cbfd9485ba72/LoanApplication.TacticalDdd/LoanApplication.TacticalDdd/DomainModel/Loan.cs)
+
 ### Eventing
+
+#### In Process Events
+
+If you have an event you want to publish and consume withing the same boundary, you can use an in-process message to do so.
+This is simple in a wrapt project as you can just add an event to the `DomainEvents` property on an entity and all **the stored events will be published
+on save**.
+
+By default, domain messages will be scaffolded for entity creation and update events and added as part of the factory methods.
+
+To publish messages, just create a message in `Domain.[EntityName].DomainEvents` and queue it up using the `QueueDomainEvent` method on your entity.
+
+#### Out of Process Events
 
 Wrapt projects support scaffolding for event driven features like producers and consumers in an event bus, messages, and more.
 
@@ -268,14 +304,42 @@ public class Handler : IRequestHandler<AddRecipeCommand, ReportRequestDto>
 
 Wrapt will automatically scaffold out unit, integration and functional tests for each of your bounded contexts using NUnit.
 
-- **Unit tests** are meant to confirm that individual operations are working as expected (e.g. PagedList calculations).
+- **Unit tests** are meant to confirm that individual operations are working as expected (e.g. PagedList calculations). Additionally, you can test business flows to make sure logic paths are properly tested (e.g. a business process in a feature handler doesn't usually need an expensive integration test).
+  Use these as much as possible for efficiency, but don't over mock things either.
 
 - **Integration tests** are meant to check that different areas are working together as expected (e.g. our features folder). These tests will spin up a real database in docker
   and run each of your feature tests in an actual representation of your database. If you're using eventing, an in-memory test harness for MassTransit will be set up for you to run eventing tests as well.
 
+  These are generally the highest value tests in wrapt projects given the structure of the project, but they are more expensive, so be mindful of the cost. If you have a happy path or some specific operation you
+  want to test, then you can and should, but ideally you can keep the main tests minimal here and then test all your business flows in unit tests.
+
 - **Functional tests** are meant to check an entire slice of functionality with all the code running together.
   These are generally more involved to write and maintain, but with this project setup, our controllers are essentially just routers to our feature queries and commands, so we have
   already done the meat of our testing in our integration tests. This means that our functional tests can generally just confirm that we are getting the expected responses from our routes and we can call it a day.
+
+### Virtualization For FK Unit Tests
+
+Entity props are `virtual` by default with a `protected` constructor for mocking in unit tests. This is mostly for foreign entities (since we don't
+have EF to populate our foreign entities in unit tests), but in order to have our mocks accurately reflect all our props, we need to make them virtual. For example:
+
+```c#
+private static Author GetMockAuthor()
+{
+  	// my fake data base generated with AutoBogus under the hood
+    var fakeRecipe = FakeRecipe.Generate();
+    var forCreation = new FakeAuthorForCreationDto().Generate();
+    forCreation.RecipeId = fakeRecipe.Id;
+
+  	// FakeItEasy making entity assignment easy in lieu of EF
+    var fakeAuthor = A.Fake<Author>(x => x.Wrapping(Author.Create(forCreation)));
+    A.CallTo(() => fakeAuthor.Recipe)
+        .Returns(fakeRecipe);
+    return fakeAuthor;
+}
+```
+
+> 💡 This is default, but depending on your domain ops, you might have a domain method that does the action for you, in which case, you won't want
+> these to be virtual. For example, Recipe might have `SetAuthor` or `AddIngredient` methods and you wouldn't want those FKs to be virtual.
 
 ### Shared Kernel
 
