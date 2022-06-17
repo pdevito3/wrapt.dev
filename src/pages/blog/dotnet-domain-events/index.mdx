@@ -170,22 +170,8 @@ public class RecipesDbContext : DbContext
     }
 
     public override int SaveChanges()
-		{
-        return base.SaveChanges();
-		}
-
-    private async Task _dispatchDomainEvents()
     {
-        var domainEventEntities = ChangeTracker.Entries<BaseEntity>()
-            .Select(po => po.Entity)
-            .Where(po => po.DomainEvents.Any())
-            .ToArray();
-
-        foreach (var entity in domainEventEntities)
-        {
-            foreach (var entityDomainEvent in entity.DomainEvents)
-                await _mediator.Publish(entityDomainEvent);
-        }
+        return base.SaveChanges();
     }
 }
 ```
@@ -202,8 +188,10 @@ From here, let's make a method that can loop through all our entities and publis
 
       foreach (var entity in domainEventEntities)
       {
-          foreach (var entityDomainEvent in entity.DomainEvents)
-              await _mediator.Publish(entityDomainEvent);
+            var events = entity.DomainEvents.ToArray();
+            entity.DomainEvents.Clear();
+            foreach (var entityDomainEvent in events)
+                await _mediator.Publish(entityDomainEvent);
       }
   }
 ```
@@ -235,21 +223,18 @@ public class RecipesDbContext : DbContext
 
     public DbSet<Author> Authors { get; set; }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
-    {
-		await _dispatchDomainEvents();
-        return await base.SaveChangesAsync(cancellationToken);
-    }
-
     public override int SaveChanges()
     {
-		_dispatchDomainEvents().GetAwaiter().GetResult();
-        return base.SaveChanges();
+        var response = base.SaveChanges();
+        _dispatchDomainEvents().GetAwaiter().GetResult();
+        return response;
     }
 
-    private async Task _preSaveChanges()
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {
+        var response = await base.SaveChangesAsync(cancellationToken);
         await _dispatchDomainEvents();
+        return response;
     }
 
     private async Task _dispatchDomainEvents()
@@ -261,7 +246,9 @@ public class RecipesDbContext : DbContext
 
         foreach (var entity in domainEventEntities)
         {
-            foreach (var entityDomainEvent in entity.DomainEvents)
+            var events = entity.DomainEvents.ToArray();
+            entity.DomainEvents.Clear();
+            foreach (var entityDomainEvent in events)
                 await _mediator.Publish(entityDomainEvent);
         }
     }
