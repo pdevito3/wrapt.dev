@@ -4,63 +4,92 @@ description: This writeup describes how permissions are set up in Wrapt projects
 ---
 
 ## Introduction
-.NET gives us a lot of awesome capabilities around permissions, but after a lot of research and usage, I've found some gaps that haven't been addressed yet either. 
-This lead me to write a small permissions extension on top of .NETs built in architecture called [HeimGuard](https://github.com/pdevito3/heimguard) 
+
+.NET gives us a lot of awesome capabilities around permissions, but after a lot of research and usage, I've found some gaps that haven't been addressed yet either.
+This lead me to write a small permissions extension on top of .NETs built in architecture called [HeimGuard](https://github.com/pdevito3/heimguard)
 which [you can read more about here](/blog/simplifying-user-and-role-based-permissions-in-dotnet).
 
 ## How Does Craftsman Scaffold Out Permissions?
+
 As a base, Craftsman uses a HeimGuard configuration to manage permissions. The library is inherently flexible though, so how is it handled here?
 
 ### Permissions
-Permissions dictate whether or not something is accessible and are the heart of authorization for your features. Each controller will have a normal .NET policy attribute added to it 
-that will act as the Permission that will permit access to that feature that the controller routes you to. Because we're using HeimGuard, this permission will automatically be registered for us.
 
-Where do these Permissions live though? In a Wrapt project, they are added to your boundary's `Domain` directory as constants that can be easily accessed. Why not put them in a database?
-The biggest reason is that permissions are coupled directly with your code. If you are updating a your permission configuration and it lived in a db, you still 
+Permissions dictate whether or not something is accessible and are the heart of authorization for your features. Each controller will have a normal .NET `Authorize` attribute added to it
+that will act as an authentication guard, but that doesn't cover the actual permission that decides whether or not I'm allowed to use that resource. This authorization check actually lives in
+your features using HeimGuard to check a user's permissions. This was chosen to help facilitate business rules in one central location (a la vertical slice).
+
+For example, a feature may expect that some users have a permission to get an entire dataset but others can only get a subset of it. For example:
+
+```csharp
+
+    public class Handler : IRequestHandler<RecipeWorklistQuery, List<RecipeDto>>
+    {
+        private readonly IHeimGuardClient _heimGuard;
+
+        public Handler(IHeimGuardClient heimGuard)
+        {
+            _heimGuard = heimGuard;
+        }
+
+        public async Task<List<RecipeDto>> Handle(RecipeWorklistQuery request, CancellationToken cancellationToken)
+        {
+            if (await _heimGuard.HasPermissionAsync(Permissions.CanReadAllRecipes))
+            {
+                // get all data
+            }
+            else if (await _heimGuard.HasPermissionAsync(Permissions.CanReadMyRecipes))
+            {
+                // get data for current user
+            }
+            else
+            {
+                throw new ForbiddenAccessException();
+            }
+        }
+    }
+```
+
+Where do these `Permissions` live though? In a Wrapt project, they are added to your boundary's `Domain` directory as constants that can be easily accessed. Why not put them in a database?
+The biggest reason is that permissions are coupled directly with your code. If you are updating a your permission configuration and it lived in a db, you still
 have to update your code to make your attributes match. If you're worried about being able to get a list of all your permissions, just make an endpoint that returns the list.
 
 > If you don't like this you can absolutely change this to a different pattern, you just need to update the `UserPolicyHandler` and tests.
 
-#### Business Level Permissions
-The above permissions will permit access to a feature, but what if there are specific business rules that need to be enforced? For example, even if 
-a user as access to a feature, they may only be allowed to do that action if certain criteria are met. This is a separate concern than feature access. 
-It is recommended to build that into your CQRS handlers.
-
-#### Multiple Permissions Can Access a Feature
-If you have multiple permissions that can access a feature, then you'll want to register a new policy for it in your `UseAuthorization` registration that 
-captures both permissions:
-```c#
-options.AddPolicy("ThisThingOrThatThing", policy =>
-    policy.RequireAssertion(context =>
-        context.User.HasClaim(c =>
-            (c.Type == "ThisThing" ||
-             c.Type == "ThatThing"))));
-```
-
 ### Roles
-Roles are a way to group permissions together and easily assign them to a user. **This means that roles have no DIRECT bearing on accessing a feature**, they 
+
+Roles are a way to group permissions together and easily assign them to a user. **This means that roles have no DIRECT bearing on accessing a feature**, they
 just allow us to grab permissions associated to that role so we can see what a user can do.
 
-Roles are added to the `SharedKernel` (also as constants) so they can be easily accessed. Now in this case, there can definitely be cases where you would want 
-to have roles sitting in a database so your users can manage whatever roles make sense for them. 
+Roles are added to the `SharedKernel` (also as constants) so they can be easily accessed. Now in this case, there can definitely be cases where you would want
+to have roles sitting in a database so your users can manage whatever roles make sense for them.
 At the end of the day, in many situations you don't need to care if you have 2 roles or 2000 roles, as long as you can get the assigned permissions for them.
 
-To do this, you'd likely want to make some kind of `Administration` boundary that can can be used to create roles, but there is some additional complexity that would 
+To do this, you'd likely want to make some kind of `Administration` boundary that can can be used to create roles, but there is some additional complexity that would
 come into play if you went down that road.
 
 #### Role Based Access Control (RBAC)
-It is **strongly** recommended that you use roles to group permissions instead of creating permissions that match role names.
+
+It is **strongly** recommended that you use roles to group permissions instead of creating permissions that match role names. Roles are a great way to group permissions together,
+but the permission is what should be used to determine access, not the role. The role is just the collection of permissions that a user has.
 
 ## Default Roles
-By default, there is a `SuperAdmin` role and a `User` role generated for you where a `SuperAdmin` role has all permissions, and a `User` role has no permissions. 
+
+By default, there is a `Super Admin` role and a `User` role generated for you where a `Super Admin` role has all permissions, and a `User` role has no permissions.
 This can be updated in the `UserPolicyHandler` if you'd like.
 
-> If you are scaffolding out an auth server using craftsman, `Alice` is a `SuperAdmin` and `Bob` is a `User`.
+### Default Username and Password
+
+If you are scaffolding out an auth server using craftsman, `Alice` is a `Super Admin` and `Bob` is a `User`.
+
+The password for alice is `alice` and the password for bob is `bob`. These are marked as temporary passwords and you will be prompted to change them on login.
 
 ### Assigned Permissions To Roles
+
 The mapping of permissions to roles is the root of your configuration and is done using a prebuilt Domain Entity called `RolePermission`.
 
-> No role-permission mappings are added here by default, so you'll need to add them yourself. Until you do so, a `SuperAdmin` can, by default, do everything.
+> No role-permission mappings are added here by default, so you'll need to add them yourself. Until you do so, a `Super Admin` can, by default, do everything.
 
 ## Tests
+
 There are tests generated for all of the auth features for you so you can safely make changes.
