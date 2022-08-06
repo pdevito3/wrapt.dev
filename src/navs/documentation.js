@@ -55,6 +55,7 @@ export const documentationNav = {
     pages['logging'],
     pages['migrations'],
     pages['permissions'],
+    pages['value-objects'],
   ],
   'Examples': [
     pages['examples'],
