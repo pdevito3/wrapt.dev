@@ -93,3 +93,7 @@ The mapping of permissions to roles is the root of your configuration and is don
 ## Tests
 
 There are tests generated for all of the auth features for you so you can safely make changes.
+
+For integration tests, `TestBase` has a mock of `IHeimGuardClient` that will default to `true` for all permissions. If you want to test
+a specific flow you can do that in an integration test, but I'd recommend doing them in unit tests wherever possible and using
+integration tests for happy path tests as they are more expensive.
