@@ -1,0 +1,326 @@
+---
+title: Value Objects
+description: A walkthrough of working with Value Objects in Wrapt projects
+---
+
+## What are Value Objects?
+
+We use them to group a set of related attributes and behavior related to those attributes.
+
+- Value objects don't have a key, they are just a collection of one or more properties.
+- Like entities should protect themselves from being in an “invalid state”. Meaning, we should validate
+  incoming data in a constructor or in a factory method and do not allow the creation of value.
+  objects that do not conform to business rules.
+- Value objects can be composed of other value objects.
+- Equality is based on values of attributes and nothing else.
+
+### Common Value Objects
+
+When scaffolding a new project >=0.16.0, Craftsman will generate several common Value Objects. You can delete these
+if you don't need them. You can also use them as examples to create your own custom value objects for your domain.
+
+- Percent
+- MonetaryAmount
+- Address
+- Postal Code (child of Address)
+
+### Examples
+
+Let's look at a couple of examples in more detail.
+
+#### Percent
+
+While percentages could be represented with just a `decimal` value, we want to be able to add
+additional rules and capabilities to that concept to have it be able to more accurately reflect how it
+behaves in real life.
+
+In this case, that really just mean making sure that the value is greater than 0, but we can also add operators
+for a better DX.
+
+For example, we might have something like this:
+
+```csharp
+namespace RecipeManagement.Domain.Percents;
+
+using SharedKernel.Domain;
+using FluentValidation;
+
+// source: https://github.com/asc-lab/better-code-with-ddd/blob/ef_core/LoanApplication.TacticalDdd/LoanApplication.TacticalDdd/DomainModel/Percent.cs
+public class Percent : ValueObject
+{
+    public decimal Value { get; }
+
+    public static readonly Percent Zero = new Percent(0M);
+
+    public Percent(decimal value)
+    {
+        if (value < 0)
+            throw new ArgumentException("Percent value cannot be negative");
+
+        Value = value;
+    }
+
+    public static bool operator >(Percent one, Percent two) => one.CompareTo(two)>0;
+
+    public static bool operator <(Percent one, Percent two) => one.CompareTo(two)<0;
+
+    public static bool operator >=(Percent one, Percent two) => one.CompareTo(two)>=0;
+
+    public static bool operator <=(Percent one, Percent two) => one.CompareTo(two)<=0;
+
+    private int CompareTo(Percent other)
+    {
+        return Value.CompareTo(other.Value);
+    }
+
+    protected Percent() { } // EF Core
+}
+
+public static class PercentExtensions
+{
+    public static Percent Percent(this int value) => new Percent(value);
+
+    public static Percent Percent(this decimal value) => new Percent(value);
+}
+```
+
+#### Address
+
+Another one that I think represents this concept well is an `Address`. An address is just
+a collection of various properties (street, city, state, etc) that when combined together,
+always represent teh same location. There isn't a need for an instance of that concept as
+`123 Cherry Street Columbus Ohio` with an id of `1` is the same location as
+`123 Cherry Street Columbus Ohio` with an id of `2`. You can also add business rules around
+various properties, though an `Address` can actually get really complex as the rules vary
+depending where you are in the world.
+
+Craftsman will generate a basic `Address` class like below for you and you can add whatever rules
+make sense for your context. Note that there is also a child value object for `PostalCode` for you
+to use as well. For instance, maybe you have validation rules for `PostalCode` if the country is
+in the US or Canada. You could even expand it further and make a `Country` value object if you want.
+
+```csharp
+namespace RecipeManagement.Domain.Addresses;
+
+using SharedKernel.Domain;
+using FluentValidation;
+
+public class Address : ValueObject
+{
+    /// <summary>
+    /// Address line 1 (e.g., street, PO Box, or company name).
+    /// </summary>
+    public string Line1 { get; }
+
+    /// <summary>
+    /// Address line 2 (e.g., apartment, suite, unit, or building).
+    /// </summary>
+    public string Line2 { get; }
+
+    /// <summary>
+    /// City, district, suburb, town, or village.
+    /// </summary>
+    public string City { get; }
+
+    /// <summary>
+    /// State, county, province, or region.
+    /// </summary>
+    public string State { get; }
+
+    /// <summary>
+    /// ZIP or postal code.
+    /// </summary>
+    public PostalCode PostalCode { get; }
+
+    /// <summary>
+    /// Two-letter country code <a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">(ISO 3166-1 alpha-2)</a>.
+    /// </summary>
+    public string Country { get; }
+
+    public Address(string line1, string line2, string city, string state, string postalCode, string country)
+        : this(line1, line2, city, state, PostalCode.Of(postalCode), country)
+    {
+    }
+
+    public Address(string line1, string line2, string city, string state, PostalCode postalCode, string country)
+    {
+        // TODO country validation
+
+        Line1 = line1;
+        Line2 = line2;
+        City = city;
+        State = state;
+        PostalCode = postalCode;
+        Country = country;
+    }
+}
+
+public class PostalCode : ValueObject
+{
+    public string Value { get; }
+    public PostalCode(string value)
+    {
+        Value = value;
+    }
+
+    public static PostalCode Of(string postalCode) => new PostalCode(postalCode);
+    public static implicit operator string(PostalCode postalCode) => postalCode.Value;
+}
+```
+
+## How to Add a Value Object to an Entity
+
+Whether you're creating your own Value Object, or using an existing one, the below steps are
+normally needed to add a Value Object to an Entity in your project.
+
+Let's look at how we might add an `Address` value object to the `Author` entity from a
+`Complex` Craftsman example (`craftsman new example`).
+
+### Setup Your Entity
+
+There are two steps in this section:
+
+1. Add the property to your entity (i.e. `PhysicalAddress`)
+2. Add manual mappings to your factories
+
+```csharp
+public class Author : BaseEntity
+{
+    [Sieve(CanFilter = true, CanSort = true)]
+    public virtual string Name { get; private set; }
+    public virtual Address PhysicalAddress { get; private set; }
+
+    [JsonIgnore]
+    [IgnoreDataMember]
+    [ForeignKey("Recipe")]
+    public virtual Guid RecipeId { get; private set; }
+    public virtual Recipe Recipe { get; private set; }
+
+
+    public static Author Create(AuthorForCreationDto authorForCreationDto)
+    {
+        new AuthorForCreationDtoValidator().ValidateAndThrow(authorForCreationDto);
+
+        var newAuthor = new Author();
+
+        newAuthor.Name = authorForCreationDto.Name;
+        newAuthor.RecipeId = authorForCreationDto.RecipeId;
+        newAuthor.PhysicalAddress = new Address(authorForCreationDto.PhysicalAddress.Line1,
+            authorForCreationDto.PhysicalAddress.Line2,
+            authorForCreationDto.PhysicalAddress.City,
+            authorForCreationDto.PhysicalAddress.State,
+            authorForCreationDto.PhysicalAddress.PostalCode,
+            authorForCreationDto.PhysicalAddress.Country);
+
+        newAuthor.QueueDomainEvent(new AuthorCreated(){ Author = newAuthor });
+
+        return newAuthor;
+    }
+
+    public void Update(AuthorForUpdateDto authorForUpdateDto)
+    {
+        new AuthorForUpdateDtoValidator().ValidateAndThrow(authorForUpdateDto);
+
+        Name = authorForUpdateDto.Name;
+        RecipeId = authorForUpdateDto.RecipeId;
+        PhysicalAddress = new Address(authorForUpdateDto.PhysicalAddress.Line1,
+            authorForUpdateDto.PhysicalAddress.Line2,
+            authorForUpdateDto.PhysicalAddress.City,
+            authorForUpdateDto.PhysicalAddress.State,
+            authorForUpdateDto.PhysicalAddress.PostalCode,
+            authorForUpdateDto.PhysicalAddress.Country);
+
+        QueueDomainEvent(new AuthorUpdated(){ Id = Id });
+    }
+
+    protected Author() { } // For EF + Mocking
+}
+```
+
+### Update your DTOs
+
+Next, I'm going to update my DTOs. For simple value objects with just one property,
+I can just add a primitive that will be mapped to that value on the `Read` and `Manipulation`
+Dtos, but notice how for a more complex Value Object with multiple properties, I'm going to
+use distinct DTOs objects and put them on the `Create` and `Update` Dtos since the
+inheritance for a nested Dto on `Manipulation` would get overbearing.
+
+```csharp
+    public class AuthorDto
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public AddressDto PhysicalAddress { get; set; }
+        public Guid RecipeId { get; set; }
+    }
+    public class AuthorForCreationDto : AuthorForManipulationDto
+    {
+        public AddressForCreationDto PhysicalAddress { get; set; }
+    }
+    public class AuthorForUpdateDto : AuthorForManipulationDto
+    {
+        public AddressForUpdateDto PhysicalAddress { get; set; }
+    }
+```
+
+### Configure Entity EntityFrameworkCore
+
+Next, you're going to want to tell EF how to read this property. In a Wrapt project, you can just
+update your entity's database config to point each property to a particular column.
+
+```csharp
+public class AuthorConfiguration : IEntityTypeConfiguration<Author>
+{
+    /// <summary>
+    /// The database configuration for Authors.
+    /// </summary>
+    public void Configure(EntityTypeBuilder<Author> builder)
+    {
+        builder.OwnsOne(x => x.PhysicalAddress, opts =>
+        {
+            opts.Property(x => x.Line1).HasColumnName("physical_address_line1");
+            opts.Property(x => x.Line2).HasColumnName("physical_address_line2");
+            opts.Property(x => x.City).HasColumnName("physical_address_city");
+            opts.Property(x => x.State).HasColumnName("physical_address_state");
+            opts.Property(x => x.PostalCode).HasColumnName("physical_address_postal_code")
+                .HasConversion(x => x.Value, x => new PostalCode(x));
+            opts.Property(x => x.Country).HasColumnName("physical_address_country");
+        }).Navigation(x => x.PhysicalAddress);
+    }
+}
+```
+
+### Add a Migration
+
+Speaking of your database, you'll want to add a new database migration.
+
+```bash
+dotnet ef migrations add AddPhysicalAddressToAuthor
+```
+
+### Update Your Tests
+
+Finally, you'll likely need to update some of your assertions to help give fluent assertions a bit more direction.
+Something like the below covers a complex value object example (`PhysicalAddress`) where we
+exclude a complex object and explicity assert it. It also covers a more simple example with `PostalCode`
+where we need to use their property name for the assertion (i.e. `PostalCode.Value`).
+
+```csharp
+    public void can_update_author()
+    {
+        // Arrange
+        var fakeAuthor = FakeAuthor.Generate();
+        var updatedAuthor = new FakeAuthorForUpdateDto().Generate();
+
+        // Act
+        fakeAuthor.Update(updatedAuthor);
+
+        // Assert
+        fakeAuthor.Should().BeEquivalentTo(updatedAuthor, options =>
+            options.ExcludingMissingMembers()
+                .Excluding(x => x.PhysicalAddress));
+        fakeAuthor.PhysicalAddress.Should().BeEquivalentTo(updatedAuthor.PhysicalAddress,
+            options => options.Excluding(x => x.PostalCode));
+        fakeAuthor.PhysicalAddress.PostalCode.Value.Should().BeEquivalentTo(updatedAuthor.PhysicalAddress.PostalCode);
+    }
+```
