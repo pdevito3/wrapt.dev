@@ -33,12 +33,14 @@ environments, you will need to set these properties in that new environment as w
 
 ### Broker Settings
 
-| Name        | Required | Description                                                                                                     | Default     |
-| ----------- | -------- | --------------------------------------------------------------------------------------------------------------- | ----------- |
-| Host        | Yes      | The host for the broker connection                                                                              | _localhost_ |
-| VirtualHost | Yes      | The virtual host of the broker. This provides a way to segregate applications using the same RabbitMQ instance. | _/_         |
-| Username    | Yes      | The username for the broker connection                                                                          | _guest_     |
-| Password    | Yes      | The password for the broker connection.                                                                         | _guest_     |
+| Name        | Required | Description                                                                                                     | Default            |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Host        | Yes      | The host for the broker connection                                                                              | _localhost_        |
+| VirtualHost | Yes      | The virtual host of the broker. This provides a way to segregate applications using the same RabbitMQ instance. | _/_                |
+| Username    | Yes      | The username for the broker connection                                                                          | _guest_            |
+| Password    | Yes      | The password for the broker connection                                                                          | _guest_            |
+| BrokerPort  | Yes      | The port used for the RMQ message broker                                                                        | _Random Free Port_ |
+| UiPort      | Yes      | The port used for the RMQ management ui                                                                         | _Random Free Port_ |
 
 ### Example with Auth and Broker Settings
 

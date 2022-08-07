@@ -7,48 +7,27 @@ For more information on Duende and how to configure an auth server, please see [
 
 ## Add Auth Server Template Properties
 
-| Name    | Required | Description                                                                                                                  | Default | Notes |
-| ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------- | ------- | ----- |
-| Name    | Yes      | The name of your auth server                                                                                                 | _None_  |       |
-| Port    | Yes      | A 4 digit integer that designates your auth server port.                                                                     | _None_  |       |
-| Scopes  | No       | A list of the api Scopes that you'd like to add to your auth server.                                                         | _None_  |       |
-| Clients | No       | A list of the various clients (applications) using your auth server.                                                         | _None_  |       |
-| Apis    | No       | A list of the apis that will be using your auth server. This would generally be a boundary scaffolded by an `add bc` command | _None_  |       |
+| Name      | Required | Description                                                                              | Default                                                 | Notes |
+| --------- | -------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------- | ----- |
+| Name      | Yes      | The name of your auth server scaffolding project                                         | _None_                                                  |       |
+| RealmName | Yes      | The name of your auth server's Keycloak Realm (essentially a Tenant)                     | _None_                                                  |       |
+| Port      | No       | An integer that designates your auth server port.                                        | A random free port will be selected if none is provided |       |
+| Username  | No       | The root username for getting into Keycloak                                              | _admin_                                                 |       |
+| Password  | No       | The root password for getting into Keycloak                                              | _admin_                                                 |       |
+| Clients   | No       | A list of the various [AuthClients](#auth-client) (applications) using your auth server. | _None_                                                  |       |
 
-### Scopes
+### AuthClient
 
-| Name        | Required | Description                                 | Default | Notes |
-| ----------- | -------- | ------------------------------------------- | ------- | ----- |
-| Name        | Yes      | The name of the api scope.                  | _None_  |       |
-| DisplayName | Yes      | The user friendly name of this scope.       | _None_  |       |
-| UserClaims  | No       | The claims you'd like to add for your user. | _None_  |       |
-
-### Clients
-
-| Name                   | Required | Description                                                                                                                     | Default                                               | Notes |
-| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----- |
-| Id                     | Yes      | The client id for this app.                                                                                                     | _None_                                                |       |
-| Name                   | Yes      | The name of your client                                                                                                         | _None_                                                |       |
-| Secrets                | No       | A list of secrets you'd like to add to your client.                                                                             | _Random Guid_                                         |       |
-| GrantType              | No       | The grant type to dictate which auth flow you want to configure. Can be set to `ClientCredentials` or `Code`. Case insensitive. | _`Code`_                                              |       |
-| RedirectUris           | Yes      | A list of strings to determine your acceptable callback URIs. This is generally going to be your front end client.              | _None_                                                |       |
-| PostLogoutRedirectUris | Yes      | A list of strings to determine your acceptable post logout URIs. Again, this is generally going to be your front end client.    | _None_                                                |       |
-| AllowedCorsOrigins     | Yes      | A list of strings to determine the allowed origins to accommodate CORS.                                                         | _None_                                                |       |
-| FrontChannelLogoutUri  | Yes      | Specifies logout URI at client for HTTP front-channel based logout.                                                             | _None_                                                |       |
-| AllowOfflineAccess     | No       | Determines whether or not this client is accessible offline.                                                                    | _true_                                                |       |
-| RequirePkce            | No       | Specifies whether a proof key is required for authorization code based token requests.                                          | _true_                                                |       |
-| RequireClientSecret    | No       | If set to false, no client secret is needed to request tokens at the token endpoint.                                            | _true_                                                |       |
-| AllowedScopes          | No       | Specifies the api scopes that the client is allowed to request. If empty, the client can't access any scope.                    | If `Code` grant, `openid & profile`, otherwise _None_ |       |
-
-### Apis
-
-| Name        | Required | Description                                                                                                           | Default          | Notes |
-| ----------- | -------- | --------------------------------------------------------------------------------------------------------------------- | ---------------- | ----- |
-| Name        | Yes      | The name of the api.                                                                                                  | _None_           |       |
-| DisplayName | Yes      | The user friendly name of this api.                                                                                   | _None_           |       |
-| ScopeNames  | Yes      | The names of the scopes that this api cares about. This should match with values in the `Name` property of a `Scope`. | _None_           |       |
-| Secrets     | No       | A list of secrets you'd like to add to your api.                                                                      | _Random Guid_    |       |
-| UserClaims  | No       | The claims you'd like to add for your api by default.                                                                 | _openid profile_ |       |
+| Name               | Required | Description                                                                                                                     | Default       | Notes                                                                                 |
+| ------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------- |
+| Id                 | Yes      | The client id for this app.                                                                                                     | _None_        |                                                                                       |
+| Name               | Yes      | The name of your client                                                                                                         | _None_        |                                                                                       |
+| BaseUrl            | Yes      | The url for the given client (e.g. `https://localhost:5375/`)                                                                   | _None_        |                                                                                       |
+| Secret             | No       | The secret you'd like to use for this client.                                                                                   | _Random Guid_ |                                                                                       |
+| GrantType          | No       | The grant type to dictate which auth flow you want to configure. Can be set to `ClientCredentials` or `Code`. Case insensitive. | _Code_        |                                                                                       |
+| RedirectUris       | No       | A list of strings to determine your acceptable callback URIs. This is generally going to be your front end client.              | _BaseUrl/\*_  |                                                                                       |
+| AllowedCorsOrigins | No       | A list of strings to determine the allowed origins to accommodate CORS.                                                         | _BaseUrl_     |                                                                                       |
+| Scopes             | No       | Specifies the api scopes that the client is allowed to request.                                                                 | _None_        | This should match the audience scope in your boundary auth settings and swagger specs |
 
 ## Add Auth Server Template Examples
 
@@ -58,10 +37,14 @@ In this example, I'm setting up an auth server on port 3385 with a single client
 have protected endpoints configured for this auth server. Finally, we have read only and individual feature permissions for the features.
 
 ```yaml
-DomainName: CarbonKitchen
+DomainName: RecipeManagementApi
 BoundedContexts:
   - ProjectName: RecipeManagement
-    # db context info here
+    Port: 5375
+    DbContext:
+      ContextName: RecipesDbContext
+      DatabaseName: RecipeManagement
+      Provider: Postgres
     Entities:
       - Name: Recipe
         Features:
@@ -77,82 +60,74 @@ BoundedContexts:
             IsProtected: true
           - Type: DeleteRecord
             IsProtected: true
+          - Type: PatchRecord
+            IsProtected: true
         Properties:
-          # entity properties here
+          - Name: Title
+            Type: string
+            CanFilter: true
+            CanSort: true
+          - Name: Visibility
+            SmartNames:
+              - Public
+              - Friends Only
+              - Private
+            CanFilter: true
+            CanSort: true
+          - Name: Directions
+            Type: string
+            CanFilter: true
+            CanSort: true
+          - Name: Rating
+            Type: int?
+            CanFilter: true
+            CanSort: true
     Environment:
-      Authority: https://localhost:3385
-      Audience: recipe_management
-      AuthorizationUrl: https://localhost:3385/connect/authorize
-      TokenUrl: https://localhost:3385/connect/token
-      ClientId: recipemanagement.swagger
-      ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
+      AuthSettings:
+        Authority: http://localhost:3255/auth/realms/DevRealm
+        Audience: recipe_management
+        AuthorizationUrl: http://localhost:3255/auth/realms/DevRealm/protocol/openid-connect/auth
+        TokenUrl: http://localhost:3255/auth/realms/DevRealm/protocol/openid-connect/token
+        ClientId: recipe_management.swagger
+        ClientSecret: 974d6f71-d41b-4601-9a7a-a33081f80687
 AuthServer:
-  Name: CarbonAuthServer
-  Port: 3385
+  Name: KeycloakPulumi
+  RealmName: DevRealm
+  Port: 3255
   Clients:
-    - Id: recipemanagement.swagger
-      Name: RM Swagger
-      Secrets:
-        - 974d6f71-d41b-4601-9a7a-a33081f80687
+    - Id: recipe_management.postman.machine
+      Name: RecipeManagement Postman Machine
+      Secret: 974d6f71-d41b-4601-9a7a-a33081f84682
+      GrantType: ClientCredentials
+      BaseUrl: "https://oauth.pstmn.io/"
+      Scopes:
+        - recipe_management #this should match the audience scope in your boundary auth settings and swagger specs
+    - Id: recipe_management.postman.code
+      Name: RecipeManagement Postman Code
+      Secret: 974d6f71-d41b-4601-9a7a-a33081f84680 #optional
+      GrantType: Code
+      BaseUrl: "https://oauth.pstmn.io/"
+      Scopes:
+        - recipe_management #this should match the audience scope in your boundary auth settings and swagger specs
+    - Id: recipe_management.swagger
+      Name: RecipeManagement Swagger
+      Secret: 974d6f71-d41b-4601-9a7a-a33081f80687
+      GrantType: Code
+      BaseUrl: "https://localhost:5375/"
+      Scopes:
+        - recipe_management #this should match the audience scope in your boundary auth settings and swagger specs
+    - Id: recipe_management.bff
+      Name: RecipeManagement BFF
+      Secret: 974d6f71-d41b-4601-9a7a-a33081f80688
+      BaseUrl: "https://localhost:4378/"
       GrantType: Code
       RedirectUris:
-        - "https://localhost:5375/swagger/oauth2-redirect.html"
-      PostLogoutRedirectUris:
-        - "http://localhost:5375/"
+        - "https://localhost:4378/signin-oidc"
       AllowedCorsOrigins:
-        - "https://localhost:5375"
-      FrontChannelLogoutUri: "http://localhost:5375/signout-oidc"
-      AllowOfflineAccess: true
-      RequirePkce: true
-      RequireClientSecret: true
-      AllowPlainTextPkce: false
-      AllowedScopes:
-        - recipe_management
-        - role
-        - openid
-        - profile
-  Scopes:
-    - Name: recipe_management
-      DisplayName: Recipes Management - API Access
-  Apis:
-    - Name: recipe_management
-      DisplayName: Recipe Management
-      ScopeNames:
-        - recipe_management
-      Secrets:
-        - 4653f605-2b36-43eb-bbef-a93480079f20
-      UserClaims:
-        - openid
-        - profile
-        - role
-```
-
-If you were configuring a Duende BFF, the clinet might look like this:
-
-```yaml
-Clients:
-  - Id: react.bff
-    Name: React BFF
-    Secrets:
-      - b7449b67-f691-4200-a944-9787b02da60a
-    GrantType: Code
-    RedirectUris:
-      - "https://localhost:bffPort/signin-oidc"
-    PostLogoutRedirectUris:
-      - "https://localhost:bffPort/signout-callback-oidc"
-    AllowedCorsOrigins:
-      - "https://localhost:apiPort"
-      - "https://localhost:bffPort"
-    FrontChannelLogoutUri: "https://localhost:bffPort/signout-oidc"
-    AllowOfflineAccess: true
-    RequirePkce: true
-    RequireClientSecret: true
-    AllowPlainTextPkce: false
-    AllowedScopes:
-      - recipemanagement.readonly
-      - recipemangement.fullaccess
-      - openid
-      - profile
+        - "https://localhost:5375" # api 1 - recipe_management
+        - "https://localhost:4378"
+      Scopes:
+        - recipe_management #this should match the audience scope in your boundary auth settings and swagger specs
 ```
 
 ### Adding a Auth Server to an Existing Project
@@ -161,47 +136,41 @@ If you've already created your Wrapt project and want to add an Auth Server afte
 This looks the same as above, you just need the auth server part:
 
 ```yaml
-AuthServer:
-  Name: CarbonAuthServer
-  Port: 3385
-  Clients:
-    - Id: recipemanagement.swagger
-      Name: RM Swagger
-      Secrets:
-        - 974d6f71-d41b-4601-9a7a-a33081f80687
-      GrantType: Code
-      RedirectUris:
-        - "https://localhost:5375/swagger/oauth2-redirect.html"
-      PostLogoutRedirectUris:
-        - "http://localhost:5375/"
-      AllowedCorsOrigins:
-        - "https://localhost:5375"
-      FrontChannelLogoutUri: "http://localhost:5375/signout-oidc"
-      AllowOfflineAccess: true
-      RequirePkce: true
-      RequireClientSecret: true
-      AllowPlainTextPkce: false
-      AllowedScopes:
-        - recipemanagement.readonly
-        - recipemangement.fullaccess
-        - openid
-        - profile
-  Scopes:
-    - Name: recipemanagement.readonly
-      DisplayName: Recipes - Read Only
-      UserClaims:
-        - recipes.read
-    - Name: recipemangement.fullaccess
-      DisplayName: Recipes - Full Access
-  Apis:
-    - Name: recipe_management
-      DisplayName: Recipe Management
-      ScopeNames:
-        - recipemanagement.readonly
-        - recipemangement.fullaccess
-      Secrets:
-        - 4653f605-2b36-43eb-bbef-a93480079f20
-      UserClaims:
-        - openid
-        - profile
+Name: KeycloakPulumi
+RealmName: DevRealm
+Port: 3255
+Clients:
+  - Id: recipe_management.postman.machine
+    Name: RecipeManagement Postman Machine
+    Secret: 974d6f71-d41b-4601-9a7a-a33081f84682
+    GrantType: ClientCredentials
+    BaseUrl: "https://oauth.pstmn.io/"
+    Scopes:
+      - recipe_management #this should match the audience scope in your boundary auth settings and swagger specs
+  - Id: recipe_management.postman.code
+    Name: RecipeManagement Postman Code
+    Secret: 974d6f71-d41b-4601-9a7a-a33081f84680 #optional
+    GrantType: Code
+    BaseUrl: "https://oauth.pstmn.io/"
+    Scopes:
+      - recipe_management #this should match the audience scope in your boundary auth settings and swagger specs
+  - Id: recipe_management.swagger
+    Name: RecipeManagement Swagger
+    Secret: 974d6f71-d41b-4601-9a7a-a33081f80687
+    GrantType: Code
+    BaseUrl: "https://localhost:5375/"
+    Scopes:
+      - recipe_management #this should match the audience scope in your boundary auth settings and swagger specs
+  - Id: recipe_management.bff
+    Name: RecipeManagement BFF
+    Secret: 974d6f71-d41b-4601-9a7a-a33081f80688
+    BaseUrl: "https://localhost:4378/"
+    GrantType: Code
+    RedirectUris:
+      - "https://localhost:4378/signin-oidc"
+    AllowedCorsOrigins:
+      - "https://localhost:5375" # api 1 - recipe_management
+      - "https://localhost:4378"
+    Scopes:
+      - recipe_management #this should match the audience scope in your boundary auth settings and swagger specs
 ```
