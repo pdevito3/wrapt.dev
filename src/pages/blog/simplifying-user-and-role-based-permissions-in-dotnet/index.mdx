@@ -342,6 +342,11 @@ When this is added, you HeimGuard will automatically check the user's permission
         }
     }
 ```
+> ⭐️ Since writing this post, I've come to find that I actually prefer just using an `Authorize` attribute like this and using `HeimGuard` to 
+directly check permissions like this my injecting it into my MediatR handlers that I call from my controllers. I like this because it 
+consolidates the business permissions to one spot (the vertically sliced handler) and makes it so I don't have to worry about a policy config. Regardless, 
+whatever floats your boat!
+
     
 3. `MapAuthorizationPolicies` will automatically map authorization attributes to ASP.NET Core authorization policies that haven't already been mapped. That means you don't have to do something like this for all your policies:
     
