@@ -506,7 +506,7 @@ export default function Home() {
           <div className="mt-12 space-y-10 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-6 lg:grid-cols-3 lg:gap-x-8">
             <FeatureBlock 
               title={'Automated HTTP Endpoint Generation'} 
-              // details={'Every entity will have GET, POST, PUT, PATCH, and DELETE endpoints automatically generated for you so you can hit the ground running right away.'} 
+              // details={'Every entity will have GET, POST, PUT, and DELETE endpoints automatically generated for you so you can hit the ground running right away.'} 
             />
             <FeatureBlock 
               title={'Vertical Slice Architecture'} 

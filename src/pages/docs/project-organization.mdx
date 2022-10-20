@@ -185,7 +185,7 @@ Request validation is just us making sure that the data in the request itself is
 Wrapt projects bring in [Fluent Validation](https://fluentvalidation.net/) for you to use if you would like. Data annotations or built in domain validation are two other options as well. Feel free to use whatever works best for you!
 The main goal here is that you are able to validate the data that is coming in to your API.
 
-If you're using fluent validation, validation rules can be assigned to the `ENTITYForManipulationDtoValidator` class if you'd like the rule to be run on both creation (POST calls) and update (PUT, PATCH). If you'd like a rule to just be ran on one or the other, you can add the rule to
+If you're using fluent validation, validation rules can be assigned to the `ENTITYForManipulationDtoValidator` class if you'd like the rule to be run on both creation (POST calls) and update (PUT). If you'd like a rule to just be ran on one or the other, you can add the rule to
 the respective validator class. You might also consider a validator for your domain entity directly.
 
 The OOTB rules for Fluent Validation are pretty robust, but if you need to make a custom validation rule, something like
@@ -324,7 +324,7 @@ Wrapt will automatically scaffold out unit, integration and functional tests for
 Entity props are `virtual` by default with a `protected` constructor for mocking in unit tests. This is mostly for foreign entities (since we don't
 have EF to populate our foreign entities in unit tests), but in order to have our mocks accurately reflect all our props, we need to make them virtual. For example:
 
-```c#
+```csharp
 private static Author GetMockAuthor()
 {
   	// my fake data base generated with AutoBogus under the hood

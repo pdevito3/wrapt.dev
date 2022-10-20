@@ -50,7 +50,7 @@ export const documentationNav = {
     pages['swagger'],
   ],
   'Additional Resources': [
-    pages['all-about-auth-in-dotnet-core'],
+    pages['auth-with-wrapt'],
     pages['communicating-between-bounded-contexts'],
     pages['logging'],
     pages['migrations'],

@@ -10,19 +10,18 @@ a clinical domain, I might have front desk, billing, laboratory, and reporting c
 
 ## Bounded Contexts Properties
 
-| Name                                                  | Required | Description                                                                                                                                                                | Default |
-| ----------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| ProjectName                                           | Yes      | A simple string that will become the name of your solution within a bounded context.                                                                                       | _None_  |
-| [DbContext](/docs/db-context)                         | Yes      | The db context setup for this project.                                                                                                                                     | _None_  |
-| [Entities](/docs/entities)                            | Yes      | A list of entities to create database endpoints.                                                                                                                           | _None_  |
-| [SwaggerConfig](/docs/swagger)                        | No       | The swagger configuration for this API.                                                                                                                                    | _None_  |
-| [Environment](/docs/environment)                      | No       | The environment settings in launch settings for your local development.                                                                                                    | _None_  |
-| [AuthorizationSettings](/docs/authorization-settings) | No       | The authorization settings assigned to this project.                                                                                                                       | _None_  |
-| [Producers](/docs/producer-template)                  | No       | The MassTransit producers in your project.                                                                                                                                 | _None_  |
-| [Consumers](/docs/consumer-template)                  | No       | The MassTransit consumers in your project.                                                                                                                                 | _None_  |
-| [Bus](/docs/bus-template)                             | No       | The MassTransit message bus in your project. When used in this context, **the environment properties should be set in the `Environment` property of the bounded context.** | _None_  |
-| Port                                                  | No       | The port that will be used on localhost for this project.                                                                                                                  | _5000_  |
-| UseSoftDelete                                         | No       | A boolean that dictates whether or not your `BaseEntity` and `DbContext` will be configured for a soft delete.                                                             | _true_  |
+| Name                                 | Required | Description                                                                                                                                                                | Default |
+| ------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| ProjectName                          | Yes      | A simple string that will become the name of your solution within a bounded context.                                                                                       | _None_  |
+| [DbContext](/docs/db-context)        | Yes      | The db context setup for this project.                                                                                                                                     | _None_  |
+| [Entities](/docs/entities)           | Yes      | A list of entities to create database endpoints.                                                                                                                           | _None_  |
+| [SwaggerConfig](/docs/swagger)       | No       | The swagger configuration for this API.                                                                                                                                    | _None_  |
+| [Environment](/docs/environment)     | No       | The environment settings in launch settings for your local development.                                                                                                    | _None_  |
+| [Producers](/docs/producer-template) | No       | The MassTransit producers in your project.                                                                                                                                 | _None_  |
+| [Consumers](/docs/consumer-template) | No       | The MassTransit consumers in your project.                                                                                                                                 | _None_  |
+| [Bus](/docs/bus-template)            | No       | The MassTransit message bus in your project. When used in this context, **the environment properties should be set in the `Environment` property of the bounded context.** | _None_  |
+| Port                                 | No       | The port that will be used on localhost for this project.                                                                                                                  | _5000_  |
+| UseSoftDelete                        | No       | A boolean that dictates whether or not your `BaseEntity` and `DbContext` will be configured for a soft delete.                                                             | _true_  |
 
 > Note that the ProjectName should NOT be the same as an entity name or it will cause namespace issues.
 

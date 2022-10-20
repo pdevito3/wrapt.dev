@@ -31,11 +31,11 @@ A list of properties that can be assigned to a BFF entity.
 
 ### BFF Features
 
-| Name           | Required | Description                                                                                                                                                                                                                                              | Default            |
-| -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_             |
-| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                               | _false_            |
-| PermissionName | No       | The name of the authorization policy attribute.                                                                                                                                                                                                          | _Can[FEATURENAME]_ |
+| Name           | Required | Description                                                                                                                                                                                                                               | Default            |
+| -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_             |
+| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                | _false_            |
+| PermissionName | No       | The name of the authorization policy attribute.                                                                                                                                                                                           | _Can[FEATURENAME]_ |
 
 `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, and `AddRecord` are all standard CRUD features along with their endpoints and associated tests. Additional
 features from your boundary scaffolding need to be manually configured.
