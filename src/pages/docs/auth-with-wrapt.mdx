@@ -111,3 +111,4 @@ to manage users in your billing boundary separate from your inventory boundary, 
 
 - This will use the `UserPolicyHandler` logic to check if a user meets the given criteria. The implementation of HeimGuard's `UserPolicyHandler` in the scaffolding will still
   check the token to see who you are Authenticated as, but will get the user's roles based on the configuration for that authenticated user within the boundary using the new concepts and logic described above.
+- Users are not allowed to do things based on their role directly, but based on the permissions they get based on what permissions are grouped under a given role that user is assigned.
