@@ -45,13 +45,13 @@ A list of properties that can be assigned to an entity.
 
 ### Features
 
-| Name           | Required | Description                                                                                                                                                                                                                                              | Default            |
-| -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_             |
-| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                               | _false_            |
-| PermissionName | No       | The name of the authorization policy attribute.                                                                                                                                                                                                          | _Can[FEATURENAME]_ |
+| Name           | Required | Description                                                                                                                                                                                                                               | Default            |
+| -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_             |
+| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                | _false_            |
+| PermissionName | No       | The name of the authorization policy attribute.                                                                                                                                                                                           | _Can[FEATURENAME]_ |
 
-`GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `PatchRecord`, `AddRecord`, and `AddListByFk` are all standard CRUD features along with their endpoints and associated tests.
+`GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `AddListByFk` are all standard CRUD features along with their endpoints and associated tests.
 
 > ℹ DTOs, validators, profiles and functional test routes associated to all features will be added regardless of whether or not a given feature was added. This is due to the complexity of all
 > the minute management around handling these so dynamically. Feel free to delete whatever you're not using.
@@ -171,7 +171,7 @@ This example would create a supplier entity with several properties. Note:
 - We have normal and nullable primitives in the `Type` option
 - We have marked the properties as sortable and filterable
 - We have given a default value for `IsVip`
-- We are adding all the available features except for `PatchRecord`. We're also adding an `AdHoc` feature for use for batch adding suppliers.
+- We are adding all the available features. We're also adding an `AdHoc` feature for use for batch adding suppliers.
 
 ```yaml
 Entities:
@@ -317,8 +317,6 @@ Entities:
       - Type: UpdateRecord
         IsProtected: true
       - Type: DeleteRecord
-        IsProtected: true
-      - Type: PatchRecord
         IsProtected: true
     Properties:
       - Name: Title

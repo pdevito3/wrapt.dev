@@ -32,7 +32,7 @@ The CLI will prompt your for the following items from [the producer template](/d
 One thing that Craftsman won't be able to do for you here is update your existing tests to capture the new producer you just registered. To do this, you'll want to
 add something like the below to your feature tests for the new producer you registered.
 
-```c#
+```csharp
 (await IsFaultyPublished<MESSAGENAME>()).Should().BeFalse();
 (await IsPublished<MESSAGENAME>()).Should().BeTrue();
 ```

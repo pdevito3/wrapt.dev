@@ -1,0 +1,113 @@
+---
+title: AuthN and AuthZ with a Wrapt Project
+description: This is a summary of the auth setup in a Wrapt project.
+---
+
+## The Basics
+
+When you hear 'Auth', it usually means one of two things:
+
+1. **Authentication** (AuthN): are you who you say you are?
+2. **Authorization** (AuthZ): do you have permission to access something?
+
+## Authentication
+
+Figuring out if you are are you say you are is a very complex process performed by a distinct Authentication Server. There are several providers that you can offload this responsibility to including [Auth0](https://auth0.com),
+[Keycloak](https://www.keycloak.org/), and [Fusion Auth](https://fusionauth.io/) to name a few. Microsoft Azure and AWS also have [Azure Active Directory](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-whatis)
+and [AWS Cognito](https://aws.amazon.com/cognito/) respectively as well. Unless you have access to Security SMEs, it is highly recommended that you use a provider like one of these whenever possible. With that said, if you do decide to home roll
+your Authorization Server, [Duende](https://duendesoftware.com/) (previously [Identity Server 4](https://identityserver4.readthedocs.io/en/latest/)), will give you a good foundation.
+
+Regardless, of your choice, **Wrapt Web APIs are built to be authentication provider agnostic**, though it does bundle a basic KeyCloak configuration in your `docker-compose` along
+with a basic [Pulumi](https://www.pulumi.com/) project if you'd like to use that for an easy kick off point.
+
+In a Wrapt project, things will be set up to use the built in .NET support for OIDC (a simple identity layer on top of the OAuth standard to convey the concept of a user) and, when appropriate, check for
+a valid JWT with the request. No need for cookies as that's a frontend concern for storing the JWT.Additionally, Swagger will be configured to handle authentication with your provider out of the box.
+
+To set up authentication in your wrapt project, you can configure the given `AuthSettings` for your provider in [your environment](/docs/environment).
+
+## Authorization
+
+Authorization in Wrapt projects uses the built in .NET capabilities and is extended using [HeimGuard](https://github.com/pdevito3/HeimGuard). Protected features will have their endpoints guarded at the
+controller level using the built in `[Authorize]` attribute, but guarding against specific permissions uses `HeimGuard` in a feature's MediatR handler with something like this:
+
+```csharp
+await _heimGuard.MustHavePermission<ForbiddenAccessException>(Permissions.CanAddRecipes);
+```
+
+This will reach out to the `UserPolicyHandler` to see if the user has a given permission and throw an error if they don't. You can also do something like `_heimGuard.HasPermissionAsync(Permissions.CanAddRecipes)`
+to perform logic around the permission if you don't want to throw an error.
+
+## Concepts
+
+Wrapt has a few baked in concepts to go through.
+
+### Users
+
+When using auth, Craftsman will scaffold a `User` entity. These are representations of the users stored on your auth server within the context of your given boundary. They key to
+your auth server users using the `Identifier` property (generally populated with the `NameIdentifier` on your token).
+
+> ⭐️ Your Auth Server (e.g. KeyCloak) is still be responsible for storing and authenticating your users/clients along with providing a token, but it's _only_ role is now AuthN.
+
+So you can add a user on your auth server to give us the ability to know who your are and provide verification of that, but when interacting with the api, you need to add that user
+to the `Users` table to give the api the concept of that user within that given boundary. This could be enhanced from the OOTB solution by adding eventual
+consistency to automatically add users to your api when they are added to your auth server.
+
+### Permissions
+
+Permissions are the hear of what guard the ability to do things within our API. We can use HeimGuard to check and see if a User has a given permissions and guard our handlers accordingly. These
+permissions are stored as constants in the app as any change around these will require a code change so it doesn't really make sense to have these be database driven.
+
+### Roles and UserRoles
+
+Roles are **not used to guard against actions** directly, instead, they are how we group permissions together and assign those permissions to a User (using the `UserRole` entity). This allows us to
+Currently, like permissions, roles are stored as constants, but I will likely update these to be database driven in the near future. As with anything in a scaffolded project, feel free
+to update your project to behave this way in the meantime if that's what makes sense for you.
+
+> 💡 Auth server roles will have no bearing on the `Role` concept within a Wrapt project out of the box.
+
+When starting a project, you will have a `Super Admin` role and a `User` role. You can update these however you want
+
+> 🦾 By default, Users with a `Super Admin` role get all permissions.
+
+Users can be managed at the `/users` endpoints. This includes adding and removing their roles (`UserRole`) as user roles have no standalone meaning without a user.
+
+### UserPolicyHandler
+
+The `UserPolicyHandler` is the service that works with HeimGuard act as our primary layer to easily check if a user has a given permission. Out of the box, you get a basic setup that could be enhanced
+in a variety of ways depending on your needs:
+
+- Add another check to assign (or revoke) ad-hoc permissions to particular users using a new `UserPermission` entity (or whatever you want to call it)
+- Add/Remove permissions based on whether or not a user has a particular license (new concept you would need to add)
+- Add a Redis cache for better perf
+
+### Root User
+
+When starting your api for the first time, you will not have any `User` or `UserRole` entries. To add an initial root user, you just need to authenticate (e.g. swagger) and hit a protected endpoint.
+This is because, by default, the `UserPolicyHandler` will now check if you have any users and, if not, add the requesting user as a root user with `Super Admin` access. As always, this can updated to whatever
+fits your workflow.
+
+### Clients/Machines
+
+For a machine/client, you would currently add them as a user and assign them one or more roles, though I want to make a smoother process in the future.
+
+### Multiple Boundaries
+
+If you have multiple boundaries, you can make the call on how you manage things. By default each boundary will store its own set of users and roles. This might be useful if say you want
+to manage users in your billing boundary separate from your inventory boundary, but you may want to combine them too. Feel free to consolidate this as you wish if desired.
+
+### Summary
+
+- Your Auth Server (e.g. KeyCloak) be responsible for storing and authenticating your users/clients along with providing a token, but it's _only_ role is now AuthN.
+- `Authorize` attributes on your controllers will use the built in .NET capabilities to guard for application level access by checking if the request has a valid JWT from your auth server
+- Feature and business level access can be handled in your MediatR handlers with HeimGuard, for example:
+
+  ```csharp
+  await _heimGuard.HasPermissionAsync(Permissions.CanAddRecipe)
+        ? DoOneFlow()
+        : DoAnotherFlow();
+  // OR...
+  await _heimGuard.MustHavePermission<ForbiddenAccessException>(Permissions.CanAddRecipe);
+  ```
+
+- This will use the `UserPolicyHandler` logic to check if a user meets the given criteria. The implementation of HeimGuard's `UserPolicyHandler` in the scaffolding will still
+  check the token to see who you are Authenticated as, but will get the user's roles based on the configuration for that authenticated user within the boundary using the new concepts and logic described above.
