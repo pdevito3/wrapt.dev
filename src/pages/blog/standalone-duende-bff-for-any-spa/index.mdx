@@ -1,0 +1,481 @@
+import { pauldevito } from "src/data/authors";
+import image from "./card.png";
+
+export const blogmeta = {
+  title: "Creating a Standalone Duende BFF for any SPA",
+  description: `Let's expand on the prior Duende BFF post and see how to set up a standalone Duende BFFthat works with any SPA!`,
+  date: "2023-01-07 23:55:39", // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: "Security",
+  image,
+  tags: ["security", "dotnet", "net7", "react"],
+};
+
+# Creating a Standalone Duende BFF for any SPA
+
+## Summary
+
+Welcome to this tutorial on creating a standalone Duende BFF for any Single Page Application (SPA)! This post will expand on my [previous writeup](https://wrapt.dev/blog/using-duende-bff-with-react) about using Duende BFF with React. In this example, we'll not longer be required to integrate our SPA with our BFF or limited by .NET javascript integrations. Instead, we'll create a standalone .NET app that will use Duende BFF and allow any SPA to leverage it's server side capabliities -- especailly the easy OIDC integration and session management in an HttpOnly cookie that Duende offers.
+
+To do this, we will use a reverse proxy to forward messages from the SPA to our .NET app.
+
+Let's get started!
+
+### Example Repo
+
+There are two repos:
+
+- [The backend](https://github.com/pdevito3/StandaloneBffExample) that is composed of the projects:
+  - An api that captures recipes
+  - A Pulumi project for quickly spinning up a Keycloak auth server
+  - The standalone bff
+- [The SPA Frontend](https://github.com/pdevito3/StandaloneBffExampleFrontend)
+
+## Creating the BFF
+
+Now that we don't have to worry about integrating any javascript into our .NET app, our BFF becomes much more straightforward.
+
+### Create the Project
+
+To start, let's create an empty .NET Core Web app.
+
+```bash
+dotnet new sln -o StandaloneBff
+cd StandaloneBff
+dotnet new web -o StandaloneBff
+dotnet sln add StandaloneBff/StandaloneBff.csproj
+```
+
+Then, let's add some nuget packages:
+
+```bash
+dotnet add package Duende.BFF --version 2.0.0 Duende.BFF.Yarp --version 2.0.0 Microsoft.AspNetCore.Authentication.OpenIdConnect --version 7.0.1
+```
+
+### Add the BFF Plumbing
+
+Then let's update our `Program.cs` to look like this.
+
+```csharp
+using Duende.Bff.Yarp;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddBff()
+    .AddRemoteApis();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = "cookie";
+        options.DefaultChallengeScheme = "oidc";
+        options.DefaultSignOutScheme = "oidc";
+    })
+    .AddCookie("cookie", options =>
+    {
+        options.Cookie.Name = "__Host-Standalone-bff";
+        options.Cookie.SameSite = SameSiteMode.Strict;
+    })
+    .AddOpenIdConnect("oidc", options =>
+    {
+        options.Authority = Environment.GetEnvironmentVariable("AUTH_AUTHORITY");
+        options.ClientId = Environment.GetEnvironmentVariable("AUTH_CLIENT_ID");
+        options.ClientSecret = Environment.GetEnvironmentVariable("AUTH_CLIENT_SECRET");
+        options.ResponseType = "code";
+        options.ResponseMode = "query";
+        options.UsePkce = true;
+
+        options.GetClaimsFromUserInfoEndpoint = true;
+        options.MapInboundClaims = false;
+        options.SaveTokens = true;
+
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+        options.Scope.Add("recipe_management");
+
+        options.TokenValidationParameters = new()
+        {
+            NameClaimType = "name",
+            RoleClaimType = "role"
+        };
+    });
+
+var app = builder.Build();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseBff();
+app.UseAuthorization();
+
+app.MapBffManagementEndpoints();
+
+app.MapControllers()
+    .RequireAuthorization()
+    .AsBffApiEndpoint();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapRemoteBffApiEndpoint("/api", "https://localhost:5375/api")
+        .RequireAccessToken();
+});
+
+await app.RunAsync();
+```
+
+- The beginning of this is pretty standard with the web hostbuilder and controller registration
+- The `AddBff` and `AddRemoteApis` methods are called to add support for Duende BFF DI and YARP forwarding
+- The Authentication service registartion is fairly normal
+  - The base `AddAuthentication` configures the schemes that will be used throughout the different steps of the process
+  - `AddCookie` configures the cookie setup -- this is what will securely store our JWT for our SPA
+  - The `AddOpenIdConnect` configuration is setting up our auth server connection information. In this case, I have keycloak running in docker.
+    - The authority, clientid, and secret all come from your identity server
+    - The response type should be `code` when going througha user interaction flow like this
+    - PKCE enables an extra layer of protection that is standard when using code flow as of OAuth 2.1
+    - The scopes establish the different claims that we'll get back for our requests
+    - The rest is just some supporting items
+- As far as middleware, The important parts for the BFF config are:
+  - `app.UseBff();` to configure the main BFF middleware pipeline
+  - `app.MapBffManagementEndpoints();` to add each of the delegated BFF endpoints to the middleware pipeline
+  - `AsBffApiEndpoint` to enable local BFF endpoints, though we won't be using any in this example
+  - `MapRemoteBffApiEndpoint` to proxy protected calls to an external api -- [more details here](https://docs.duendesoftware.com/identityserver/v6/bff/apis/remote/#use-our-built-in-simple-http-forwarder)
+
+### Launch Settings
+
+As a closing note for the BFF, my launch settings profile looks like this. All I've added is the auth information
+
+```json
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "applicationUrl": "https://localhost:7164;http://localhost:5103",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "AUTH_AUTHORITY": "http://localhost:3255/auth/realms/DevRealm",
+        "AUTH_CLIENT_ID": "recipe_management.bff",
+        "AUTH_CLIENT_SECRET": "974d6f71-d41b-4601-9a7a-a33081f80688"
+      }
+    }
+```
+
+### Summary
+
+And that's all that's needed for the BFF! At the end of the day this is just a standard .NET app without any of the additional complexities, so it feels cleaner IMHO.
+
+## The Frontend
+
+Now for the frontend! Since we have our standalone .NET BFF now, our SPA could technically be pretty much anything, not just the built in react or angular setups that .NET offers.
+
+In this example, I'm going to create a React project that uses Vite. Vite is especially nice here as it will enable us to have a proxy built in for our local development, so this same setup should apply for any [Vite based project](https://vitejs.dev/guide/#trying-vite-online), including Vue, Svelte, etc.
+
+### Creating the App
+
+Let's start with the new app. I'm using `pnpm`, but `npm` or `yarn` are fine too.
+
+```
+pnpm create vite my-react-app --template react-ts
+```
+
+Then run `pnpm i` (or the npm or yarn equivalent) and `pnpm dev` to run the app.
+
+### Adding TailwindCss (Optional)
+
+Next I'm going to add tailwind [according to the vite setup](https://tailwindcss.com/docs/guides/vite). This is totally optional, but makes styling much nicer
+
+### Basic Auth Calls
+
+First, let's add a couple packages. None are requred, but are what I'll use for this implementation example.
+
+```
+    "@tanstack/react-query": "^4.20.9",
+    "@tanstack/react-query-devtools": "^4.20.9",
+    "axios": "^1.2.2",
+```
+
+Then, let's configure our auth calls for our user interactions with the BFF. This is similar to my last post, but I'm going to make a custom hook called `useAuthUser` to do this, but the implementation doesn't matter. The important thing is being able to make an api call to `/bff/user` so we can get introspection info for the current user.
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+const claimsKeys = {
+  claim: ["claims"],
+};
+
+const config = {
+  headers: {
+    "X-CSRF": "1",
+  },
+};
+
+const fetchClaims = async () =>
+  axios.get("/bff/user", config).then((res) => res.data);
+
+function useClaims() {
+  return useQuery(
+    claimsKeys.claim,
+    async () => {
+      const delay = new Promise((resolve) => setTimeout(resolve, 550));
+      return Promise.all([fetchClaims(), delay]).then(([claims]) => claims);
+    },
+    {
+      retry: false,
+    }
+  );
+}
+
+function useAuthUser() {
+  const { data: claims, isLoading } = useClaims();
+
+  let logoutUrl = claims?.find((claim: any) => claim.type === "bff:logout_url");
+  let nameDict =
+    claims?.find((claim: any) => claim.type === "name") ||
+    claims?.find((claim: any) => claim.type === "sub");
+  let username = nameDict?.value;
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    setIsLoggedIn(!!username);
+  }, [username]);
+
+  return {
+    username,
+    logoutUrl,
+    isLoading,
+    isLoggedIn,
+  };
+}
+
+export { useAuthUser };
+```
+
+### Login/Logout UI
+
+Next let's update the `App.tsx` to have:
+
+1. A loading screen when the api call is occuring
+2. A login butt if you're not logged in
+3. Your name and a logout button if you are logged in
+4. A list of recipes from our api (to deonstrate that we can hit a secure endpoint on another api)
+
+```tsx
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useAuthUser } from "./apis/auth";
+import useRecipes from "./apis/getRecipeList";
+
+const queryClient = new QueryClient();
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Main />
+    </QueryClientProvider>
+  );
+}
+
+function Main() {
+  const { isLoggedIn, username, logoutUrl, isLoading } = useAuthUser();
+  const { data: recipes } = useRecipes();
+
+  if (isLoading)
+    return (
+      <div className="h-screen w-screen bg-slate-100 transition-all flex items-center justify-center">
+        <svg
+          className="animate-spin h-6 w-6 text-slate-800"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx={12}
+            cy={12}
+            r={10}
+            stroke="currentColor"
+            strokeWidth={4}
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+      </div>
+    );
+
+  return (
+    <div className="p-20">
+      {!isLoggedIn ? (
+        <a
+          href="/bff/login?returnUrl=/"
+          className="inline-block px-4 py-2 text-base font-medium text-center text-white bg-blue-500 border border-transparent rounded-md hover:bg-opacity-75"
+        >
+          Login
+        </a>
+      ) : (
+        <div className="flex-shrink-0 block">
+          <div className="flex items-center">
+            <div className="ml-3">
+              <p className="block text-base font-medium text-blue-500 md:text-sm">{`Hi, ${username}!`}</p>
+              <a
+                href={logoutUrl?.value}
+                className="block mt-1 text-sm font-medium text-blue-200 hover:text-blue-500 md:text-xs"
+              >
+                Logout
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+      {
+        <ul className="py-10 space-y-2">
+          {recipes &&
+            recipes.map((recipe) => (
+              <li className="text-medium px-4 py-3 rounded-md border border-gray-20 shadow">
+                {recipe.title}
+              </li>
+            ))}
+        </ul>
+      }
+    </div>
+  );
+}
+
+export default App;
+```
+
+### Using Vite as a reverse proxy
+
+The key to being able to have a standalone BFF like this is having a reverse proxy to send requests from the frontend to the BFF. Luckily for us, Vite has this built in, but you could use something like nginx or traefik as well.
+
+To set it up with Vite, let's update the `vite.config.ts` to look like this:
+
+```ts
+import basicSsl from "@vitejs/plugin-basic-ssl";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react(), basicSsl()],
+  server: {
+    port: 4378,
+    strictPort: true,
+
+    // these are the proxy routes that will be forwarded to your **BFF**
+    proxy: {
+      "/bff": {
+        target: "https://localhost:7164",
+        secure: false,
+      },
+      "/signin-oidc": {
+        target: "https://localhost:7164",
+        secure: false,
+      },
+      "/signout-callback-oidc": {
+        target: "https://localhost:7164",
+        secure: false,
+      },
+      "/api": {
+        target: "https://localhost:7164",
+        secure: false,
+      },
+    },
+  },
+});
+```
+
+The most important part here is the proxy setup and will route api calls to our BFF. So when we make a fetch or axios request to `/bff/login` Vite will proxy that request and send it to our BFF at `https://localhost:7164/bff/login` for Duende can pick up the request and call our auth server.
+
+The `signin-oidc` and `signout-callback-oidc` are just additional paths needed for different parts of the auth flow.
+
+The `/api` proxy is so we can call an api that requires proper authenication to access it. In practice, you'll probably want to change this to something more api specific since you'll potentially be talking to multiple apis.
+
+Additionally, I've added the `@vitejs/plugin-basic-ssl` package and some basic ssl config given my auth server config, but this may not be needed depending on your setup.
+
+#### Nginx or Traefik -- Another Reverse Proxy For Non-Dev Environments
+
+Outside of your local dev environment, you'll need to deploy a reverse proxy alongside your SPA and your BFF to make sure you can still route requests properly from your SPA to your BFF.
+
+I don't have much experience with either, but the configs might look something like this for nginx:
+
+```
+server {
+    listen 80;
+    location /api/ {
+        proxy_pass https://localhost:7164;
+    }
+    location /bff/ {
+        proxy_pass https://localhost:7164;
+    }
+    location /signout-callback-oidc/ {
+        proxy_pass https://localhost:7164;
+    }
+    location /signin-oidc/ {
+        proxy_pass https://localhost:7164;
+    }
+    location / {
+        proxy_pass http://localhost:4378;
+    }
+}
+```
+
+Or a toml like this for traefik:
+
+```toml
+defaultEntryPoints = ["http"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+
+[http.routers]
+  [http.routers.api]
+  rule = "PathPrefix:/api"
+  service = "api"
+  middlewares = []
+  [http.routers.bff]
+  rule = "PathPrefix:/bff"
+  service = "bff"
+  middlewares = []
+  [http.routers.signout-callback-oidc]
+  rule = "PathPrefix:/signout-callback-oidc"
+  service = "signout-callback-oidc"
+  middlewares = []
+  [http.routers.signin-oidc]
+  rule = "PathPrefix:/signin-oidc"
+  service = "signin-oidc"
+  middlewares = []
+  [http.routers.default]
+  rule = "PathPrefix:/"
+  service = "default"
+  middlewares = []
+
+[http.services]
+  [http.services.api.loadBalancer]
+  [[http.services.api.loadBalancer.servers]]
+  url = "https://localhost:7164"
+  [http.services.bff.loadBalancer]
+  [[http.services.bff.loadBalancer.servers]]
+  url = "https://localhost:7164"
+  [http.services.signout-callback-oidc.loadBalancer]
+  [[http.services.signout-callback-oidc.loadBalancer.servers]]
+  url = "https://localhost:7164"
+  [http.services.signin-oidc.loadBalancer]
+  [[http.services.signin-oidc.loadBalancer.servers]]
+  url = "https://localhost:7164"
+  [http.services.default.loadBalancer]
+  [[http.services.default.loadBalancer.servers]]
+  url = "http://localhost:4378"
+```
+
+## Summary
+
+And that's the end! At this point, you should have a .NET app that can act as a standalone BFF and an example of a SPA with a reverse proxy between the two!
+
+I hope this was helpful. If you have any questions, please feel free to reach out to me [on Twitter](https://twitter.com/pdevito3) @pdevito3. Happy coding!
