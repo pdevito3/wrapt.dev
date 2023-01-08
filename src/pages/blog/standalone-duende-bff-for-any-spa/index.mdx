@@ -128,12 +128,12 @@ await app.RunAsync();
 
 - The beginning of this is pretty standard with the web hostbuilder and controller registration
 - The `AddBff` and `AddRemoteApis` methods are called to add support for Duende BFF DI and YARP forwarding
-- The Authentication service registartion is fairly normal
+- The Authentication service registration is fairly normal
   - The base `AddAuthentication` configures the schemes that will be used throughout the different steps of the process
   - `AddCookie` configures the cookie setup -- this is what will securely store our JWT for our SPA
   - The `AddOpenIdConnect` configuration is setting up our auth server connection information. In this case, I have keycloak running in docker.
     - The authority, clientid, and secret all come from your identity server
-    - The response type should be `code` when going througha user interaction flow like this
+    - The response type should be `code` when going through a user interaction flow like this
     - PKCE enables an extra layer of protection that is standard when using code flow as of OAuth 2.1
     - The scopes establish the different claims that we'll get back for our requests
     - The rest is just some supporting items
@@ -184,7 +184,7 @@ Then run `pnpm i` (or the npm or yarn equivalent) and `pnpm dev` to run the app.
 
 ### Adding TailwindCss (Optional)
 
-Next I'm going to add tailwind [according to the vite setup](https://tailwindcss.com/docs/guides/vite). This is totally optional, but makes styling much nicer
+My example repo uses TailwindCSS, so if you want to add it to yours [according to the vite setup](https://tailwindcss.com/docs/guides/vite this would be a good time. This is totally optional though.
 
 ### Basic Auth Calls
 
@@ -258,10 +258,10 @@ export { useAuthUser };
 
 Next let's update the `App.tsx` to have:
 
-1. A loading screen when the api call is occuring
-2. A login butt if you're not logged in
+1. A loading screen when the api call is occurring
+2. A login button if you're not logged in
 3. Your name and a logout button if you are logged in
-4. A list of recipes from our api (to deonstrate that we can hit a secure endpoint on another api)
+4. A list of recipes from our api (to demonstrate that we can hit a secure endpoint on another api)
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -394,7 +394,7 @@ The most important part here is the proxy setup and will route api calls to our 
 
 The `signin-oidc` and `signout-callback-oidc` are just additional paths needed for different parts of the auth flow.
 
-The `/api` proxy is so we can call an api that requires proper authenication to access it. In practice, you'll probably want to change this to something more api specific since you'll potentially be talking to multiple apis.
+The `/api` proxy is so we can call an api that requires proper authentication to access it. In practice, you'll probably want to change this to something more api specific since you'll potentially be talking to multiple apis.
 
 Additionally, I've added the `@vitejs/plugin-basic-ssl` package and some basic ssl config given my auth server config, but this may not be needed depending on your setup.
 
