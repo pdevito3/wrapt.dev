@@ -206,21 +206,24 @@ To create a continuation job, you can use the `BackgroundJob.ContinueJobWith` me
 job and pass in the ID of the initial job (`jobId`) and the method that we want to run (i.e. `HandleContinuation`).
 
 ```csharp
-public void Handle(int jobNumber)
+public class PrintAJob
 {
-  var randomNumber = new Random().Next(1, 11);
-  if (randomNumber > 5)
-  {
-    Console.WriteLine("Failed job number: {0}", jobNumber);
-    throw new Exception($"Error processing job {jobNumber}");
-  }
+    public void Handle(int jobNumber)
+    {
+      var randomNumber = new Random().Next(1, 11);
+      if (randomNumber > 5)
+      {
+        Console.WriteLine("Failed job number: {0}", jobNumber);
+        throw new Exception($"Error processing job {jobNumber}");
+      }
 
-  Console.WriteLine("Completed job number: {0}", jobNumber);
-}
+      Console.WriteLine("Completed job number: {0}", jobNumber);
+    }
 
-public void HandleContinuation(int jobNumber)
-{
-  Console.WriteLine("Continuation job for job number: {0}", jobNumber);
+    public void HandleContinuation(int jobNumber)
+    {
+      Console.WriteLine("Continuation job for job number: {0}", jobNumber);
+    }
 }
 
 [HttpPost("enqueue")]
@@ -230,7 +233,7 @@ public Task<IActionResult> Enqueue()
   for (var jobNumber = 1; jobNumber <= 300; jobNumber++)
   {
     var jobId = BackgroundJob.Enqueue(() => handler.Handle(jobNumber));
-    BackgroundJob.ContinueJobWith(jobId, () => HandleContinuation(jobNumber));
+    BackgroundJob.ContinueJobWith(jobId, () => handler.HandleContinuation(jobNumber));
   }
 
   return Task.FromResult<IActionResult>(Ok());
