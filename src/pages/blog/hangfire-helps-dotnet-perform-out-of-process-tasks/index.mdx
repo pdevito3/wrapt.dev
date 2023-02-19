@@ -230,7 +230,7 @@ public Task<IActionResult> Enqueue()
   for (var jobNumber = 1; jobNumber <= 300; jobNumber++)
   {
     var jobId = BackgroundJob.Enqueue(() => handler.Handle(jobNumber));
-    BackgroundJob.ContinueJobWith(jobId, () => handler.HandleContinuation(jobNumber));
+    BackgroundJob.ContinueJobWith(jobId, () => HandleContinuation(jobNumber));
   }
 
   return Task.FromResult<IActionResult>(Ok());
