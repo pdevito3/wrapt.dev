@@ -40,17 +40,17 @@ dotnet add package Hangfire.PostgreSql
 Then register your hangfire services
 
 ```csharp
-        services.AddHangfire(hangfireConfig => hangfireConfig
-            .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-            .UseColouredConsoleLogProvider()
-            .UseSimpleAssemblyNameTypeSerializer()
-            .UseRecommendedSerializerSettings()
-            .UsePostgreSqlStorage(connectionString)
-        );
-        services.AddHangfireServer(o =>
-        {
-            o.ServerName = $"MyProject-{env.EnvironmentName}";
-        });
+services.AddHangfire(hangfireConfig => hangfireConfig
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseColouredConsoleLogProvider()
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(connectionString)
+);
+services.AddHangfireServer(o =>
+{
+    o.ServerName = $"MyProject-{env.EnvironmentName}";
+});
 ```
 
 - `SetDataCompatibilityLevel` keeps us up to date with the latest compatibility as of 1.7 (`Version_110` is the older version you might see in the wild)
@@ -85,13 +85,13 @@ There's a good [full writeup by Luis Ruiz Pavon here](https://lurumad.github.io/
 
 ```csharp
 services.AddAuthorization(cfg =>
+{
+    cfg.AddPolicy("HangfireAccess", cfgPolicy =>
     {
-        cfg.AddPolicy("HangfireAccess", cfgPolicy =>
-        {
-            cfgPolicy.AddRequirements().RequireAuthenticatedUser();
-            cfgPolicy.AddAuthenticationSchemes(OpenIdConnectDefaults.AuthenticationScheme);
-        });
-    })
+        cfgPolicy.AddRequirements().RequireAuthenticatedUser();
+        cfgPolicy.AddAuthenticationSchemes(OpenIdConnectDefaults.AuthenticationScheme);
+    });
+})
 ```
 
 And then add that policy to your endpoint registration
@@ -243,30 +243,30 @@ public Task<IActionResult> Enqueue()
 If you're using OpenTelemetry, you can easily plug up instrumentation with [their Hangfire package](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/tree/main/src/OpenTelemetry.Instrumentation.Hangfire). For example:
 
 ```csharp
-        builder.Services.AddOpenTelemetryTracing(builder =>
+builder.Services.AddOpenTelemetryTracing(builder =>
+{
+    builder.SetResourceBuilder(resourceBuilder)
+        .AddSource("MassTransit")
+        .AddSource("Npgsql")
+        .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
+        .AddAspNetCoreInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation()
+        .AddHangfireInstrumentation()
+        .AddJaegerExporter(o =>
         {
-            builder.SetResourceBuilder(resourceBuilder)
-                .AddSource("MassTransit")
-                .AddSource("Npgsql")
-                .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
-                .AddAspNetCoreInstrumentation()
-                .AddEntityFrameworkCoreInstrumentation()
-                .AddHangfireInstrumentation()
-                .AddJaegerExporter(o =>
-                {
-                    o.AgentHost = configuration.GetJaegerHostValue();
-                    o.AgentPort = 49328;
-                    o.MaxPayloadSizeInBytes = 4096;
-                    o.ExportProcessorType = ExportProcessorType.Batch;
-                    o.BatchExportProcessorOptions = new BatchExportProcessorOptions<System.Diagnostics.Activity>
-                    {
-                        MaxQueueSize = 2048,
-                        ScheduledDelayMilliseconds = 5000,
-                        ExporterTimeoutMilliseconds = 30000,
-                        MaxExportBatchSize = 512,
-                    };
-                });
+            o.AgentHost = configuration.GetJaegerHostValue();
+            o.AgentPort = 49328;
+            o.MaxPayloadSizeInBytes = 4096;
+            o.ExportProcessorType = ExportProcessorType.Batch;
+            o.BatchExportProcessorOptions = new BatchExportProcessorOptions<System.Diagnostics.Activity>
+            {
+                MaxQueueSize = 2048,
+                ScheduledDelayMilliseconds = 5000,
+                ExporterTimeoutMilliseconds = 30000,
+                MaxExportBatchSize = 512,
+            };
         });
+});
 ```
 
 ## Summary
