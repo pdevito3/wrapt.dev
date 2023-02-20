@@ -160,14 +160,14 @@ public Task<IActionResult> Enqueue()
 Note, if you're adding a queue for your job, you'll also need to add the queue to your Hangfire config:
 
 ```csharp
-        services.AddHangfireServer(o =>
-        {
-            o.ServerName = $"RecipeManagement-{env.EnvironmentName}";
-            o.Queues = new[] { "loop-queue" };
+services.AddHangfireServer(o =>
+{
+    o.ServerName = $"RecipeManagement-{env.EnvironmentName}";
+    o.Queues = new[] { "loop-queue" };
 
-          // you can also configure things like worker count and other settings here
-          	o.WorkerCount = 3;
-        });
+  // you can also configure things like worker count and other settings here
+    o.WorkerCount = 3;
+});
 ```
 
 #### Enqueuing With DI
