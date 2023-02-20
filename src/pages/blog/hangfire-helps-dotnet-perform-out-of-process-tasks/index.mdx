@@ -170,6 +170,58 @@ Note, if you're adding a queue for your job, you'll also need to add the queue t
         });
 ```
 
+#### Enqueuing With DI
+
+More than likely in most cases, you'll want to have a job that uses DI. To do this, we can make our job that injects like a normal .NET setup.
+
+```csharp
+public class LogRandomRecipe
+{
+    private readonly IRecipeRepository _recipeRepository;
+    private readonly IMapper _mapper;
+
+    public LogRandomRecipe(IRecipeRepository recipeRepository, IMapper mapper)
+    {
+        _recipeRepository = recipeRepository;
+        _mapper = mapper;
+    }
+
+    [Queue("recipe-logger")]
+    public async Task Handle()
+    {
+        var recipe = _recipeRepository.GetRandomRecipe();
+        var recipeToPrint = _mapper.Map<RecipeDto>(updatedRecipe);
+        Console.WriteLine(JsonSerializer.Serialize(recipeToPrint, new JsonSerializerOptions { WriteIndented = true }));
+    }
+}
+```
+
+And then we can enqueue our job with a override that will resolve the services for DI automatically. Note that we're also injecting our background job client as well to make our DI work properly.
+
+```csharp
+
+[ApiController]
+[Route("api/hangfire")]
+[ApiVersion("1.0")]
+public sealed class HangfireController : ControllerBase
+{
+    private readonly IBackgroundJobClient _backgroundJobClient;
+
+    public HangfireController(IBackgroundJobClient backgroundJobClient)
+    {
+        _backgroundJobClient = backgroundJobClient;
+    }
+
+    [HttpPost("recipe-logger")]
+    public IActionResult RecipeLogger()
+    {
+        _backgroundJobClient.Enqueue<LogRandomRecipe>(x => x.Handle());
+        return Ok();
+    }
+}
+
+```
+
 ### Other Jobs
 
 If you want to add a delay to the job, you can `Schedule` instead of `Enqueue` the job along with a TimeSpan for the delay.
