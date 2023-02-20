@@ -1,0 +1,291 @@
+import { pauldevito } from "src/data/authors";
+import image from "./card.png";
+
+export const blogmeta = {
+  title:
+    "How Hangfire Helps Your .NET API Perform Out-of-Process Tasks with Resilience and Speed",
+  description: `A writeup on what I've come to find as essential tool to have in your toolkit for managing out-of-process jobs *within* a given application.`,
+  date: "2023-02-20 07:29:39", // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: "Performance",
+  image,
+  tags: ["hangfire", "dotnet", "net7", "performance"],
+};
+
+# How Hangfire Helps Your .NET API Perform Out-of-Process Tasks with Resilience and Speed
+
+## What Is Hangfire
+
+Hangfire is an open-source library for .NET that enables you to perform background processing tasks in a reliable and scalable way. This is accomplished using a simple yet powerful API for creating and managing background jobs.
+
+With Hangfire, you can easily **perform tasks asynchronously, without blocking the main thread of your application**. This can help improve the performance and responsiveness of your application, while also freeing up resources for other tasks.
+This can be useful for anything from progressively migrating datasets from a legacy app to send email notifications on a particular schedule. Additionally,
+you also get an easy way to capture, view, and manage failures without having to add anything custom to your project.
+
+While a broker or event streaming service like RabbitMQ or Kafka might be great for out of process tasks between boundaries, I've come to find Hangfire
+as essential tool to have in your toolkit for managing out-of-process jobs _within_ a given application. Let's see how it works. You can find an
+example repo for this [post on my github](https://github.com/pdevito3/hello-hangfire).
+
+## Adding Hangfire to Your Project
+
+First, install the appropriate nuget packages. I'm going to use Postgres to store my jobs, but feel free to use another persistence package if you'd like.
+
+```bash
+dotnet add package Hangfire.AspNetCore
+dotnet add package Hangfire.PostgreSql
+```
+
+### Service Registration
+
+Then register your hangfire services
+
+```csharp
+services.AddHangfire(hangfireConfig => hangfireConfig
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseColouredConsoleLogProvider()
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(connectionString)
+);
+services.AddHangfireServer(o =>
+{
+    o.ServerName = $"MyProject-{env.EnvironmentName}";
+});
+```
+
+- `SetDataCompatibilityLevel` keeps us up to date with the latest compatibility as of 1.7 (`Version_110` is the older version you might see in the wild)
+- `UseColouredConsoleLogProvider` is pretty self explanatory. Not needed, but nice to have
+- `UseSimpleAssemblyNameTypeSerializer` configures the Hangfire serializer to use a simple type name serialization strategy.
+- `UseRecommendedSerializerSettings` sets up the built in serializer recommendations, but may affect argument serialization and be incompatible with your current JSON settings if you’ve changed them using the `JobHelper.SetSerializerSettings` method or `DefaultValueAttribute` on your argument classes or different date/time formats.
+- `UsePostgreSqlStorage` sets up our persistence target, with `connectionString` being the connection string to my existing postgres DB on my DbContext
+
+#### Hangfire and Entity Framework
+
+If you're using EF in your API, your probably wondering how this integrates with EF and code first projects. The short answer is it doesn't (and that's okay).
+
+Hangfire has a migration script built in for the tables it needs, so it will be able to add the tables it needs and your EF config can keep chugging along as is. You won't be adding jobs directly with EF anyway, so you wouldn't want those hangfire tables muddying up your dbsets anyway.
+
+### Middleware
+
+Finally, the middleware registration is minimal as you'll just want to add the dashboard to track your jobs. By default, you can get to the dashabord at `/hangfire` but this can be configured separately if you want.
+
+```csharp
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHangfireDashboard();
+    endpoints.MapControllers();
+});
+// OR
+app.UseHangfireDashboard();
+```
+
+#### OIDC Hangfire Dashboard Protection
+
+There's a good [full writeup by Luis Ruiz Pavon here](https://lurumad.github.io/securing-hangfire-dashboard-using-an-openid-connect-server-identityserver-4), but the short version is, if you want to protect your dashboard and make sure that only authenticated users can acess the UI, you can add a policy:
+
+```csharp
+services.AddAuthorization(cfg =>
+{
+    cfg.AddPolicy("HangfireAccess", cfgPolicy =>
+    {
+        cfgPolicy.AddRequirements().RequireAuthenticatedUser();
+        cfgPolicy.AddAuthenticationSchemes(OpenIdConnectDefaults.AuthenticationScheme);
+    });
+})
+```
+
+And then add that policy to your endpoint registration
+
+```csharp
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHangfireDashboard().RequireAuthorization("HangfireAccess");
+    endpoints.MapControllers();
+});
+```
+
+## Hangfire Jobs
+
+There are a few different types of jobs that Hangfire offers:
+
+1. Fire-and-forget jobs: These are the simplest type of job in Hangfire. They are enqueued and executed once, without any further interaction.
+2. Delayed jobs: These are jobs that are executed after a specified delay. They can be useful for scheduling tasks to run at a specific time in the future.
+3. Recurring jobs: These are jobs that are executed on a regular schedule. You can configure the schedule using a cron expression or other recurring schedule syntax.
+4. Continuations: These are jobs that are automatically enqueued after another job has completed successfully. They can be used to create job workflows or to perform additional processing after a job has completed.
+5. Batch jobs (Pro Only 💰): These are jobs that allow you to group multiple jobs together into a single unit of work. Batch jobs can be used to perform multiple related tasks in a single transaction.
+
+### Creating a Job
+
+To create a job, you just need to pass a function to `BackgroundJob.Enqueue`. This will queue up a job to the default queue in Hangfire.
+
+```csharp
+var jobId = BackgroundJob.Enqueue(() => Console.WriteLine("Fire-and-forget!"));
+```
+
+More practically and traditionally, you'll probably want to create a class that can do the work for the job. In this case, I made a class called `PrintAJob` that will randomly print the job number to the console or throw an error.
+
+In also added it to a named queue instead of the default queue and set a particular retry count. You can also configure the number of workers that are processing each queue by modifying the Hangfire server configuration along with various other settings.
+
+```csharp
+public class PrintAJob
+{
+  [Queue("loop-queue")]
+  [AutomaticRetry(Attempts = 3)]
+  public void Handle(int jobNumber)
+  {
+    var randomNumber = new Random().Next(1, 11);
+    if (randomNumber > 5)
+    {
+      Console.WriteLine("Failed job number: {0}", jobNumber);
+      throw new Exception($"Error processing job {jobNumber}");
+    }
+
+    Console.WriteLine("Completed job number: {0}", jobNumber);
+  }
+}
+
+[HttpPost("enqueue")]
+public Task<IActionResult> Enqueue()
+{
+  var handler = new PrintAJob();
+  for (var jobNumber = 1; jobNumber <= 300; jobNumber++)
+  {
+    BackgroundJob.Enqueue(() => handler.Handle(jobNumber));
+  }
+
+  return Task.FromResult<IActionResult>(Ok());
+}
+```
+
+Note, if you're adding a queue for your job, you'll also need to add the queue to your Hangfire config:
+
+```csharp
+        services.AddHangfireServer(o =>
+        {
+            o.ServerName = $"RecipeManagement-{env.EnvironmentName}";
+            o.Queues = new[] { "loop-queue" };
+
+          // you can also configure things like worker count and other settings here
+          	o.WorkerCount = 3;
+        });
+```
+
+#### Enqueuing With DI
+
+More than likely in most cases, you'll want to have a job that uses DI. To do this, we can make our job that injects like a normal .NET setup.
+
+```csharp
+public class LogRandomRecipe
+{
+    private readonly IRecipeRepository _recipeRepository;
+    private readonly IMapper _mapper;
+
+    public LogRandomRecipe(IRecipeRepository recipeRepository, IMapper mapper)
+    {
+        _recipeRepository = recipeRepository;
+        _mapper = mapper;
+    }
+
+    [Queue("recipe-logger")]
+    public async Task Handle()
+    {
+        var recipe = _recipeRepository.GetRandomRecipe();
+        var recipeToPrint = _mapper.Map<RecipeDto>(updatedRecipe);
+        Console.WriteLine(JsonSerializer.Serialize(recipeToPrint, new JsonSerializerOptions { WriteIndented = true }));
+    }
+}
+```
+
+And then we can enqueue our job with a override that will resolve the services for DI automatically. Note that we're also injecting our background job client as well to make our DI work properly.
+
+```csharp
+
+[ApiController]
+[Route("api/hangfire")]
+[ApiVersion("1.0")]
+public sealed class HangfireController : ControllerBase
+{
+    private readonly IBackgroundJobClient _backgroundJobClient;
+
+    public HangfireController(IBackgroundJobClient backgroundJobClient)
+    {
+        _backgroundJobClient = backgroundJobClient;
+    }
+
+    [HttpPost("recipe-logger")]
+    public IActionResult RecipeLogger()
+    {
+        _backgroundJobClient.Enqueue<LogRandomRecipe>(x => x.Handle());
+        return Ok();
+    }
+}
+
+```
+
+### Other Jobs
+
+If you want to add a delay to the job, you can `Schedule` instead of `Enqueue` the job along with a TimeSpan for the delay.
+
+```csharp
+[HttpPost("enqueue-delayed")]
+public IActionResult EnqueueDelayed()
+{
+  var handler = new PrintAJob();
+  for (var jobNumber = 1; jobNumber <= 300; jobNumber++)
+  {
+    var jobId = BackgroundJob.Schedule(() => handler.Handle(jobNumber), TimeSpan.FromSeconds(5));
+  }
+
+  return Ok();
+}
+```
+
+To create a recurring job, you can use `RecurringJob.AddOrUpdate` method. This method takes three arguments: a string that represents the unique
+identifier of the job, a function that represents the job to be executed, and a string that represents the schedule for the job.
+
+```csharp
+[HttpPost("enqueue-recurring")]
+public IActionResult EnqueueRecurring()
+{
+    var handler = new PrintAJob();
+    RecurringJob.AddOrUpdate("PrintAJob", () => handler.Handle(1), Cron.Minutely);
+
+    return Ok();
+}
+```
+
+### OpenTelemetry with Hangfire
+
+If you're using OpenTelemetry, you can easily plug up instrumentation with [their Hangfire package](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/tree/main/src/OpenTelemetry.Instrumentation.Hangfire). For example:
+
+```csharp
+builder.Services.AddOpenTelemetryTracing(builder =>
+{
+    builder.SetResourceBuilder(resourceBuilder)
+        .AddSource("MassTransit")
+        .AddSource("Npgsql")
+        .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
+        .AddAspNetCoreInstrumentation()
+        .AddEntityFrameworkCoreInstrumentation()
+        .AddHangfireInstrumentation()
+        .AddJaegerExporter(o =>
+        {
+            o.AgentHost = configuration.GetJaegerHostValue();
+            o.AgentPort = 49328;
+            o.MaxPayloadSizeInBytes = 4096;
+            o.ExportProcessorType = ExportProcessorType.Batch;
+            o.BatchExportProcessorOptions = new BatchExportProcessorOptions<System.Diagnostics.Activity>
+            {
+                MaxQueueSize = 2048,
+                ScheduledDelayMilliseconds = 5000,
+                ExporterTimeoutMilliseconds = 30000,
+                MaxExportBatchSize = 512,
+            };
+        });
+});
+```
+
+## Summary
+
+And that's the end. Hopefully that gives you a better idea of Hangfire! If you have any questions or have any ideas on additional content you'd like to see,
+please feel free to reach out to me [on Twitter](https://twitter.com/pdevito3) @pdevito3. Happy coding!
