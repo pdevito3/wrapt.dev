@@ -14,19 +14,22 @@ export const blogmeta = {
 
 ## Introduction
 
-In most .NET projects that I see, there are generally 2 types of tests projects -- 1. Unit tests for testing individual units or components of an application in isolation and 2. Integration tests that focus on testing how different units or components of an application work together, usually using a `WebApplicationFactory`.
+In most .NET projects that I see, there are generally 2 types of tests projects — 1. Unit tests for testing individual units or components of an application in isolation and 2. Integration tests that focus on testing how different units or components of an application work together, usually using a `WebApplicationFactory`.
 
 As I've put together more and more projects and built tests for them, I've come to find that I actually like to extend this model slightly and use three types of tests. For what it's worth, the names aren't important, but as far as this writeup is concerned, I'll be referring to the types of tests like so:
 
 1. Unit tests for testing individual units or components of an application in isolation
 2. Integration tests that focus on testing how different units or components of an application work together
-3. Functional testing that focuses on testing the overall functionality of an application
+3. Functional tests that focuses on testing the overall functionality of an application
 
-You'll notice that unit and integration tests have the same definition as the above, but in practice, the implementation, will be slightly different. While unit tests are the same, but integration tests no longer use a `WebApplicationFactory`, the functional tests do. So then, what do the integration tests look like instead? Well, they use a service collection, just like our api.
+You'll notice that unit and integration tests have the same definition as the above, but in practice, the implementation for integration tests will be slightly different.
+As the title of this post alludes to, the integration tests no longer use a `WebApplicationFactory`, the functional tests can be used for that.
+So then, what do the integration tests look like instead? Well, they use a service collection, just like our api.
 
 The main motivators here are:
 
 - Setup is much more simple than compared to a `WebApplicationFactory`
+- You can manageably test a collection of work without needing to have heavily mocked unit tests
 - You don't have to worry about http concerns unless you explicitly want to test them (with functional tests)
 - External services and mocks are much more testable and can be done on a per test basis
 - Faster than `WebApplicationFactory` testing (and they'll be even faster [in xunit v3](https://github.com/xunit/xunit/issues/2055))
