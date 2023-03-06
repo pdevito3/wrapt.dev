@@ -1,0 +1,442 @@
+import { pauldevito } from "src/data/authors";
+import image from "./card.png";
+
+export const blogmeta = {
+  title:
+    "How to Setup Integration Tests in .NET Without a WebApplicationFactory",
+  description: `How to set up an integration test project without dealing with a WebApplicationFactory.`,
+  date: "2023-03-06 07:29:39", // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: "Testing",
+  image,
+  tags: ["testing", "dotnet", "net7"],
+};
+
+## Introduction
+
+In most .NET projects that I see, there are generally 2 types of tests projects — 1. Unit tests for testing individual units or components of an application in isolation and 2. Integration tests that focus on testing how different units or components of an application work together, usually using a `WebApplicationFactory`.
+
+As I've put together more and more projects and built tests for them, I've come to find that I actually like to extend this model slightly and use three types of tests. For what it's worth, the names aren't important, but as far as this writeup is concerned, I'll be referring to the types of tests like so:
+
+1. Unit tests for testing individual units or components of an application in isolation
+2. Integration tests that focus on testing how different units or components of an application work together
+3. Functional tests that focuses on testing the overall functionality of an application that behave with end-user like interactions (e.g. http requests hitting an endpoint)
+
+You'll notice that unit and integration tests have the same definition as the above, but in practice, the implementation for integration tests will be slightly different.
+As the title of this post alludes to, the integration tests no longer use a `WebApplicationFactory`, the functional tests can be used for that.
+So then, what do the integration tests look like instead? Well, they use a service collection, just like our api.
+
+The main motivators here are:
+
+- Setup is much more simple than compared to a `WebApplicationFactory`
+- You can manageably test a collection of work without needing to have heavily mocked unit tests
+- You don't have to worry about http concerns unless you explicitly want to test them (with functional tests)
+- External services and mocks are much more testable and can be done on a per test basis
+- Faster than `WebApplicationFactory` testing (and they'll be even faster [in xunit v3](https://github.com/xunit/xunit/issues/2055))
+
+The lets us drastically reduce the amount of tests needed in a functional testing capacity with much more control and speed for our tests. Some examples of things you'd still need functional testing for are 1. endpoint testing (which pretty much just status codes or auth access for many apps if the meat of your endpoint are outside of your endpoint) and 2. out of process services like a hosted Hangfire service.
+
+### Example Project
+
+If you want to see an example of what this looks like, [here is a project repo](https://github.com/pdevito3/hello-hangfire/tree/main/RecipeManagement/tests/RecipeManagement.IntegrationTests) with the given setup.
+
+## Setting Up Our Test Project
+
+### Project Setup
+
+First, let's create our test project.
+
+```shell
+dotnet new xunit
+```
+
+### Test Fixture
+
+Then, we'll create a test fixture along with a collection fixture to go along with it. This will act as a one time setup before all of our tests run. A base template might look like this:
+
+```csharp
+namespace RecipeManagement.IntegrationTests;
+
+using RecipeManagement.Extensions.Services;
+using RecipeManagement.Databases;
+using RecipeManagement.Resources;
+using Configurations;
+using FluentAssertions;
+using FluentAssertions.Extensions;
+using Moq;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Xunit;
+
+[CollectionDefinition(nameof(TestFixture))]
+public class TestFixtureCollection : ICollectionFixture<TestFixture> {}
+
+public class TestFixture : IAsyncLifetime
+{
+    public static IServiceScopeFactory BaseScopeFactory;
+
+    public async Task InitializeAsync()
+    {
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            EnvironmentName = Consts.Testing.IntegrationTestingEnvName
+        });
+
+        builder.ConfigureServices();
+        var services = builder.Services;
+
+        // add any mock services here
+        services.ReplaceServiceWithSingletonMock<IHttpContextAccessor>();
+
+        var provider = services.BuildServiceProvider();
+        BaseScopeFactory = provider.GetService<IServiceScopeFactory>();
+    }
+}
+
+public static class ServiceCollectionServiceExtensions
+{
+    public static IServiceCollection ReplaceServiceWithSingletonMock<TService>(this IServiceCollection services)
+        where TService : class
+    {
+        services.RemoveAll(typeof(TService));
+        services.AddSingleton(_ => Mock.Of<TService>());
+        return services;
+    }
+}
+```
+
+How does it work?
+
+1. The `builder.ConfigureServices();` is a method in my api project that encompasses all of my service registrations in my API's service collection
+2. The `BaseScopeFactory` will capture the service collection for each test to use within it's own context (we'll get to this soon)
+3. The `ReplaceServiceWithSingletonMock` method can replace things in your service collection like `IHttpContextAccessor` or services that have external dependencies that need to be mocked.
+
+You can extend this with other one time set needs as well. For example, you can spin up a database in docker like so:
+
+```csharp
+namespace RecipeManagement.IntegrationTests;
+
+using RecipeManagement.Extensions.Services;
+using RecipeManagement.Databases;
+using RecipeManagement.Resources;
+using RecipeManagement.SharedTestHelpers.Utilities;
+using Configurations;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
+using DotNet.Testcontainers.Containers;
+using FluentAssertions;
+using FluentAssertions.Extensions;
+using Moq;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Xunit;
+
+[CollectionDefinition(nameof(TestFixture))]
+public class TestFixtureCollection : ICollectionFixture<TestFixture> {}
+
+public class TestFixture : IAsyncLifetime
+{
+    public static IServiceScopeFactory BaseScopeFactory;
+    private readonly TestcontainerDatabase _dbContainer = DbSetup();
+
+    public async Task InitializeAsync()
+    {
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            EnvironmentName = Consts.Testing.IntegrationTestingEnvName
+        });
+
+        await _dbContainer.StartAsync();
+        builder.Configuration.GetSection(ConnectionStringOptions.SectionName)[ConnectionStringOptions.RecipeManagementKey] = _dbContainer.ConnectionString;
+        await RunMigration(_dbContainer.ConnectionString);
+
+        builder.ConfigureServices();
+        var services = builder.Services;
+
+        // add any mock services here
+        services.ReplaceServiceWithSingletonMock<IHttpContextAccessor>();
+
+        var provider = services.BuildServiceProvider();
+        BaseScopeFactory = provider.GetService<IServiceScopeFactory>();
+    }
+
+    private static async Task RunMigration(string connectionString)
+    {
+        var options = new DbContextOptionsBuilder<RecipesDbContext>()
+            .UseNpgsql(connectionString)
+            .Options;
+        var context = new RecipesDbContext(options, null, null, null);
+        await context?.Database?.MigrateAsync();
+    }
+
+    private static TestcontainerDatabase DbSetup()
+    {
+        return new TestcontainersBuilder<PostgreSqlTestcontainer>()
+            .WithDatabase(new PostgreSqlTestcontainerConfiguration
+            {
+                Database = "db",
+                Username = "postgres",
+                Password = "postgres"
+            })
+            .WithName($"IntegrationTesting_RecipeManagement_{Guid.NewGuid()}")
+            .WithImage("postgres:latest")
+            .Build();
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _dbContainer.DisposeAsync();
+    }
+}
+
+public static class ServiceCollectionServiceExtensions
+{
+    public static IServiceCollection ReplaceServiceWithSingletonMock<TService>(this IServiceCollection services)
+        where TService : class
+    {
+        services.RemoveAll(typeof(TService));
+        services.AddSingleton(_ => Mock.Of<TService>());
+        return services;
+    }
+}
+```
+
+### TestingServiceScope
+
+Now that we have a collection of our services, we need to be able to access them within each of our tests within their own context, to do this, we're going to make a `TestingServiceScope`.
+
+```csharp
+namespace RecipeManagement.IntegrationTests;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using static TestFixture;
+
+public class TestingServiceScope
+{
+    private readonly IServiceScope _scope;
+
+    public TestingServiceScope()
+    {
+        _scope = BaseScopeFactory.CreateScope();
+    }
+}
+```
+
+This will capture the service collection we made in our `TestFixture` fore use in each test. We can also add helper methods for our services that make our tests easier to write once we get there. For example, I use MediatR and EF Core in many of my projects, so I might have helper methods like this:
+
+```csharp
+namespace RecipeManagement.IntegrationTests;
+
+using System.Threading.Tasks;
+using Databases;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Moq;
+using SharedKernel.Exceptions;
+using static TestFixture;
+
+public class TestingServiceScope
+{
+    private readonly IServiceScope _scope;
+
+    public TestingServiceScope()
+    {
+        _scope = BaseScopeFactory.CreateScope();
+    }
+
+    public TScopedService GetService<TScopedService>()
+    {
+        var service = _scope.ServiceProvider.GetService<TScopedService>();
+        return service;
+    }
+
+    public async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
+    {
+        var mediator = _scope.ServiceProvider.GetService<ISender>();
+        return await mediator.Send(request);
+    }
+
+    public async Task<TEntity> FindAsync<TEntity>(params object[] keyValues)
+        where TEntity : class
+    {
+        var context = _scope.ServiceProvider.GetService<RecipesDbContext>();
+        return await context.FindAsync<TEntity>(keyValues);
+    }
+
+    public async Task AddAsync<TEntity>(TEntity entity)
+        where TEntity : class
+    {
+        var context = _scope.ServiceProvider.GetService<RecipesDbContext>();
+        context.Add(entity);
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<T> ExecuteScopeAsync<T>(Func<IServiceProvider, Task<T>> action)
+    {
+        var dbContext = _scope.ServiceProvider.GetRequiredService<RecipesDbContext>();
+        var result = await action(_scope.ServiceProvider);
+        return result;
+    }
+
+    public Task<T> ExecuteDbContextAsync<T>(Func<RecipesDbContext, Task<T>> action)
+        => ExecuteScopeAsync(sp => action(sp.GetService<RecipesDbContext>()));
+
+    public Task<int> InsertAsync<T>(params T[] entities) where T : class
+    {
+        return ExecuteDbContextAsync(db =>
+        {
+            foreach (var entity in entities)
+            {
+                db.Set<T>().Add(entity);
+            }
+            return db.SaveChangesAsync();
+        });
+    }
+}
+```
+
+### TestBase
+
+Finally, before we get to what a test looks like, let's make a `TestBase` class that provides [a shared setup for all of our tests](https://xunit.net/docs/shared-context#constructor). Of note, it will group our tests within our `CollectionFixture`, but feel free to add any other shared context before running each test.
+
+```csharp
+namespace RecipeManagement.IntegrationTests;
+
+using AutoBogus;
+using Xunit;
+
+[Collection(nameof(TestFixture))]
+public class TestBase : IDisposable
+{
+    public TestBase()
+    {
+    }
+
+    public void Dispose()
+    {
+    }
+}
+```
+
+### Example Tests
+
+Now we can write our tests! Let's look at a couple examples. In these tests,we're testing a couple MediatR handlers to see if they can add and get recipes, but you can do this for any service in your project (e.g. using the `GetService` method in the `TestingServiceScope`).
+
+So what's the general structure of these tests? All of our tests start with `var testingServiceScope = new TestingServiceScope();` to give us access to our service collection. Then you can just interact with your services however you want to accomplish your test.
+
+> 💡 Note that if you're using the database setup I posted above (or something similar) that the database won't be empty when you're interacting with it. This means that your assertions will need to account for this.
+
+```csharp
+namespace RecipeManagement.IntegrationTests.FeatureTests.Recipes;
+
+using RecipeManagement.SharedTestHelpers.Fakes.Recipe;
+using Domain;
+using FluentAssertions;
+using FluentAssertions.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
+using System.Threading.Tasks;
+using RecipeManagement.Domain.Recipes.Features;
+using SharedKernel.Exceptions;
+
+public class AddRecipeCommandTests : TestBase
+{
+    [Fact]
+    public async Task can_add_new_recipe_to_db()
+    {
+        // Arrange
+        var testingServiceScope = new TestingServiceScope();
+        var fakeRecipeOne = new FakeRecipeForCreationDto().Generate();
+
+        // Act
+        var command = new AddRecipe.Command(fakeRecipeOne);
+        var recipeReturned = await testingServiceScope.SendAsync(command);
+        var recipeCreated = await testingServiceScope.ExecuteDbContextAsync(db => db.Recipes
+            .FirstOrDefaultAsync(r => r.Id == recipeReturned.Id));
+
+        // Assert
+        recipeReturned.Title.Should().Be(fakeRecipeOne.Title);
+        recipeReturned.Directions.Should().Be(fakeRecipeOne.Directions);
+        recipeReturned.RecipeSourceLink.Should().Be(fakeRecipeOne.RecipeSourceLink);
+        recipeReturned.Description.Should().Be(fakeRecipeOne.Description);
+        recipeReturned.ImageLink.Should().Be(fakeRecipeOne.ImageLink);
+        recipeReturned.Visibility.Should().Be(fakeRecipeOne.Visibility);
+        recipeReturned.DateOfOrigin.Should().Be(fakeRecipeOne.DateOfOrigin);
+
+        recipeCreated.Title.Should().Be(fakeRecipeOne.Title);
+        recipeCreated.Directions.Should().Be(fakeRecipeOne.Directions);
+        recipeCreated.RecipeSourceLink.Should().Be(fakeRecipeOne.RecipeSourceLink);
+        recipeCreated.Description.Should().Be(fakeRecipeOne.Description);
+        recipeCreated.ImageLink.Should().Be(fakeRecipeOne.ImageLink);
+        recipeCreated.Visibility.Should().Be(fakeRecipeOne.Visibility);
+        recipeCreated.DateOfOrigin.Should().Be(fakeRecipeOne.DateOfOrigin);
+    }
+}
+```
+
+```csharp
+namespace RecipeManagement.IntegrationTests.FeatureTests.Recipes;
+
+using RecipeManagement.SharedTestHelpers.Fakes.Recipe;
+using RecipeManagement.Domain.Recipes.Features;
+using SharedKernel.Exceptions;
+using Domain;
+using FluentAssertions;
+using FluentAssertions.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
+using System.Threading.Tasks;
+
+public class RecipeQueryTests : TestBase
+{
+    [Fact]
+    public async Task can_get_existing_recipe_with_accurate_props()
+    {
+        // Arrange
+        var testingServiceScope = new TestingServiceScope();
+        var fakeRecipeOne = FakeRecipe.Generate(new FakeRecipeForCreationDto().Generate());
+        await testingServiceScope.InsertAsync(fakeRecipeOne);
+
+        // Act
+        var query = new GetRecipe.Query(fakeRecipeOne.Id);
+        var recipe = await testingServiceScope.SendAsync(query);
+
+        // Assert
+        recipe.Title.Should().Be(fakeRecipeOne.Title);
+        recipe.Directions.Should().Be(fakeRecipeOne.Directions);
+        recipe.RecipeSourceLink.Should().Be(fakeRecipeOne.RecipeSourceLink);
+        recipe.Description.Should().Be(fakeRecipeOne.Description);
+        recipe.ImageLink.Should().Be(fakeRecipeOne.ImageLink);
+        recipe.Visibility.Should().Be(fakeRecipeOne.Visibility);
+        recipe.DateOfOrigin.Should().Be(fakeRecipeOne.DateOfOrigin);
+    }
+
+    [Fact]
+    public async Task get_recipe_throws_notfound_exception_when_record_does_not_exist()
+    {
+        // Arrange
+        var testingServiceScope = new TestingServiceScope();
+        var badId = Guid.NewGuid();
+
+        // Act
+        var query = new GetRecipe.Query(badId);
+        Func<Task> act = () => testingServiceScope.SendAsync(query);
+
+        // Assert
+        await act.Should().ThrowAsync<NotFoundException>();
+    }
+}
+```
+
+## Summary
+
+And that's it! Hopefully taught you something new about testing in .NET or got some gears turning for how do something new in one of your projects. If you have any questions or have any ideas on additional content you'd like to see, please feel free to reach out to me [on Twitter](https://twitter.com/pdevito3) @pdevito3. Happy coding!
