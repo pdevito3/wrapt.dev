@@ -1,0 +1,207 @@
+import { pauldevito } from "src/data/authors";
+import image from "./card.png";
+
+export const blogmeta = {
+  title:
+    "How to Access HttpContext and Other Services for Dependency Injection with Hangfire",
+  description: `A guide on creating a job context for Hangfire, which enables access to HttpContext and 
+  other injectable services in your background jobs.`,
+  date: "2023-03-25 14:37:15", // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: "Performance",
+  image,
+  tags: ["hangfire", "dotnet", "net7", "performance"],
+};
+
+## Introduction
+
+When working with background jobs, you may want to access things like the HTTP context, authentication state,
+or other services from your main application. Data can be passed through as a parameter to the job, but if you
+need data to be injectable further down the pipeline, you've got to dig a bit deeper and the docs aren't currently
+very helpful here.
+
+In this blog post, we'll walk through how to create a job context for Hangfire and access the HTTP context and other data in your
+background jobs via DI.
+
+Let's see how it works. You can find an example repo for this [post on my github](https://github.com/pdevito3/HangfireUserSandbox).
+
+## Hangfire Setup
+
+First, let's create a new ASP.NET Core Web Api and install the appropriate nuget packages.
+For simplicity, I'll just use memory storage for this example.
+
+```bash
+dotnet add package Hangfire.AspNetCore
+dotnet add package Hangfire.MemoryStorage
+```
+
+```csharp
+using Hangfire;
+using Hangfire.MemoryStorage;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IJobContextAccessor, JobContextAccessor>();
+builder.Services.AddScoped<IJobWithUserContext, JobWithUserContext>();
+builder.Services.AddHangfire(hangfireConfig => hangfireConfig
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+    .UseColouredConsoleLogProvider()
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseMemoryStorage()
+    .UseActivator(new JobWithUserContextActivator(builder.Services.BuildServiceProvider().GetRequiredService<IServiceScopeFactory>()))
+);
+builder.Services.AddHangfireServer();
+```
+
+In the code above, we register two services `IJobContextAccessor` and `IJobWithUserContext` that we'll use to inject
+the HTTP context in our jobs. We also add Hangfire to our application's services with the `AddHangfire` method and
+use the `JobWithUserContextActivator` to set up our job context (more on this in a bit).
+
+As far as the job context and accessor, they are simple classes to capture the data we want to inject into our jobs.
+In this case, just the user info.
+
+```csharp
+public interface IJobWithUserContext
+{
+    public string? User { get; set; }
+}
+public class JobWithUserContext : IJobWithUserContext
+{
+    public string? User { get; set; }
+}
+public interface IJobContextAccessor
+{
+    JobWithUserContext? UserContext { get; set; }
+}
+public class JobContextAccessor : IJobContextAccessor
+{
+    public JobWithUserContext? UserContext { get; set; }
+}
+```
+
+The `CurrentUserJobFilter` is a custom filter attribute that we'll use to set the current user in the job
+context. Here's the code for the filter:
+
+```csharp
+public class CurrentUserJobFilterAttribute : JobFilterAttribute, IClientFilter
+{
+    public void OnCreating(CreatingContext context)
+    {
+        var argue = context.Job.Args.FirstOrDefault(x => x is IJobWithUserContext);
+        if (argue == null)
+            throw new Exception($"This job does not implement the {nameof(IJobWithUserContext)} interface");
+
+        var jobParameters = argue as IJobWithUserContext;
+        var user = jobParameters?.User;
+
+        if(user == null)
+            throw new Exception($"A User could not be established");
+
+        context.SetJobParameter("User", user);
+    }
+
+    public void OnCreated(CreatedContext context)
+    {
+    }
+}
+```
+
+In the code above, the `OnCreating` method extracts the `IJobWithUserContext` object from the job arguments
+and sets its User property to the current user. We also use the `SetJobParameter` method to store the
+current user in the job context.
+
+Finally, we need to set up the `JobWithUserContextActivator` to inject the job context into our jobs:
+
+```csharp
+public class JobWithUserContextActivator : AspNetCoreJobActivator
+{
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
+    public JobWithUserContextActivator([NotNull] IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
+    {
+        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+    }
+
+    public override JobActivatorScope BeginScope(JobActivatorContext context)
+    {
+        var user = context.GetJobParameter<string>("User");
+
+        if (user == null)
+        {
+            return base.BeginScope(context);
+        }
+
+        var serviceScope = _serviceScopeFactory.CreateScope();
+
+        var userContextForJob = serviceScope.ServiceProvider.GetRequiredService<IJobContextAccessor>();
+        userContextForJob.UserContext = new JobWithUserContext {User = user};
+
+        return new ServiceJobActivatorScope(serviceScope);
+    }
+}
+```
+
+In the code above, we override the `BeginScope` method of the `AspNetCoreJobActivator` to create a new scope
+for the job and inject the job context. We retrieve the current user from the job context and create a new
+`JobWithUserContext` object that we inject into the `IJobContextAccessor` service.
+
+This means that, when we're running a job, the job context will have the current user information we captured.
+
+## Seeing it in Action
+
+With all the pieces in place, let's create a simple job. We'll also inject the `IJobContextAccessor` service
+into the job to access the HTTP context. Usually this would probably be in a
+downstream service, but we'll leave it here for simplicity.
+
+```csharp
+public class MyJob
+{
+    private readonly IJobContextAccessor _jobContextAccessor;
+
+    public MyJob(IJobContextAccessor jobContextAccessor)
+    {
+        _jobContextAccessor = jobContextAccessor;
+    }
+
+    public class Data : IJobWithUserContext
+    {
+        public string User { get; set; }
+        public string SpecialProp { get; set; }
+    }
+
+    [CurrentUserJobFilter]
+    public void Handle(Data jobData)
+    {
+        Console.WriteLine($"Hello world from '{jobData?.User}' (injectable as '{_jobContextAccessor?.UserContext?.User}') using special prop: '{jobData?.SpecialProp}'");
+    }
+}
+```
+
+Here, we define a job `MyJob` that takes a `Data` object as a parameter. We also define an
+interface `IJobWithUserContext` that contains properties for the HTTP context that we'll inject
+into our job. Finally, we add the `CurrentUserJobFilter` attribute to our job's `Handle` method,
+which will be used to set the current user in the job context.
+
+And to close it out, we can enqueue a job with the current user using the `IBackgroundJobClient`:
+
+```csharp
+app.MapPost("EnqueueHangfireJob", (IBackgroundJobClient backgroundJobClient) =>
+{
+    backgroundJobClient.Enqueue<MyJob>(x => x.Handle(new MyJob.Data
+    {
+        User = "Test User",
+        SpecialProp = "Special Value"
+    }));
+    return Results.Ok();
+});
+```
+
+## Summary
+
+And that's it! With a few lines of code, we've created a job context for Hangfire to access the HTTP context
+in our background jobs. This approach can be extended to inject other services and state into your jobs as well.
+Hopefully this helps with getting your services set up with Hangfire! If you have any questions or have any
+ideas on additional content you'd like to see,
+please feel free to reach out to me [on Twitter](https://twitter.com/pdevito3) @pdevito3. Happy coding!
