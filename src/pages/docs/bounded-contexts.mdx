@@ -22,6 +22,7 @@ a clinical domain, I might have front desk, billing, laboratory, and reporting c
 | [Bus](/docs/bus-template)            | No       | The MassTransit message bus in your project. When used in this context, **the environment properties should be set in the `Environment` property of the bounded context.** | _None_  |
 | Port                                 | No       | The port that will be used on localhost for this project.                                                                                                                  | _5000_  |
 | UseSoftDelete                        | No       | A boolean that dictates whether or not your `BaseEntity` and `DbContext` will be configured for a soft delete.                                                             | _true_  |
+| UseCustomErrorHandler                | No       | A boolean that dictates the type of error handler middleware. By default, the `Hellang` package will be used for robustness, but if you want to reduce a dependncy and do custom error handling by setting this to `true`                                                           | _false_  |
 
 > Note that the ProjectName should NOT be the same as an entity name or it will cause namespace issues.
 
