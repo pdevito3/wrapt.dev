@@ -94,33 +94,23 @@ using Recipes;
 
 public class Author : BaseEntity
 {
-    [Sieve(CanFilter = true, CanSort = true)]
     public string Name { get; private set; }
 
-    [JsonIgnore]
-    [IgnoreDataMember]
-    [ForeignKey("Recipe")]
-    public Guid RecipeId { get; private set; }
     public Recipe Recipe { get; private set; }
 
-    public static Author Create(AuthorForCreationDto authorForCreationDto)
+    public static Author Create(AuthorForCreation authorForCreation)
     {
-        new AuthorForCreationDtoValidator().ValidateAndThrow(authorForCreationDto);
-        var mapper = new Mapper(new MapperConfiguration(cfg => {
-            cfg.AddProfile<AuthorProfile>();
-        }));
-        var newAuthor = mapper.Map<Author>(authorForCreationDto);
+        var newAuthor = new Author();
+        newAuthor.Name = authorForCreation.Name;
+
         newAuthor.QueueDomainEvent(new AuthorAdded(){Author = newAuthor});
 
         return newAuthor;
     }
 
-    public void Update(AuthorForUpdateDto authorForUpdateDto)
+    public void Update(AuthorForUpdate authorForUpdate)
     {
-        new AuthorForUpdateDtoValidator().ValidateAndThrow(authorForUpdateDto);
-        var mapper = new Mapper(new MapperConfiguration(cfg => {
-            cfg.AddProfile<AuthorProfile>();
-        }));
+        Name = authorForUpdate.Name;
         mapper.Map(authorForUpdateDto, this);
     }
 
