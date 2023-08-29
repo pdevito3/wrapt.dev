@@ -186,7 +186,6 @@ There are two steps in this section:
 ```csharp
 public class Author : BaseEntity
 {
-    [Sieve(CanFilter = true, CanSort = true)]
     public virtual string Name { get; private set; }
     public virtual Address PhysicalAddress { get; private set; }
 

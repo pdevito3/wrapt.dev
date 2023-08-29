@@ -75,24 +75,14 @@ BoundedContexts:
         Properties:
           - Name: Title
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Directions
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: RecipeSourceLink
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Description
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: ImageLink
             Type: string
-            CanFilter: true
-            CanSort: true
 ```
 
 Note that `Entities` is a list, so we can add more than one if we want:
@@ -117,24 +107,14 @@ BoundedContexts:
         Properties:
           - Name: Title
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Directions
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: RecipeSourceLink
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Description
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: ImageLink
             Type: string
-            CanFilter: true
-            CanSort: true
       - Name: Ingredient
         Features:
           - Type: AddRecord
@@ -145,20 +125,12 @@ BoundedContexts:
         Properties:
           - Name: RecipeId
             Type: int?
-            CanFilter: true
-            CanSort: true
           - Name: Name
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Unit
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Amount
             Type: double?
-            CanFilter: true
-            CanSort: true
 ```
 
 ### Swagger Setup
@@ -185,24 +157,14 @@ BoundedContexts:
         Properties:
           - Name: Title
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Directions
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: RecipeSourceLink
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Description
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: ImageLink
             Type: string
-            CanFilter: true
-            CanSort: true
       - Name: Ingredient
         Features:
           - Type: AddRecord
@@ -213,20 +175,12 @@ BoundedContexts:
         Properties:
           - Name: RecipeId
             Type: int?
-            CanFilter: true
-            CanSort: true
           - Name: Name
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Unit
             Type: string
-            CanFilter: true
-            CanSort: true
           - Name: Amount
             Type: double?
-            CanFilter: true
-            CanSort: true
     SwaggerConfig:
       Title: Carbon Kitchen Recipes
       Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
@@ -271,20 +225,12 @@ Entities:
     Properties:
       - Name: Amount
         Type: double?
-        CanFilter: true
-        CanSort: true
       - Name: Name
         Type: string
-        CanFilter: true
-        CanSort: true
       - Name: Category
         Type: string
-        CanFilter: true
-        CanSort: true
       - Name: Unit
         Type: string
-        CanFilter: true
-        CanSort: true
 ```
 
 Then, we can add that entity to our project using the [add entity command](/docs/add-entity):
@@ -317,8 +263,6 @@ BoundedContexts:
         Properties:
           - Name: Store
             Type: string
-            CanFilter: true
-            CanSort: true
     SwaggerConfig:
       Title: Carbon Kitchen Shopping
       Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs

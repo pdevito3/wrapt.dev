@@ -1,21 +1,29 @@
-import { pauldevito } from 'src/data/authors'
-import image from './card.png'
-import directExchange from './direct-exchange.svg'
-import topicExchange from './topic-exchange.svg'
-import {MtSeriesLinks} from 'src/components/blog/MtSeriesLinks'
+import { pauldevito } from "src/data/authors";
+import image from "./card.png";
+import directExchange from "./direct-exchange.svg";
+import topicExchange from "./topic-exchange.svg";
+import { MtSeriesLinks } from "src/components/blog/MtSeriesLinks";
 
 export const blogmeta = {
-  title: 'Building an Event Driven .NET Application: Setting Up MassTransit and RabbitMQ',
+  title:
+    "Building an Event Driven .NET Application: Setting Up MassTransit and RabbitMQ",
   description: `This is the second post in the Building an Event Driven .NET Application series. In this post, we’ll see how we can set up our MassTransit bus to send message to and receive messages from RabbitMQ.`,
-  date: '2021-05-18 07:53:42', // Ctrl+Shift+I w/ Insert Date String plugin
+  date: "2021-05-18 07:53:42", // Ctrl+Shift+I w/ Insert Date String plugin
   authors: [pauldevito],
-  category: 'Distributed Systems',
+  category: "Distributed Systems",
   image,
-  tags: ['event driven architecture', 'dotnet', 'net5', 'masstransit', 'rabbitmq']
-}
+  tags: [
+    "event driven architecture",
+    "dotnet",
+    "net5",
+    "masstransit",
+    "rabbitmq",
+  ],
+};
 
 ## Series
-<MtSeriesLinks activeIndex={1}/>
+
+<MtSeriesLinks activeIndex={1} />
 
 ## Introduction
 
@@ -45,15 +53,15 @@ There are obviously a myriad of options to use when deploying RabbitMQ, but I wa
 
 ## Understanding the RabbitMQ User Interface
 
-The MassTransit docker image we used for RabbitMQ leverages the `management` plugin to give you a use interface (this what you hit if you went to `localhost:15672` or your CloudAMQP deployment). It isn't the best UI you've ever seen, but it has some pretty good features for managing your RMQ setup. 
+The MassTransit docker image we used for RabbitMQ leverages the `management` plugin to give you a use interface (this what you hit if you went to `localhost:15672` or your CloudAMQP deployment). It isn't the best UI you've ever seen, but it has some pretty good features for managing your RMQ setup.
 
 CloudAMQP has [a great write up](https://www.cloudamqp.com/blog/part3-rabbitmq-for-beginners_the-management-interface.html) on the different aspects of the UI and I'd definitely recommend checking it out.
 
 ## Publishing and Subscribing to Messages Using MassTransit in .NET Web APIs
 
-So now that we have our message broker set up, let's send it some messages! We could roll our own code for this, but there are several really good libraries out there ([MassTransit](https://masstransit-project.com/), [NServiceBus](https://particular.net/nservicebus), [Brighter](https://www.goparamore.io/), [Rebus](https://github.com/rebus-org/Rebus)) that handle publishing and subscribing to messages for use already. No need to reinvent the wheel. 
+So now that we have our message broker set up, let's send it some messages! We could roll our own code for this, but there are several really good libraries out there ([MassTransit](https://masstransit-project.com/), [NServiceBus](https://particular.net/nservicebus), [Brighter](https://www.goparamore.io/), [Rebus](https://github.com/rebus-org/Rebus)) that handle publishing and subscribing to messages for use already. No need to reinvent the wheel.
 
-In this example, we're going to use [MassTransit](https://masstransit-project.com/). It's a battle tested OSS library in the .NET space with a great community, helpful maintainer, and thorough documentation. 
+In this example, we're going to use [MassTransit](https://masstransit-project.com/). It's a battle tested OSS library in the .NET space with a great community, helpful maintainer, and thorough documentation.
 
 We're going to go over a few different use cases to cover what the different exchanges would look like.
 
@@ -62,6 +70,7 @@ We're going to go over a few different use cases to cover what the different exc
 For this example, lets say that we have a reporting application and we want to send out a report over either email or fax. To do this, we'll send a message to either the email queue or the fax queue depending on which routing key is sent along with the message. Once the message reaches the queue, an email or fax service can get the message from the queue and send the report.
 
 ### Project Setup
+
 I'm using a simple web api generated from [Craftsman](https://github.com/pdevito3/craftsman). I'm using a build in the middle of v0.10.0 so there isn't a great way to build it on demand at the moment, but you can jump tot he example repo below.
 
 You can build something similar using this template in 0.9.4+ and should have even more flexibility with 0.10.x+ to do a lot of this for you.
@@ -72,20 +81,16 @@ BoundedContexts:
 - SolutionName: Reporting
   Port: 1200
   DbContext:
-   ContextName: ReportingDbContext 
-   DatabaseName: ReportingDbContext 
+   ContextName: ReportingDbContext
+   DatabaseName: ReportingDbContext
    Provider: SqlServer
   Entities:
   - Name: ReportRequest
     Properties:
     - Name: Provider
       Type: string
-      CanFilter: true
-      CanSort: true
     - Name: Target
       Type: string
-      CanFilter: true
-      CanSort: true
   SwaggerConfig:
     Title: Reporting Swagger Doc
     Description: Swagger doc for reporting
@@ -101,7 +106,7 @@ If you want to look at the repo directly, you can see:
 
 ### Summary
 
-So if you wanted to visualize what we're going to build, you'd see something like the below. And it probably isn't quite what you'd expect at first. 
+So if you wanted to visualize what we're going to build, you'd see something like the below. And it probably isn't quite what you'd expect at first.
 
 <img className="mx-auto" src={directExchange} alt="direct exchange" />
 
@@ -112,8 +117,8 @@ Let's see what this looks like.
 3. When the reporting exchange receives the message, it will check the binding keys between each of the intermediary exchanges to see where it should route the message. In this case, the message has a routing key of `email` and will be routed to the exchange that is bound with a matching `email` key.
 4. The intermediary exchange is set as a `fanout` with a single binding to a queue with the same name; in this case, `send-email`. Once this exchange gets the message from the primary exchange, it will route that message to the email queue to be consumed by the email service.
 
-Now you might be asking, what the heck is up with these intermediary exchanges? Up to this point, we've only ever discussed having one exchange that connects directly to a queue with some kind of binding. In this case, we've added the extra exchange to facilitate a pattern called 
-wire tapping to allow us to more easily debug our process in production. This pattern is built into MassTransit so you don't have to do anything special, but you do need to be aware of how it's setting things up for you. For more info on the wire tap 
+Now you might be asking, what the heck is up with these intermediary exchanges? Up to this point, we've only ever discussed having one exchange that connects directly to a queue with some kind of binding. In this case, we've added the extra exchange to facilitate a pattern called
+wire tapping to allow us to more easily debug our process in production. This pattern is built into MassTransit so you don't have to do anything special, but you do need to be aware of how it's setting things up for you. For more info on the wire tap
 pattern and how it can be used, check out [this video by Chris Patterson](https://youtu.be/vNpXjy7psxs), the creator of MassTransit.
 
 ### Creating the Message
@@ -180,15 +185,15 @@ services.AddMassTransitHostedService();
 
 - `AddMassTransit` is the main service registration for MassTransit
 - `UsingRabbitMq` will let us configure our RabbitMQ connection
-    - The `cfg.Host` portion is actually optional for local development if you are running RMQ locally using the MassTransit image, but you can add whatever server information is appropriate if you're using something like CloudAMQP or a non dev environment. Obviously if you are using this in production, please be mindful of how you are storing this information.
+  - The `cfg.Host` portion is actually optional for local development if you are running RMQ locally using the MassTransit image, but you can add whatever server information is appropriate if you're using something like CloudAMQP or a non dev environment. Obviously if you are using this in production, please be mindful of how you are storing this information.
 - `Message<ISendReportRequest>(e => e.SetEntityName("report-requests"))` is telling MassTransit that we want to send messages of type `ISendReportRequest` to an exchange called `report-requests`.
 - `Publish<ISendReportRequest>(e => e.ExchangeType = ExchangeType.Direct)` is telling MassTransit that we want messages of type `ISendReportRequest` to be published using a `direct` exchange type.
-- `Send<ISendReportRequest>` is setting up the *routing configuration* we want to use when we sent a message of type `ISendReportRequest`. In this case, we are using `UseRoutingKeyFormatter` to tell MassTransit that we want to use the provider as the routing key (e.g. `email` or `fax`)
+- `Send<ISendReportRequest>` is setting up the _routing configuration_ we want to use when we sent a message of type `ISendReportRequest`. In this case, we are using `UseRoutingKeyFormatter` to tell MassTransit that we want to use the provider as the routing key (e.g. `email` or `fax`)
 - `AddMassTransitHostedService` will add the service bus and some additional bells and whistles like health check integration that we won't worry about for now.
 
 ### Publishing Our Message
 
-Next, we can publish our message! The exact location that you put this depends on the way you've organized your project, but the principle is the same. In this example, I have a MediatR RequestHandler (technically an in-memory message bus dealing with 
+Next, we can publish our message! The exact location that you put this depends on the way you've organized your project, but the principle is the same. In this example, I have a MediatR RequestHandler (technically an in-memory message bus dealing with
 commands instead of events), but you could put it in a repository or other method if that's how your project is set up. Regardless of where you're adding it, it's pretty straight forward.
 
 As our starting point, lets say that I have a `SubmitReportRequestCommand` command that adds an order request to the database:
@@ -378,8 +383,8 @@ services.AddMassTransitHostedService();
 - `cfg.ReceiveEndpoint("email-reports", re =>` is creating an intermediary fanout exchange named `email-reports` as well as a queue of the same name that will be bound to it.
 - `re.ConfigureConsumeTopology = false;` turns off the default fanout settings
 - `re.SetQuorumQueue();` sets the queue to be a quorum queue, a best practice made available starting in RMQ 3.8. For more details see [this writeup by CloudAMQP](https://www.cloudamqp.com/blog/reasons-you-should-switch-to-quorum-queues.html).
-- `re.SetQueueArgument("declare", "lazy");` sets the queue to be lazy [per CloudAMQP best practices](https://www.cloudamqp.com/blog/part1-rabbitmq-best-practice.html#enable-lazy-queues-to-get-predictable-performance). If you need really high performance, 
-always have short queues, or have a max length policy you should remove this setting.
+- `re.SetQueueArgument("declare", "lazy");` sets the queue to be lazy [per CloudAMQP best practices](https://www.cloudamqp.com/blog/part1-rabbitmq-best-practice.html#enable-lazy-queues-to-get-predictable-performance). If you need really high performance,
+  always have short queues, or have a max length policy you should remove this setting.
 - `re.Consumer<EmailConsumer>();` subscribes the `EmailConsumer` to the `email-reports` queue.
 - `re.Bind("report-requests", e =>` binds the `report-requests` exchange to the intermediary exchange.
 - `e.RoutingKey = "email";` sets the binding between the primary and intermediary exchange to a particular routing key
@@ -572,16 +577,16 @@ public class CloudConsumer : IConsumer<ISendReportRequest>
 ```
 
 ## RabbitMQ Best Practices
+
 If you'd like to read on some of the best practices to follow around RabbitMQ, check out [this post by CloudAMQP](https://www.cloudamqp.com/blog/part1-rabbitmq-best-practice.html#enable-lazy-queues-to-get-predictable-performance).
 
-
 ## Using Craftsman to Add MassTransit Into Your Projects in Minutes
-In the upcoming v0.10.x [release of Craftsman](https://github.com/pdevito3/craftsman), you will have several commands available to you like `add:bus`, `add:message`, `register:consumer`, and `register:producer` to scaffold out your 
-events in minutes. This eventing functionality will continue to be improved in future releases to include scaffolded tests, logging, open telemetry tracing, and more. 
 
+In the upcoming v0.10.x [release of Craftsman](https://github.com/pdevito3/craftsman), you will have several commands available to you like `add:bus`, `add:message`, `register:consumer`, and `register:producer` to scaffold out your
+events in minutes. This eventing functionality will continue to be improved in future releases to include scaffolded tests, logging, open telemetry tracing, and more.
 
 ## Coming in the Next Post
 
-In the next post of the series, we’ll look at how we can implement testing for our events. 
+In the next post of the series, we’ll look at how we can implement testing for our events.
 
 Regardless, I hope this was helpful! I'd love to hear your thoughts and insights [on Twitter](https://twitter.com/pdevito3) @pdevito3.
