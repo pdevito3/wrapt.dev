@@ -44,13 +44,13 @@ A list of properties that can be assigned to an entity.
 
 ### Features
 
-| Name           | Required | Description                                                                                                                                                                                                                               | Default            |
-| -------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_             |
-| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                | _false_            |
-| PermissionName | No       | The name of the authorization policy attribute.                                                                                                                                                                                           | _Can[FEATURENAME]_ |
+| Name           | Required | Description                                                                                                                                                                                                                                                | Default            |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `Job`, `GetRecord`, `GetList`, `GetAll`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_             |
+| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                                 | _false_            |
+| PermissionName | No       | The name of the authorization policy attribute.                                                                                                                                                                                                            | _Can[FEATURENAME]_ |
 
-`GetRecord`, `GetList`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `AddListByFk` are all standard CRUD features along with their endpoints and associated tests.
+`GetRecord`, `GetList`, `GetAll`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `AddListByFk` are all standard CRUD features along with their endpoints and associated tests.
 
 > ℹ DTOs, validators, profiles and functional test routes associated to all features will be added regardless of whether or not a given feature was added. This is due to the complexity of all
 > the minute management around handling these so dynamically. Feel free to delete whatever you're not using.
@@ -66,6 +66,17 @@ The `AddListByFk` will let you add a list or batch of records using a foreign ke
 | ParentEntity       | Yes      | The name of the parent entity that the FK you using is associated to. For example, if you had a FK of `EventId`, the parent entity might be `Event`. Leave null if you're not batching on a FK. | _None_  |
 | ParentEntityPlural | Yes      | The plural of the FK entity. Leave null if you're not batching on a FK.                                                                                                                         | _None_  |
 
+#### Hangfire Jobs
+
+You can also add features that will be setup for a Hangfire job instead of a MediatR handler using the `Job` feature type.
+
+| Name         | Required | Description                                                                                                                                                                               | Default         |
+| ------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
+| Name         | Yes      | The name of the feature. This is the name of the feature's method and would generally be something like `AddCustomer` or `GetCustomer`.                                                   | _None_          |
+| EntityPlural | No       | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly. | _[ENTITYNAME]s_ |
+
+> You can also add any of the above features after the fact using the [`add feature` command](/docs/add-feature).
+
 #### Ad Hoc Features
 
 You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, there's a bit more that needs to be done. In addition to `Type` above, you'll want to provide the below:
@@ -73,7 +84,6 @@ You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, t
 | Name         | Required | Description                                                                                                                                                                                                | Default         |
 | ------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- |
 | Name         | Yes      | The name of the feature. This is the name of the feature's method and would generally be something like `AddCustomer` or `GetCustomer`.                                                                    | _None_          |
-| Command      | Yes      | The name of the command. This is the name of the feature's class and would generally be something like `AddCustomerCommand` or `GetCustomerQuery`.                                                         | _[NAME]Command_ |
 | EntityPlural | No       | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly.                  | _[ENTITYNAME]s_ |
 | ResponseType | No       | Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. | _bool_          |
 
@@ -120,10 +130,13 @@ Notice the difference in the examples below, with the first being the principal 
 - Name: Customer
   Features:
     - Type: GetList
+    - Type: GetAll
     - Type: GetRecord
     - Type: AddRecord
     - Type: UpdateRecord
     - Type: DeleteRecord
+    - Type: Job
+      Name: PerformCustomerMigration
   Properties:
     - Name: FirstName
     - Name: LastName
@@ -175,10 +188,13 @@ BoundedContexts:
       - Name: Customer
         Features:
           - Type: GetList
+          - Type: GetAll
           - Type: GetRecord
           - Type: AddRecord
           - Type: UpdateRecord
           - Type: DeleteRecord
+          - Type: Job
+            Name: PerformCustomerMigration
         Properties:
           - Name: FirstName
           - Name: LastName
