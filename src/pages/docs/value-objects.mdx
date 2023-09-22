@@ -9,8 +9,8 @@ We use them to group a set of related attributes and behavior related to those a
 
 - Value objects don't have a key, they are just a collection of one or more properties.
 - Like entities should protect themselves from being in an “invalid state”. Meaning, we should validate
-  incoming data in a constructor or in a factory method and do not allow the creation of value.
-  objects that do not conform to business rules.
+  incoming data in a constructor, in a factory method, or a property initializer and do not
+  allow the creation of value objects that do not conform to business rules.
 - Value objects can be composed of other value objects.
 - Equality is based on values of attributes and nothing else.
 
@@ -186,14 +186,14 @@ There are two steps in this section:
 ```csharp
 public class Author : BaseEntity
 {
-    public virtual string Name { get; private set; }
-    public virtual Address PhysicalAddress { get; private set; }
+    public string Name { get; private set; }
+    public Address PhysicalAddress { get; private set; }
 
     [JsonIgnore]
     [IgnoreDataMember]
     [ForeignKey("Recipe")]
-    public virtual Guid RecipeId { get; private set; }
-    public virtual Recipe Recipe { get; private set; }
+    public Guid RecipeId { get; private set; }
+    public Recipe Recipe { get; private set; }
 
 
     public static Author Create(AuthorForCreationDto authorForCreationDto)
