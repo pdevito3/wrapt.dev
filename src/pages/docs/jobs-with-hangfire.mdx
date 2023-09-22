@@ -1,0 +1,128 @@
+---
+title: Jobs With Hangfire
+description: A walkthrough of working with Hangfire to set up jobs in Wrapt projects
+---
+
+## What is Hangfire?
+
+Hangfire is a library that allows you to perform background jobs to perform tasks out of process. It's a
+great way to offload long running tasks from your web server to a background process or to schedule jobs
+to run at a later time.
+
+These might sound similar to publishing events to something like RabbitMQ, but generally, that would be
+better for communication **between** boundaries, where Hangfire jobs are great for leveraging **inter-boundary concerns**
+and let's a boundary kick something to a longer running out of process task that can happen in the background and stay
+within it's own context.
+
+Some examples of jobs might be migrating data from a legacy system, sending emails, enriching records,
+or performing some sort of data processing.
+
+## How Hangfire is Setup in Wrapt
+
+Setting up Hangfire in a .NET project is pretty simple and is just done using a standard setup in Wrapt projects. By default,
+your project will just be using the in-memory storage for Hangfire, but you can easily switch to a SQL Server database or
+some other option depending on your needs.
+
+## How to Create a Job
+
+Wrapt doesn't have any special handling around job creation, but it does let you scaffold out [a job as feature](/docs/entities#hangfire-jobs)
+to save some time.
+
+### User Context for Your Jobs
+
+If you're using auth, you will likely want to provide user context to the job so that context can be given when running the job. Out of the box,
+your project will have a `CurrentUserFilter` attribute that will automatically provide the user context to the job for whoever called this method.
+One common expansion you could make to this might be to add another filter that just sets the user to some generic job user if you don't care
+who called it. For example, you could do something like this:
+
+```csharp
+public class JobUserFilterAttribute : JobFilterAttribute, IClientFilter
+{
+    public void OnCreating(CreatingContext context)
+    {
+        var user = "job-user-a6c244ad-5c29-4f61-a272-4c6abc099abb";
+        context.SetJobParameter("User", user);
+    }
+
+    public void OnCreated(CreatedContext context)
+    {
+    }
+}
+```
+
+Then you could use it like this:
+
+```csharp
+public class DeleteRecipeAsJob
+{
+    private readonly IRecipeRepository _recipeRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IHeimGuardClient _heimGuard;
+
+    public DeleteRecipeAsJob(IRecipeRepository recipeRepository, IUnitOfWork unitOfWork, IHeimGuardClient heimGuard)
+    {
+        _recipeRepository = recipeRepository;
+        _unitOfWork = unitOfWork;
+        _heimGuard = heimGuard;
+    }
+
+    public sealed record Command(Guid Id);
+
+    [JobDisplayName("Delete Recipe")]
+    [JobUserFilter]
+    public async Task Handle(Command request, CancellationToken cancellationToken)
+    {
+        await _heimGuard.MustHavePermission<ForbiddenAccessException>(Permissions.CanDeleteRecipes);
+
+        var recordToDelete = await _recipeRepository.GetById(request.Id, cancellationToken: cancellationToken);
+        _recipeRepository.Remove(recordToDelete);
+        await _unitOfWork.CommitChanges(cancellationToken);
+    }
+}
+```
+
+## Testing Hangfire Jobs
+
+You can test Hangfire jobs in two ways. You can test the job itself, or you can test the entire job flow.
+
+If you want to test the job itself, you can use an integration test to test the job in isolation. An skeleton test
+should be generated for you when scaffolding the job feature.
+
+If you want to test an entire job flow, you'll need to do it in a functional test where the hosted service
+for the job is actually running on the web host factory. For example, say you have a job that deletes a Recipe,
+I can hit the endpoint that triggers the job, wait for the job to complete, and then check the database to make sure it's gone.
+
+```csharp
+    [Fact]
+    public async Task can_test_job_flow()
+    {
+        // Arrange
+        var recipe = new recipeBuilder().Build();
+
+        var user = await AddNewSuperAdmin();
+        FactoryClient.AddAuth(user.Identifier);
+        await InsertAsync(recipe);
+
+        // Act
+        var route = $"{ApiRoutes.Recipes.Delete(recipe.Id)}/asjob";
+        var result = await FactoryClient.DeleteRequestAsync(route);
+
+        // Assert
+        result.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        await Task.Delay(500);
+        var recipe = await ExecuteDbContextAsync(db => db.Recipes.FirstOrDefaultAsync(x => x.Id == recipe.Id));
+        recipe.Should().BeNull();
+    }
+```
+
+### Hangfire Tags
+
+If you want to use tags with your jobs, the current hangfire abstraction might give you problems in your
+integration tests given the way the Tags library is built. The simplest way around this is to create a wrapper
+around the tag creation method to not apply tags when in the testing env.
+
+## Hangfire Dashboard
+
+The hangfire dashboard is available at `/hangfire`. There are protections on it to only show in development, but can (and should) be
+expanded on to show in other environments with whatever makes sense in your larger business context.

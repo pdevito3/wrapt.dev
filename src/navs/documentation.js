@@ -51,6 +51,7 @@ export const documentationNav = {
   ],
   'Additional Resources': [
     pages['auth-with-wrapt'],
+    pages['jobs-with-hangfire'],
     pages['communicating-between-bounded-contexts'],
     pages['logging'],
     pages['migrations'],

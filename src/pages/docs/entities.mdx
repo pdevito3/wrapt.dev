@@ -75,8 +75,6 @@ You can also add features that will be setup for a Hangfire job instead of a Med
 | Name         | Yes      | The name of the feature. This is the name of the feature's method and would generally be something like `AddCustomer` or `GetCustomer`.                                                   | _None_          |
 | EntityPlural | No       | The plural name of the entity that the feature will be added to (should match the name in the `Domain` directory). You can leave this blank to add it to the `Domain` directory directly. | _[ENTITYNAME]s_ |
 
-> You can also add any of the above features after the fact using the [`add feature` command](/docs/add-feature).
-
 #### Ad Hoc Features
 
 You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, there's a bit more that needs to be done. In addition to `Type` above, you'll want to provide the below:
