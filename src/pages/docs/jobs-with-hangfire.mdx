@@ -107,11 +107,11 @@ I can hit the endpoint that triggers the job, wait for the job to complete, and 
         var route = $"{ApiRoutes.Recipes.Delete(recipe.Id)}/asjob";
         var result = await FactoryClient.DeleteRequestAsync(route);
 
-        // Assert
-        result.StatusCode.Should().Be(HttpStatusCode.NoContent);
-
         await Task.Delay(500);
         var dbRecipe = await ExecuteDbContextAsync(db => db.Recipes.FirstOrDefaultAsync(x => x.Id == recipe.Id));
+
+        // Assert
+        result.StatusCode.Should().Be(HttpStatusCode.NoContent);
         dbRecipe.Should().BeNull();
     }
 ```
