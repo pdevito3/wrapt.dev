@@ -97,7 +97,7 @@ I can hit the endpoint that triggers the job, wait for the job to complete, and 
     public async Task can_test_job_flow()
     {
         // Arrange
-        var recipe = new recipeBuilder().Build();
+        var recipe = new FakeRecipeBuilder().Build();
 
         var user = await AddNewSuperAdmin();
         FactoryClient.AddAuth(user.Identifier);
@@ -111,8 +111,8 @@ I can hit the endpoint that triggers the job, wait for the job to complete, and 
         result.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         await Task.Delay(500);
-        var recipe = await ExecuteDbContextAsync(db => db.Recipes.FirstOrDefaultAsync(x => x.Id == recipe.Id));
-        recipe.Should().BeNull();
+        var dbRecipe = await ExecuteDbContextAsync(db => db.Recipes.FirstOrDefaultAsync(x => x.Id == recipe.Id));
+        dbRecipe.Should().BeNull();
     }
 ```
 
