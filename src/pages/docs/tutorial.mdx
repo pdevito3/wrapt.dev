@@ -115,6 +115,10 @@ BoundedContexts:
             Type: string
           - Name: ImageLink
             Type: string
+          - Name: Ingredients
+            Relationship: 1tomany
+            ForeignEntityName: Ingredient
+            ForeignEntityPlural: Ingredients
       - Name: Ingredient
         Features:
           - Type: AddRecord
@@ -123,8 +127,6 @@ BoundedContexts:
           - Type: UpdateRecord
           - Type: DeleteRecord
         Properties:
-          - Name: RecipeId
-            Type: int?
           - Name: Name
             Type: string
           - Name: Unit
@@ -165,6 +167,10 @@ BoundedContexts:
             Type: string
           - Name: ImageLink
             Type: string
+          - Name: Ingredients
+            Relationship: 1tomany
+            ForeignEntityName: Ingredient
+            ForeignEntityPlural: Ingredients
       - Name: Ingredient
         Features:
           - Type: AddRecord
@@ -173,8 +179,6 @@ BoundedContexts:
           - Type: UpdateRecord
           - Type: DeleteRecord
         Properties:
-          - Name: RecipeId
-            Type: int?
           - Name: Name
             Type: string
           - Name: Unit
