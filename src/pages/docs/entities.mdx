@@ -16,7 +16,7 @@ With that said, if you want to create an aggregate, you can scaffold out an enti
 | Name                      | Yes                                    | The name of the entity                                                                                  | _None_                                                                                    |
 | [Properties](#properties) | Yes                                    | A list of properties assigned to your entity described in the [entity properties](#properties) section. | _None_                                                                                    |
 | [Features](#features)     | Yes                                    | This is a list of features that you want to add for a particular entity.                                | _None_                                                                                    |
-| Plural                    | No                                     | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`)                          | _Entity Name appended with an `s`_                                                        |
+| Plural                    | No                                     | The plural of the entity name, if needed (e.g. `Cities` would prevent `Citys`)                          | \_Entity Name pluralized with `Humanizer`.                                                |
 | Lambda                    | No                                     | The value to use in lambda expressions for this entity.                                                 | First letter of the entity name.                                                          |
 | TableName                 | No (Yes if you want to set a `Schema`) | The name of the table in the database.                                                                  | Defaulted to the singular `Name`.                                                         |
 | Schema                    | No                                     | The schema to use in the database.                                                                      | _None_, which will equate to `dbo` in SqlServer, `public` in Postgres, or `mydb` in MySQL |
@@ -30,7 +30,7 @@ A list of properties that can be assigned to an entity.
 | Name                | Required | Description                                                                                                                                                                                                                                                                                                          | Default                            |
 | ------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | Name                | Yes      | The name of the property                                                                                                                                                                                                                                                                                             | _None_                             |
-| Type                | No       | The data type for the property. These are _not_ case sensitive and they can be set to nullable with a trailing `?`. All standard C# data types can be used here. You even do custom properties like classes that act as foreign keys for instance.                                                                   | _string_                           |
+| Type                | No       | The data type for the property. These are _not_ case sensitive and they can be set to nullable with a trailing `?`. All standard C# data types can be used here. String arrays are also supported `string[]`.                                                                                                        | _string_                           |
 | IsRequired          | No       | When true, the property will be set as required in the database.                                                                                                                                                                                                                                                     | false<br/>_true for primary key_   |
 | ColumnName          | No       | The database field name for the given property.                                                                                                                                                                                                                                                                      | _None_                             |
 | CanManipulate       | No       | When set to false, you will not be able to update this property when calling the associated endpoint. When set to `false`, the property will be able to be established when using the POST endpoint, but will not be able to be updated after that. This is managed by the DTOs if you want to manually adjust this. | true<br/>_false for primary key_   |
@@ -39,6 +39,10 @@ A list of properties that can be assigned to an entity.
 | ForeignEntityPlural | No       | The plural value for the foreign entity, if applicable.                                                                                                                                                                                                                                                              | _Entity Name appended with an `s`_ |
 | IsChildRelationship | No       | Only used when establishing a relationship. Designates whether or not a relationship property is being set from the child entity.                                                                                                                                                                                    | _false_                            |
 | SmartNames          | No       | A list of strings used to create a smart enum property. Each string denotes an option for the smart enum. See [the smart enum example below](#smart-enums) for details. Property attributes like filtering and sorting can be used if desired.                                                                       | _None_                             |
+| IsLogMasked         | No       | Can be used to mark a property as masked when logged.                                                                                                                                                                                                                                                                | _false_                            |
+| AsValueObject       | No       | Can be used to designate a property as a specific kind of value object. See more below.                                                                                                                                                                                                                              | _None_                             |
+| ValueObjectName     | No       | The name of the value object. This is only used if designating a value object.                                                                                                                                                                                                                                       | _None_                             |
+| ValueObjectPlural   | No       | The plural of the value object. This is only used if designating a value object.                                                                                                                                                                                                                                     | _None_                             |
 
 <!-- | Auditable          | No       | This will determine if an entity is auditable or not. See [Auditable Entities](#auditable-entities) for more information | false                            | -->
 
@@ -86,6 +90,118 @@ You can also add ad hoc skeletons with the `AdHoc` type. For `AdHoc` features, t
 | ResponseType | No       | Is the type of response that this command will return. This could be any C# type that you want, or even a custom type if you want, but in that case, you'll need to add a using statement for it manually. | _bool_          |
 
 > You can also add any of the above features after the fact using the [`add feature` command](/docs/add-feature).
+
+## Value Objects
+
+Craftsman can handle a few different types of value objects directly on your properties. Let's look at the different types of value objects and how they work.
+
+### Built In Value Objects
+
+Craftsman has a few built in value objects below:
+
+- Email
+- MonetaryAmount
+- Percent
+
+> Note that `Address` is also a built in value object, but is a complex value object much must be handled manually post scaffolding for the time being.
+
+To use these value objects, you can simply add the value above in the `AsValueObject` property to your property and set it
+to the value object you want to use. For example:
+
+```yaml
+Entities:
+  - Name: Author
+    Features:
+      - Type: GetList
+    Properties:
+      - Name: Name
+      - Name: Ownership
+        AsValueObject: Percent
+      - Name: Email
+        AsValueObject: Email
+      - Name: Ingredient
+        Features:
+          - Type: GetList
+        Properties:
+          - Name: Name
+          - Name: AverageCost
+            AsValueObject: MonetaryAmount
+```
+
+### Simple Value Objects
+
+You can also create your own simple value objects. These are value objects that are a single property
+of whatever type you have designated for that property.
+
+For example, a `Rating` value object might be a single `int?` property. To create a simple value object,
+you can use the `AsValueObject` property and set it to `Simple` to great a value object called `Rating`
+that will back your property. For example:
+
+```yaml
+Entities:
+  - Name: Recipe
+    Features:
+    #...
+    Properties:
+      - Name: Title
+      - Name: Rating
+        Type: int?
+        AsValueObject: Simple
+```
+
+You can also set the name of the value object by using the `ValueObjectName` and `ValueObjectPlural` properties.
+`ValueObjectPlural` will try to pluralize for you automatically and get it right in most cases, but you can
+override it if you want. For example:
+
+```yaml
+Entities:
+  - Name: Recipe
+    Features:
+    #...
+    Properties:
+      - Name: Title
+      - Name: Rating
+        Type: int?
+        AsValueObject: Simple
+        ValueObjectName: UserRating
+        ValueObjectPlural: UserRatings
+```
+
+### Smart Value Objects
+
+You can also use the `SmartNames` property to create value objects backed by smart enum options like so:
+
+```yaml
+Entities:
+  - Name: Recipe
+    Features:
+    #...
+    Properties:
+      - Name: Title
+      - Name: Visibility
+        SmartNames:
+          - Public
+          - Friends Only
+          - Private
+```
+
+You can customize these with a custom name as well:
+
+```yaml
+Entities:
+  - Name: Recipe
+    Features:
+    #...
+    Properties:
+      - Name: Title
+      - Name: Visibility
+        SmartNames:
+          - Public
+          - Friends Only
+          - Private
+        ValueObjectName: RecipeVisibility
+        ValueObjectPlural: RecipeVisibilities
+```
 
 ## Keys and Relationships
 
@@ -347,23 +463,4 @@ Entities:
         Type: string
       - Name: Directions
         Type: string
-```
-
-## Smart Enums
-
-If you want to use smart enums, you can use the `SmartNames` property like so:
-
-```yaml
-Entities:
-  - Name: Recipe
-    Features:
-    #...
-    Properties:
-      - Name: Title
-        Type: string
-      - Name: Visibility
-        SmartNames:
-          - Public
-          - Friends Only
-          - Private
 ```
