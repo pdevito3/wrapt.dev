@@ -1,0 +1,540 @@
+import { pauldevito } from "src/data/authors";
+import image from "./card.png";
+
+export const blogmeta = {
+  title: "How to Add a UI or Dashboard as Middleware in your .NET Web API",
+  description: `Let's see how we can add a dashboard or other UI to our web api (like swagger or the hangfire dashboard) using raw HTML or React.`,
+  date: "2023-11-02 23:37:16", // Ctrl+Shift+I w/ Insert Date String plugin
+  authors: [pauldevito],
+  category: "User Interfaces",
+  image,
+  tags: ["dotnet", "ui", "middleware", "react"],
+};
+
+## Introduction
+
+I I've been wanting to see how I could add a custom UI/dashboard to my web api (like swagger or the hangfire) for a
+while now. I finally gave it a go the other night and it was pretty fun, so I figured I'd share!
+
+### Example Repo
+
+There are two repos:
+
+- [The backend](https://github.com/pdevito3/hello-dotnet-dashboard) that web api to test out adding a UI to the project
+- [The SPA Frontend](https://github.com/pdevito3/hello-dotnet-dashboard) for when we get to the React workflow
+
+## API Setup
+
+Let's start out with a basic project I'm going to use a basic Craftsman example, but you can just do a dotnet
+weather template if you'd prefer!
+
+Install, craftsman, create the example, and select `Basic`:
+
+```bash
+dotnet tool install -g craftsman
+craftsman new example
+```
+
+Or a regular dotnet web api template:
+
+```bash
+dotnet new webapi
+```
+
+## POC an HTML Dashboard
+
+Let's start out with a POC of getting a basic HTML dashboard to show up with some middleware. We'll start out
+by adding a simple HMTL page to our project -- I'm going to create a new directory at called `CustomUI` at
+the root of my project directory and add my html file there:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Custom UI</title>
+  </head>
+  <body>
+    <h1>Welcome to the Custom UI!</h1>
+    <div id="recipes"></div>
+  </body>
+</html>
+```
+
+We also want to make sure we include our html in our `csproj`:
+
+```xml
+  <ItemGroup>
+    <EmbeddedResource Include="CustomUI\index.html" />
+  </ItemGroup>
+```
+
+Then we'll add a new middleware class to our project. I'm going to call mine `CustomUIMiddleware` and add it
+
+```csharp
+public class CustomUIMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly string _embeddedFileNamespace;
+
+    public CustomUIMiddleware(RequestDelegate next, string embeddedFileNamespace)
+    {
+        _next = next;
+        _embeddedFileNamespace = embeddedFileNamespace;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        if (context.Request.Path.StartsWithSegments("/custom-ui", StringComparison.OrdinalIgnoreCase))
+        {
+            var resourceName = _embeddedFileNamespace + ".index.html";
+            var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+
+            if (resourceStream == null)
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return;
+            }
+
+            context.Response.ContentType = "text/html";
+            context.Response.Headers[HeaderNames.CacheControl] = "no-cache, no-store";
+            context.Response.Headers[HeaderNames.Pragma] = "no-cache";
+            context.Response.Headers[HeaderNames.Expires] = "-1";
+
+            await resourceStream.CopyToAsync(context.Response.Body);
+        }
+        else
+        {
+            await _next(context);
+        }
+    }
+}
+
+public static class CustomUIMiddlewareExtensions
+{
+    public static IApplicationBuilder UseCustomUI(this IApplicationBuilder app)
+    {
+        var embeddedFileNamespace = "RecipeManagement.CustomUI";
+        return app.UseMiddleware<CustomUIMiddleware>(embeddedFileNamespace);
+    }
+}
+```
+
+Now we'll add the middleware to our `Program.cs` file:
+
+```csharp
+app.UseCustomUI();
+```
+
+And that's it! now you can run your api (e.g. `dotnet run`) and navigate to `https://localhost:YOUR-PORT/custom-ui` to see your HTML!
+
+And if we wanted to hit an endpoint that our web api exposes, we just need to do something like this:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Custom UI</title>
+  </head>
+  <body>
+    <h1>Welcome to the Custom UI!</h1>
+    <div id="recipes"></div>
+    <script>
+      window.onload = function () {
+        fetch("/api/recipes")
+          .then((response) => response.json())
+          .then((data) => {
+            const recipesElement = document.getElementById("recipes");
+            recipesElement.innerHTML =
+              "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+          })
+          .catch((error) => {
+            console.error("There was an error fetching the recipes:", error);
+          });
+      };
+    </script>
+  </body>
+</html>
+```
+
+## More Than Just HTML -- Adding React
+
+Now that we have a basic HTML page, let's see how we can bundle a React app and add it to our project instead. We'll start out by
+making a react app using `npm create vite@latest hello-dashboard-ui --template react-ts`. There's nothing particularly special about this
+template in the context of this example, any React project (or other SPA for that matter) would work here. That's because all we need to
+do for this portion to work is to bundle out app into html to use the same way we did before with regular HTML!
+
+I'm also [going to add tailwind](https://tailwindcss.com/docs/guides/vite) for styling, but that's optional.
+
+Before we do anything special, we can try bundling our React app as is and using that instead of the HTML. With a vite project, we can do this
+
+```bash
+npm run build
+```
+
+We should get an output like this:
+
+```bash
+vite v4.5.0 building for production...
+✓ 139 modules transformed.
+dist/index.html                   0.55 kB │ gzip:  0.35 kB
+dist/assets/index-03182495.css    5.59 kB │ gzip:  1.77 kB
+dist/assets/index-b8da50c8.js   207.34 kB │ gzip: 68.24 kB
+dist/vite.svg
+✓ built in 1.23s
+```
+
+We can then we can copy the `index.html` and other content in the `dist` folder into our `CustomUI` directory in out dotnet project. Don't forget to
+add the files to your `csproj`!
+
+```xml
+  <ItemGroup>
+    <EmbeddedResource Include="CustomUI\**" />
+  </ItemGroup>
+```
+
+Then we need to update our dotnet app middleware a bit to handle this extra setup:
+
+```csharp
+public class CustomUIMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly string _embeddedFileNamespace;
+
+    public CustomUIMiddleware(RequestDelegate next, string embeddedFileNamespace)
+    {
+        _next = next;
+        _embeddedFileNamespace = embeddedFileNamespace;
+    }
+
+    public async Task Invoke(HttpContext context)
+    {
+        var path = context.Request.Path.Value.TrimStart('/');
+
+        if (context.Request.Path.StartsWithSegments("/custom-ui", StringComparison.OrdinalIgnoreCase)
+            || context.Request.Path.StartsWithSegments("/assets", StringComparison.OrdinalIgnoreCase))
+        {
+
+            if (path.StartsWith("custom-ui"))
+            {
+                path = path.Substring("custom-ui".Length).TrimStart('/');
+            }
+
+            if (string.IsNullOrEmpty(path))
+            {
+                path = "index.html";
+
+            }
+
+            var resourceName = $"RecipeManagement.CustomUI.{path.Replace("/", ".")}";
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceStream = assembly.GetManifestResourceStream(resourceName);
+
+            if (resourceStream != null)
+            {
+                var contentType = GetContentType(path);
+                context.Response.ContentType = contentType;
+
+                if (path.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+                {
+                    using (var reader = new StreamReader(resourceStream))
+                    {
+                        var content = await reader.ReadToEndAsync();
+                        await context.Response.WriteAsync(content);
+                        return;
+                    }
+                }
+
+                await resourceStream.CopyToAsync(context.Response.Body);
+            }
+            else
+            {
+                var logger = context.RequestServices.GetService<ILogger<CustomUIMiddleware>>();
+                logger?.LogWarning($"Resource not found: {resourceName}");
+
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+            }
+        }
+        else
+        {
+            await _next(context);
+        }
+    }
+}
+
+private string GetContentType(string path)
+{
+    return path switch
+    {
+        var p when p.EndsWith(".html", StringComparison.OrdinalIgnoreCase) => "text/html",
+        var p when p.EndsWith(".js", StringComparison.OrdinalIgnoreCase) => "application/javascript",
+        var p when p.EndsWith(".css", StringComparison.OrdinalIgnoreCase) => "text/css",
+        var p when p.EndsWith(".svg", StringComparison.OrdinalIgnoreCase) => "image/svg+xml",
+        _ => "application/octet-stream"
+    };
+}
+
+
+public static class CustomUIMiddlewareExtensions
+{
+    public static IApplicationBuilder UseCustomUI(this IApplicationBuilder app)
+    {
+        var embeddedFileNamespace = "RecipeManagement.CustomUI";
+        return app.UseMiddleware<CustomUIMiddleware>(embeddedFileNamespace);
+    }
+}
+
+```
+
+Now we can run our dotnet project and navigate to `https://localhost:YOUR-PORT/custom-ui` again, only now
+we should see our React app instead of the HTML page.
+
+And just like before, we could update the page to call an API as well. I'm going to use Tanstack query, but you could use whatever you want:
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+
+function App() {
+  const environment = getEnv();
+  return (
+    <div className="p-8">
+      <h1 className="text-xl font-bold text-violet-500">
+        Hello React Dash in ({environment})
+      </h1>
+      <Recipes />
+    </div>
+  );
+}
+
+function useRecipes() {
+  return useQuery({
+    queryKey: ["recipes"],
+    queryFn: async () =>
+      axios
+        .get(
+          getEnv() === "Standalone"
+            ? "https://localhost:5375/api/recipes"
+            : "/api/recipes"
+        )
+        .then((response) => response.data),
+  });
+}
+
+// You'll see what this is in the next section!
+export function getEnv() {
+  const env = window.ASPNETCORE_ENVIRONMENT;
+  return env === "{{ASPNETCORE_ENVIRONMENT}}" ? "Standalone" : env;
+}
+
+function Recipes() {
+  const { isLoading, data } = useRecipes();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {data &&
+        data?.map(
+          (recipe: {
+            id: string;
+            imageLink: string;
+            title: string;
+            description: string;
+            recipeSourceLink: string;
+          }) => (
+            <div key={recipe.id} className="p-4 bg-white rounded-lg shadow-lg">
+              <img
+                src={recipe.imageLink}
+                alt={recipe.title}
+                className="object-cover w-full h-32 sm:h-48"
+              />
+              <div className="p-4">
+                <h2 className="text-lg font-bold">{recipe.title}</h2>
+                <p className="text-sm">{recipe.description}</p>
+                <a
+                  href={recipe.recipeSourceLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Source
+                </a>
+              </div>
+            </div>
+          )
+        )}
+    </div>
+  );
+}
+
+export default App;
+```
+
+## Passing Data to our React App
+
+One thing you might want to do is pass data down to your React App. For example, what if you wanted to pass along your dotnet environment?
+
+First, let's expose it to our html from our middleware:
+
+```csharp
+if (path.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+{
+    using var reader = new StreamReader(resourceStream);
+    var content = await reader.ReadToEndAsync();
+
+
+    // Here you inject the environment variable value into the placeholder in your index.html
+    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    content = content.Replace("{{ASPNETCORE_ENVIRONMENT}}", environment);
+    // -------------------
+
+    await context.Response.WriteAsync(content);
+    return;
+
+}
+```
+
+And now we can access it from our app to do stuff like this:
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+
+function App() {
+  const environment = getEnv();
+  return (
+    <div className="p-8">
+      <h1 className="text-xl font-bold text-violet-500">
+        Hello React Dash in ({environment})
+      </h1>
+      <Recipes />
+    </div>
+  );
+}
+
+function useRecipes() {
+  return useQuery({
+    queryKey: ["recipes"],
+    queryFn: async () =>
+      axios
+        .get(
+          getEnv() === "Standalone"
+            ? "https://localhost:5375/api/recipes"
+            : "/api/recipes"
+        )
+        .then((response) => response.data),
+  });
+}
+
+export function getEnv() {
+  const env = window.ASPNETCORE_ENVIRONMENT;
+  return env === "{{ASPNETCORE_ENVIRONMENT}}" ? "Standalone" : env;
+}
+```
+
+In this case, I'm able to know if I'm running the React app on it's own (easier for development)
+or if it's running in the context of the dotnet app. This lets me use the right path for my API calls --
+relative to the dotnet app when it's running in the context of the dotnet app, and relative to the React app
+when it's running on it's own.
+
+Routing works too if you want to do something like below. Note that I'm using the path of my dotnet app as my base path.
+
+```tsx
+import { useQuery } from "@tanstack/react-query";
+import { Link, Outlet, RootRoute, Route, Router } from "@tanstack/react-router";
+import axios from "axios";
+
+const rootRoute = new RootRoute({
+  component: Root,
+});
+function Root() {
+  return (
+    <>
+      <div className="px-3 py-2">
+        <Link
+          className="px-2 py-3 font-semibold hover:text-violet-400 text-violet-600"
+          to="/custom-ui"
+        >
+          Home
+        </Link>
+        <Link
+          className="px-2 py-3 font-semibold hover:text-violet-400 text-violet-600"
+          to="/custom-ui/recipes"
+        >
+          Recipes
+        </Link>
+      </div>
+      <hr />
+      <Outlet />
+    </>
+  );
+}
+
+const baseRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/custom-ui",
+  component: App,
+});
+
+const recipeRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/custom-ui/recipes",
+  component: RecipePage,
+});
+
+const routeTree = rootRoute.addChildren([baseRoute, recipeRoute]);
+
+export const router = new Router({ routeTree });
+
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+function App() {
+
+  return (
+    <div>
+      <h3>Welcome Home!</h3>
+    </div>
+  );
+}
+
+function RecipePage() {
+  const environment = getEnv();
+  return (
+    <div className="p-8">
+      <h1 className="text-xl font-bold text-violet-500">
+        Hello React Dash in ({environment})
+      </h1>
+      <Recipes />
+    </div>
+  );
+}
+
+function Recipes() {
+  const { isLoading, data } = useRecipes();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    //...
+  );
+}
+
+
+
+```
+
+## Summary
+
+And that's it! With a few examples we were able to see how we can add a UI to our web api using
+raw HTML or React! If you have any questions or have any ideas on additional content you'd like to see,
+please feel free to reach out to me [on Twitter](https://twitter.com/pdevito3) @pdevito3. Happy coding!
