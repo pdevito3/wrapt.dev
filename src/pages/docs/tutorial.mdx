@@ -135,65 +135,6 @@ BoundedContexts:
             Type: double?
 ```
 
-### Swagger Setup
-
-Now I'm going to add in some Swagger documentation to provide a little extra context. Optional, but nice to have. You can also add other optional properties like [authorization settings](/docs/authorization-settings) if you'd like to include those here.
-
-```yaml
-DomainName: CarbonKitchen
-BoundedContexts:
-  - ProjectName: RecipeManagement
-    Port: 5005
-    DbContext:
-      ContextName: RecipesDbContext
-      DatabaseName: RecipeManagement
-      Provider: postgres
-    Entities:
-      - Name: Recipe
-        Features:
-          - Type: AddRecord
-          - Type: GetRecord
-          - Type: GetList
-          - Type: UpdateRecord
-          - Type: DeleteRecord
-        Properties:
-          - Name: Title
-            Type: string
-          - Name: Directions
-            Type: string
-          - Name: RecipeSourceLink
-            Type: string
-          - Name: Description
-            Type: string
-          - Name: ImageLink
-            Type: string
-          - Name: Ingredients
-            Relationship: 1tomany
-            ForeignEntityName: Ingredient
-            ForeignEntityPlural: Ingredients
-      - Name: Ingredient
-        Features:
-          - Type: AddRecord
-          - Type: GetRecord
-          - Type: GetList
-          - Type: UpdateRecord
-          - Type: DeleteRecord
-        Properties:
-          - Name: Name
-            Type: string
-          - Name: Unit
-            Type: string
-          - Name: Amount
-            Type: double?
-    SwaggerConfig:
-      Title: Carbon Kitchen Recipes
-      Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
-      ApiContact:
-        Name: Carbon Kitchen
-        Email: devsupport@CarbonKitchen.com
-        Url: https://www.carbonkitchen.com
-```
-
 ## Creating a New Domain Solution
 
 Now that we've put together our domain layout, let's actually build our solution. To start, make sure you've followed the [install instructions](/docs/installation).
@@ -217,7 +158,6 @@ So, we have this existing project, but what if we wanted to add a new entity to 
 All we need to do is create another `yaml` or `json` file (based on the [add entity template](/docs/entity-template)) that describes this new entity. Something like this:
 
 ```yaml
-AddSwaggerComments: true
 Entities:
   - Name: ShoppingListItem
     Features:
@@ -267,13 +207,6 @@ BoundedContexts:
         Properties:
           - Name: Store
             Type: string
-    SwaggerConfig:
-      Title: Carbon Kitchen Shopping
-      Description: Our API uses a REST based design, leverages the JSON data format, and relies upon HTTPS for transport. We respond with meaningful HTTP response codes and if an error occurs, we include error details in the response body. API Documentation is at carbonkitchen.com/dev/docs
-      ApiContact:
-        Name: Carbon Kitchen
-        Email: devsupport@CarbonKitchen.com
-        Url: https://www.carbonkitchen.com
 ```
 
 Then we can go to our domain directory (the one with the .gitignore):
