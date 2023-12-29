@@ -1,4 +1,5 @@
 import { ResizeObserver } from '@juggle/resize-observer'
+import { Analytics } from '@vercel/analytics/react'
 import Head from 'next/head'
 import Router from 'next/router'
 import { Fragment, useEffect, useState } from 'react'
@@ -85,6 +86,7 @@ function MyApp({ Component, pageProps, router }) {
       <Layout {...layoutProps}>
         <Component {...pageProps} />
       </Layout>
+      <Analytics />
     </>
   )
 }
