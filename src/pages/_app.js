@@ -1,4 +1,5 @@
 import { ResizeObserver } from '@juggle/resize-observer'
+import { Analytics } from '@vercel/analytics/react'
 import Head from 'next/head'
 import Router from 'next/router'
 import { Fragment, useEffect, useState } from 'react'
@@ -6,7 +7,6 @@ import BlogHeader from 'src/components/BlogHeader'
 import { Header } from 'src/components/Header'
 import { Title } from 'src/components/Title'
 import twitterLargeCard from 'src/img/twitter-large-card.png'
-import { usePanelbear } from '../hooks/usePanelbear'
 import '../styles/tailwind.css'
 // import 'intersection-observer'
 
@@ -17,10 +17,6 @@ if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
 function MyApp({ Component, pageProps, router }) {
   let [navIsOpen, setNavIsOpen] = useState(false)
   const [header, setHeader] = useState(null)
-  usePanelbear("2XQVkQvfcG5", {
-    // Uncomment to allow sending events on localhost, and log to console too.
-    // debug: true
-  });
 
   // move to state machine for fun?
   useEffect(() => {
@@ -90,6 +86,7 @@ function MyApp({ Component, pageProps, router }) {
       <Layout {...layoutProps}>
         <Component {...pageProps} />
       </Layout>
+      <Analytics />
     </>
   )
 }
