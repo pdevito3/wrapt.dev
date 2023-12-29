@@ -1,15 +1,11 @@
-import NextLink from 'next/link'
-import { PageHeader } from 'src/components/PageHeader'
 import Head from 'next/head'
+import NextLink from 'next/link'
 import PageTitle from 'src/components/PageTitle'
-import BlogHeader from 'src/components/BlogHeader'
 // import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { MDXProvider } from '@mdx-js/react'
-import twitterLargeBlogCard from 'src/img/twitter-large-blog-card.jpg'
 import dayjs from 'dayjs'
+import { useRouter } from 'next/router'
 import BlogTag from 'src/components/BlogTag'
-import smallCard from 'src/img/twitter-square.jpg'
 
 export function BlogContentLayout({ children, blogmeta }) {
   const mdxComponents = {
@@ -67,7 +63,7 @@ export function BlogContentLayout({ children, blogmeta }) {
         <meta name="description" content={blogmeta.description}></meta>
       </Head>
       <header className="">
-        <div className="py-6 xl:pb-8 px-4 md:px-10 md:max-w-4xl lg:max-w-6xl mx-auto">
+        <div className="px-4 py-6 mx-auto xl:pb-8 md:px-10 md:max-w-4xl lg:max-w-6xl">
           <div className="space-y-1 text-center">
             <div className="pt-2">
               <PageTitle>{blogmeta.title}</PageTitle>
@@ -75,12 +71,12 @@ export function BlogContentLayout({ children, blogmeta }) {
             
             <div className="py-2">
               <span className="sr-only">Category</span>
-              <p className="font-medium text-violet-600 uppercase">
+              <p className="font-medium uppercase text-violet-600">
                 {blogmeta.category}
               </p>
             </div>
 
-            <div className="hidden sm:block py-3">
+            <div className="hidden py-3 sm:block">
               <ul className="flex items-center justify-center space-x-3">
               {blogmeta.tags.map((tag) => (
                 <li key={tag}><BlogTag tag={tag} /></li>
@@ -91,7 +87,7 @@ export function BlogContentLayout({ children, blogmeta }) {
             <dl className="space-y-10">
               <div>
                 <dt className="sr-only">Published on</dt>
-                <dd className="text-base leading-6 font-medium text-gray-500">
+                <dd className="text-base font-medium leading-6 text-gray-500">
                   <time dateTime={blogmeta.date}>{formatDate(blogmeta.date)}</time>
                 </dd>
               </div>
@@ -125,19 +121,19 @@ export function BlogContentLayout({ children, blogmeta }) {
         </div>
       </header>
       <div
-        className="divide-y xl:divide-y-0 divide-gray-200 pb-16 xl:pb-20 px-4 md:px-10 md:max-w-4xl lg:max-w-6xl mx-auto"
+        className="px-4 pb-16 mx-auto divide-y divide-gray-200 xl:divide-y-0 xl:pb-20 md:px-10 md:max-w-4xl lg:max-w-6xl"
         style={{ gridTemplateRows: 'auto 1fr' }}
       >
         <div className="w-full">
-          <div className="prose pt-10 pb-8">
+          <div className="pt-10 pb-8 prose">
             <MDXProvider components={mdxComponents}>{children}</MDXProvider>
           </div>
         </div>
       </div>
         <footer className="text-sm font-medium leading-5 divide-y divide-gray-200 xl:col-start-1 xl:row-start-2">
-          <div className="py-4 px-3 flex items-center justify-center sm:justify-start ">
+          <div className="flex items-center justify-center px-3 py-4 sm:justify-start ">
             <NextLink href="/blog">
-              <a className="text-violet-500 hover:text-violet-600 text-lg sm:text-base">&larr; Back to the blog</a>
+              <a className="text-lg text-violet-500 hover:text-violet-600 sm:text-base">&larr; Back to the blog</a>
             </NextLink>
           </div>
         </footer>
