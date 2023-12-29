@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Head from 'next/head'
 import BlogHeader from 'src/components/BlogHeader'
 import getAllPostPreviews from 'src/utils/getAllPostPreviews'
-import twitterBlogCard from 'src/img/twitter-large-blog-card.png'
+import twitterBlogCard from 'src/img/twitter-large-blog-card.jpg'
 import BlogTag from 'src/components/BlogTag'
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
@@ -48,7 +48,7 @@ function index() {
   }, [tagFilter, categoryFilter])
 
   return (
-    <div className="divide-y divide-gray-200 px-4 md:px-10 md:max-w-4xl lg:max-w-6xl mx-auto">
+    <div className="px-4 mx-auto divide-y divide-gray-200 md:px-10 md:max-w-4xl lg:max-w-6xl">
       <Head>
         {
           router.pathname === '/blog' && 
@@ -72,8 +72,8 @@ function index() {
           </>
         }
       </Head>
-      <div className="pt-6 md:pb-2 space-y-2 md:space-y-5">
-        <h1 className="text-3xl leading-9 font-extrabold text-gray-900 tracking-tight sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
+      <div className="pt-6 space-y-2 md:pb-2 md:space-y-5">
+        <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
           Wrapt Blog
         </h1>
         <div className="md:flex md:items-center md:justify-between">
@@ -81,14 +81,14 @@ function index() {
             Keep up with useful web dev tips and follow my progress on building Craftsman.
           </p>
 
-          <div className="space-x-2 flex items-center justify-start">
+          <div className="flex items-center justify-start space-x-2">
 
-            <Menu as="div" className="relative inline-block text-left pt-5 md:pt-0">
+            <Menu as="div" className="relative inline-block pt-5 text-left md:pt-0">
               {({ open }) => (
                 <>
                   <div >
-                    <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
-                    <TagIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                    <Menu.Button className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                    <TagIcon className="w-5 h-5 mr-2" aria-hidden="true" />
                       Tags
                     </Menu.Button>
                   </div>
@@ -107,7 +107,7 @@ function index() {
                     {/* note that the media query is broken atm and it will always show on the left 🤷🏼‍♂️. have an issue in with TW */}
                     <Menu.Items
                       static
-                      className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none md:origin-top-right md:right-0 md:left-auto"
+                      className="absolute left-0 w-56 mt-2 origin-top-left bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none md:origin-top-right md:right-0 md:left-auto"
                     >
                       <div className="py-1">
                         
@@ -139,12 +139,12 @@ function index() {
             </Menu>
 
             
-            <Menu as="div" className="relative inline-block text-left pt-5 md:pt-0">
+            <Menu as="div" className="relative inline-block pt-5 text-left md:pt-0">
               {({ open }) => (
                 <>
                   <div>
-                    <Menu.Button className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
-                    <ColorSwatchIcon className="mr-2 h-5 w-5" aria-hidden="true" />
+                    <Menu.Button className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                    <ColorSwatchIcon className="w-5 h-5 mr-2" aria-hidden="true" />
                       Categories
                     </Menu.Button>
                   </div>
@@ -161,7 +161,7 @@ function index() {
                   >
                     <Menu.Items
                       static
-                      className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                      className="absolute right-0 w-56 mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                     >
                       <div className="py-1">
                         
@@ -194,7 +194,7 @@ function index() {
           </div>
         </div>
         <div className={`pt-2 sm:pt-0 ${tagFilter || categoryFilter ? "block" : "hidden"}`}>
-          <span className="inline-flex rounded-full items-center py-1 pl-3 pr-2 text-sm font-medium bg-indigo-100 text-indigo-700">
+          <span className="inline-flex items-center py-1 pl-3 pr-2 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-full">
             {tagFilter ?? categoryFilter}
             <button
               onClick={() => { setTagFilter(null); setCategoryFilter(null); }}
@@ -202,7 +202,7 @@ function index() {
               className="flex-shrink-0 ml-0.5 h-4 w-4 rounded-full inline-flex items-center justify-center text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none focus:bg-indigo-500 focus:text-white"
             >
               <span className="sr-only">Remove filter option</span>
-              <svg className="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+              <svg className="w-2 h-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
                 <path strokeLinecap="round" strokeWidth="1.5" d="M1 1l6 6m0-6L1 7" />
               </svg>
             </button>
@@ -210,11 +210,11 @@ function index() {
         </div>
       </div>
       <div className="mt-4">
-        <div className="mt-4 md:mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
+        <div className="grid max-w-lg gap-5 mx-auto mt-4 md:mt-12 lg:grid-cols-3 lg:max-w-none">
           {filteredPosts.map(({ link, module: { default: { layoutProps: { blogmeta } } }  }) => {
             return (
-              <div key={link} className="flex flex-col rounded-lg shadow-lg overflow-hidden">
-                <div className="flex-1 bg-white p-6 flex flex-col justify-between">
+              <div key={link} className="flex flex-col overflow-hidden rounded-lg shadow-lg">
+                <div className="flex flex-col justify-between flex-1 p-6 bg-white">
                   <div className="flex-1">
                     <Link href={`/blog${link}`}>
                       <a className="block mt-2">
@@ -227,7 +227,7 @@ function index() {
                               <BlogTag key={tag} tag={tag} />
                             )
                           })} */}
-                          <p className="text-sm font-medium text-violet-600 uppercase">
+                          <p className="text-sm font-medium uppercase text-violet-600">
                             {blogmeta.category}
                           </p>
                         </div>
@@ -240,11 +240,11 @@ function index() {
                     
                   {blogmeta.authors.slice(0, 1).map((author) => {
                     return (
-                      <div key={author.name} className="mt-6 flex items-center">
+                      <div key={author.name} className="flex items-center mt-6">
                         <div className="flex-shrink-0">
                           <a href={`https://twitter.com/${author?.twitter}`} target="_blank" >
                             <span className="sr-only">{author.name}</span>
-                            <img className="h-10 w-10 rounded-full" src={author.avatar} alt="author avatar" />
+                            <img className="w-10 h-10 rounded-full" src={author.avatar} alt="author avatar" />
                           </a>
                         </div>
 
