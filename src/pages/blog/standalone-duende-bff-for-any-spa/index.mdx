@@ -15,7 +15,11 @@ export const blogmeta = {
 
 ## Summary
 
-Welcome to this tutorial on creating a standalone Duende BFF for any Single Page Application (SPA)! This post will expand on my [previous writeup](https://wrapt.dev/blog/using-duende-bff-with-react) about using Duende BFF with React. In this example, we'll no longer be required to integrate our SPA with our BFF or limited by .NET javascript integrations. Instead, we'll create a standalone .NET app that will use Duende BFF and allow any SPA to leverage it's server side capabliities -- especailly the easy OIDC integration and session management in an HttpOnly cookie that Duende offers.
+Welcome to this tutorial on creating a standalone Duende BFF for any Single Page Application (SPA)! This post will expand on my
+[previous writeup](https://wrapt.dev/blog/using-duende-bff-with-react) about using Duende BFF with React.
+In this example, we'll no longer be required to integrate our SPA with our BFF or limited by .NET javascript integrations.
+Instead, we'll create a standalone .NET app that will use Duende BFF and allow any SPA to leverage it's server side capabilities --
+especially the easy OIDC integration and session management in an HttpOnly cookie that Duende offers.
 
 To do this, we will use a reverse proxy to forward messages from the SPA to our .NET app.
 
