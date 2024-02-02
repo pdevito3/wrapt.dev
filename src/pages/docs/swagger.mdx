@@ -14,16 +14,11 @@ To get to your swagger page, you can go to `/swagger`.
 
 ## Swagger Properties
 
-| Name                | Required | Description                                                                                          | Default                  |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------- | ------------------------ |
-| Title               | Yes      | The title of the swagger document                                                                    | _None_                   |
-| Description         | No       | The description for your swagger doc                                                                 | _None_                   |
-| ApiContact          | No       | The primary contact for the API                                                                      | _None_                   |
-| SwaggerEndpointUrl  | No       | The url to use for the swagger documentation.                                                        | /swagger/v1/swagger.json |
-| SwaggerEndpointName | No       | The name to use on the main swagger documentation page.                                              | _None_                   |
-| LicenseName         | No       | The name of the license on the swagger documentation.                                                | _None_                   |
-| LicenseUrl          | No       | The url of the license on the swagger documentation.                                                 | _None_                   |
-| AddSwaggerComments  | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint. | false                    |
+| Name               | Required | Description                                                                                          | Default |
+| ------------------ | -------- | ---------------------------------------------------------------------------------------------------- | ------- |
+| Title              | Yes      | The title of the swagger document                                                                    | _None_  |
+| Description        | No       | The description for your swagger doc                                                                 | _None_  |
+| AddSwaggerComments | No       | Determines whether or not Craftsman should scaffold out detailed swagger comments for each endpoint. | false   |
 
 ### ApiContact Properties
 
@@ -66,12 +61,5 @@ If you'd like to add comments to the parameters directly, you'll need to follow 
 SwaggerConfig:
   Title: Carbon Kitchen API
   Description: Manage everything in your kitchen!
-  SwaggerEndpointName: Carbon Kitchen API
-  LicenseName: MIT
-  LicenseUrl: https://carbonkitchen.com/license
   AddSwaggerComments: true
-  ApiContact:
-    Name: Carbon Kitchen Support
-    Email: support@carbonkitchen.com
-    Url: https://www.carbonkitchen.com/support
 ```
