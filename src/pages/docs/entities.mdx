@@ -167,6 +167,8 @@ Entities:
         ValueObjectPlural: UserRatings
 ```
 
+If you want to re-use an existing simple value object, you can do so by adding it as you did originally.
+
 ### Smart Value Objects
 
 You can also use the `SmartNames` property to create value objects backed by smart enum options like so:
@@ -201,6 +203,22 @@ Entities:
           - Private
         ValueObjectName: RecipeVisibility
         ValueObjectPlural: RecipeVisibilities
+```
+
+If you want to re-use an existing smart enum value object, you can do so by adding it as you did originally.
+You can use the same bulleted options or just do a single placeholder value. For example:
+
+```yaml
+Entities:
+  - Name: New Concept
+    Features:
+    #...
+    Properties:
+      - Name: Visibility
+        SmartNames:
+          - Placeholder
+        ValueObjectName: RecipeVisibility # only needed if you did a custom name
+        ValueObjectPlural: RecipeVisibilities # only needed if you did a custom name
 ```
 
 ## Keys and Relationships
