@@ -177,6 +177,12 @@ Entities:
         Type: string
 ```
 
+Let's `cd` to the project that we want to add the entity to (for example):
+
+```shell
+cd C:\repos\CarbonKitchen\RecipeManagement
+```
+
 Then, we can add that entity to our project using the [add entity command](/docs/add-entity):
 
 ```shell
@@ -209,16 +215,16 @@ BoundedContexts:
             Type: string
 ```
 
-Then we can go to our domain directory (the one with the .gitignore):
+Then we can go to our domain directory -- for example:
 
 ```shell
-cd C:\my\domain\directory
+cd C:\repos\CarbonKitchen
 ```
 
 Then we can use the [add bc command](/docs/add-bounded-context) to add the new context:
 
 ```shell
-add bc C:\fullpath\my-new-bc.yaml
+craftsman add bc C:\fullpath\my-new-bc.yaml
 ```
 
 ## Customization
