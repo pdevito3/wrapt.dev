@@ -27,7 +27,7 @@ export function DocumentationLayout(props) {
             />
             <meta
               name="description"
-              content="Documentation for the Wrapt framework. Scaffold an entire .NET 6 Web API with a simple yaml or json file."
+              content="Documentation for the Wrapt framework. Scaffold an entire .NET Web API with a simple yaml or json file."
             />
           </>
         }
