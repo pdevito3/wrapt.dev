@@ -216,7 +216,7 @@ export default function Home() {
             </h1>
             <div className="flex items-center justify-center w-full">
               <p className="max-w-lg mb-10 text-lg font-medium md:max-w-3xl sm:text-2xl sm:leading-10 sm:mb-11 ">
-                Scaffold an entire .NET 6 Web API with a simple yaml or json file so you can focus on the high value features in your web app.
+                Scaffold an entire .NET Web API with a simple yaml or json file so you can focus on the high value features in your web app.
               </p>
             </div>
           <div className="flex flex-wrap justify-center space-y-4 text-center sm:space-y-0 sm:space-x-4">
