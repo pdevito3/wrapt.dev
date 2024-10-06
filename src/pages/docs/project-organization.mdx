@@ -61,29 +61,27 @@ In practice, each controller is essentially acting as a router to a feature and 
 
 <!-- add an image like so here? https://youtu.be/SUiWfhAhgQw?t=959 -->
 
-#### Repositories
+#### Repositories or not?
 
-Yeah, I know this is a very controversial topic (I know and agree that EF is already a repository + UoW pattern). I pushed against them in the project for a while,
-but after dog fooding projects, I added them in for a couple reasons below (and no i'm not making the argument that it's nice because i can switch my RDS provider at a whim).
+Repositories are quite a polarizing topic in the .NET world. I've tried approaches both with and without and personally think both cases have their merits. One of the best breakdowns i think i've seen is
+[Derek Comartin's video on it here](https://www.youtube.com/watch?v=01lygxvbao4), but where I've landed is the following:
 
-- One of the biggest reasons is testing. I've found that, in practice, features can frequently have business logic paths that you want to write tests for,
-  but you don't want to write expensive integration tests to accomplish that. By adding a repository, using can easily mock the repository in a unit test and
-  test your logic path there without a big integration test cost.
-- Another is validation. If i want to check for uniqueness of a record in the database, before I create or update it I either need to 1. know to add it in
-  every feature where the entity is added/updated or 2. pass a service into the factory methods and use them there. In order to do this, you need a service
-  to pass through as you don't want to pass dbcontext directly to your domain entity. By using a repository here, we our domain entity just know that it has
-  this service than can perform a particular check for it and all is good.
-  - Another option could be to create a factory method layer over the domain entity itself that manages these service level things, but the current wrapt set
-    up isn't built this way.
+For Wrapt projects, I've decided to exclude them by default, but depending on your project, you may want to reach for them or similar options for certain use cases
 
-Note that the repositories are very simple abstractions on top of EF. This is by design and **it is highly recommended to not create complex abstractions on top
-of an already well though out repository + uow pattern that EF provides**.
+Queries generally don't need repositories as there's no invariant consistency needed here, you just need data. You may have common queries that you want to share sometimes and you have a couple options here:
 
-- Of note, none of the repository methods have an option to save inside of them. Saving should generally be done using the `IUnitOfWork` interface, but some
-  situations might call for an immeidate save. If that's the case, you could consider adding an ad hoc method to the entity repository like `UpdateImmediately` if necessary.
-- For includes, either write a custom repository method on the entity repository for that use case, or pull in the other entity repository and get the info separately.
+1. Make an extension class for the entity with a method on an `IQueryable` and/or `DbSet` for the common logic
+2. Make a service/repository that can be used for common calls like this (totally reasonable option IMHO)
+3. Integration specifications -- personally, I like the idea of this in theory and played around with ardalis' [specification pattern](https://github.com/ardalis/Specification) library but had a couple issues and some clunkiness with it.
 
-<!-- iamge like so? https://youtu.be/SUiWfhAhgQw?t=2224 -->
+Any of the above is totally valid and you should choose what makes the most sense for your project and your preferences.
+
+Commands are a bit trickier though. Commands may need a consistency boundary to make sure that you have the proper overarching context for a set of concepts to
+properly update data. For example, if I try to submit an order, I might need to run a validation check that all the items in the order are in a sellable state or in
+stock or whatever. I need access to both concepts when doing a state change and I need to know that i have that consistency boundary whenever I'm doing that.
+
+This is where repositories would shine, but as with above, you could also make extension methods to do this as well. Regardless, just make sure that when you're
+doing transformations, that you are using this root consistency boundary to start.
 
 ### Filtering and Sorting
 
@@ -154,7 +152,7 @@ that doesn't need to be at the root of your domain
 
 #### Value Objects
 
-A `ValueObject` class is scaffolded to `SharedKernel` to be used in your domain if you would like to use them. Here are a couple examples from other projects:
+A `ValueObject` class is scaffolded to be used in your domain if you would like to use them. Here are a couple examples from other projects:
 
 - [Example 1](https://github.com/ardalis/pluralsight-ddd-fundamentals/blob/main/ClinicManagement/src/ClinicManagement.Core/ValueObjects/AnimalType.cs) in use [here](https://github.com/ardalis/pluralsight-ddd-fundamentals/blob/main/ClinicManagement/src/ClinicManagement.Core/Aggregates/Patient.cs)
 - [Example 2](https://github.com/asc-lab/better-code-with-ddd/blob/ef_core/LoanApplication.TacticalDdd/LoanApplication.TacticalDdd/DomainModel/Percent.cs) in use [here](https://github.com/asc-lab/better-code-with-ddd/blob/abbf03586ee9287c302841f0ce85cbfd9485ba72/LoanApplication.TacticalDdd/LoanApplication.TacticalDdd/DomainModel/Loan.cs)
@@ -182,43 +180,7 @@ Messages are stored in a distinct project at the solution root as they are gener
 Producers and consumers can both be added as distinct features using the `add producer` and `add consumer` commands.
 
 A common requirement is to add a producer to an existing feature. If that's the case, you can add an `IPublishEndpoint` to your command and publish your message
-like you usually would. Additionally, you can use the [`register producer` command](/docs/register-producer) to set up your registration. Here is
-what an updated feature might look like:
-
-```csharp
-public class Handler : IRequestHandler<AddRecipeCommand, ReportRequestDto>
-{
-    private readonly ReportingDbContext _db;
-    private readonly IMapper _mapper;
-    private readonly IPublishEndpoint _publishEndpoint;
-
-    public Handler(ReportingDbContext db, IMapper mapper, IPublishEndpoint publishEndpoint)
-    {
-        _mapper = mapper;
-        _db = db;
-        _publishEndpoint = publishEndpoint;
-    }
-
-    public async Task<ReportRequestDto> Handle(AddRecipeCommand request, CancellationToken cancellationToken)
-    {
-        var recipe = Recipe.Create(request.RecipeToAdd);
-        _db.Recipes.Add(recipe);
-
-        await _db.SaveChangesAsync(cancellationToken);
-
-        var message = new
-        {
-            RecipeId = request.Id,
-        };
-        await _publishEndpoint.Publish<IRecipeAdded>(message);
-
-        return await _db.Recipes
-            .AsNoTracking()
-            .ProjectTo<RecipeDto>(_mapper.ConfigurationProvider)
-            .FirstOrDefaultAsync(r => r.Id == recipe.Id, cancellationToken);
-    }
-}
-```
+like you usually would. Additionally, you can use the [`register producer` command](/docs/register-producer) to set up your registration.
 
 ### Automated Tests
 
@@ -227,19 +189,19 @@ Wrapt will automatically scaffold out unit, integration and functional tests for
 - **Unit tests** are meant to confirm that individual operations are working as expected (e.g. PagedList calculations). Additionally, you can test business flows to make sure logic paths are properly tested (e.g. a business process in a feature handler doesn't usually need an expensive integration test).
   Use these as much as possible for efficiency, but don't over mock things either.
 
-- **Integration tests** are meant to check that different areas are working together as expected (e.g. our features folder). These tests will spin up a real database in docker
-  and run each of your feature tests in an actual representation of your database. If you're using eventing, an in-memory test harness for MassTransit will be set up for you to run eventing tests as well.
-
-  These are generally the highest value tests in wrapt projects given the structure of the project, but they are more expensive, so be mindful of the cost. If you have a happy path or some specific operation you
-  want to test, then you can and should, but ideally you can keep the main tests minimal here and then test all your business flows in unit tests.
+- **Integration tests** These are generally the highest value tests in Wrapt projects given the structure of the project and are meant to check that
+  different areas are working together as expected (e.g. our features folder). These tests will spin up a real database in docker
+  and run each of your feature tests in an actual representation of your database along with a full service collection like you would usually have.
 
 - **Functional tests** are meant to check an entire slice of functionality with all the code running together.
   These are generally more involved to write and maintain, but with this project setup, our controllers are essentially just routers to our feature queries and commands, so we have
-  already done the meat of our testing in our integration tests. This means that our functional tests can generally just confirm that we are getting the expected responses from our routes and we can call it a day.
+  already done the meat of our testing in our integration tests. This means that we can minimize the amount functional tests that we need to write and generally just need to lean on
+  them for a select few use cases. Primary, this will be use cases that need to be tests with the API running and can't just use the service collection. This might be
+  hitting an HTTP endpoint, using a background service like Hangfire, or using a message bus like RabbitMQ.
 
 ### Shared Kernel
 
 Starting with v0.13, Wrapt projects will support a shared kernel.
-This means that you can have a class library that can store domain level abstractions like DTOs, exceptions, and roles (if using auth).
+This means that you can have a class library that can store domain level abstractions.
 
 > ⚠️ Be careful what you put in here as it will be coupled to all of your boundaries!

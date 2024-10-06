@@ -48,11 +48,11 @@ A list of properties that can be assigned to an entity.
 
 ### Features
 
-| Name           | Required | Description                                                                                                                                                                                                                                                | Default            |
-| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `Job`, `GetRecord`, `GetList`, `GetAll`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_             |
-| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                                 | _false_            |
-| PermissionName | No       | The name of the authorization policy attribute.                                                                                                                                                                                                            | _Can[FEATURENAME]_ |
+| Name           | Required | Description                                                                                                                                                                                                                                                | Default |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Type           | Yes      | The type of feature you want to add. The accepted values are `AdHoc`, `Job`, `GetRecord`, `GetList`, `GetAll`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `CreateRecord` (same as `AddRecord` but available as an alias in case you can't remember!) | _None_  |
+| IsProtected    | No       | Determines whether or not the feature is protected with an authorization policy attribute.                                                                                                                                                                 | _false_ |
+| PermissionName | No       | A named permission to check against before executing a particular feature.                                                                                                                                                                                 | _None_  |
 
 `GetRecord`, `GetList`, `GetAll`, `DeleteRecord`, `UpdateRecord`, `AddRecord`, and `AddListByFk` are all standard CRUD features along with their endpoints and associated tests.
 

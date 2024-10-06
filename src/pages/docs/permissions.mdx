@@ -19,33 +19,17 @@ Permissions dictate whether or not something is accessible and are the heart of 
 that will act as an authentication guard, but that doesn't cover the actual permission that decides whether or not I'm allowed to use that resource. This authorization check actually lives in
 your features using HeimGuard to check a user's permissions. This was chosen to help facilitate business rules in one central location (a la vertical slice).
 
-For example, a feature may expect that some users have a permission to get an entire dataset but others can only get a subset of it. For example:
+For example, a feature may want to make sure users are allowed to read recipes before they can access a worklist:
 
 ```csharp
 
-    public class Handler : IRequestHandler<RecipeWorklistQuery, List<RecipeDto>>
+    public class Handler(IHeimGuardClient heimGuard) : IRequestHandler<RecipeWorklistQuery, List<RecipeDto>>
     {
-        private readonly IHeimGuardClient _heimGuard;
-
-        public Handler(IHeimGuardClient heimGuard)
-        {
-            _heimGuard = heimGuard;
-        }
-
         public async Task<List<RecipeDto>> Handle(RecipeWorklistQuery request, CancellationToken cancellationToken)
         {
-            if (await _heimGuard.HasPermissionAsync(Permissions.CanReadAllRecipes))
-            {
-                // get all data
-            }
-            else if (await _heimGuard.HasPermissionAsync(Permissions.CanReadMyRecipes))
-            {
-                // get data for current user
-            }
-            else
-            {
-                throw new ForbiddenAccessException();
-            }
+            await heimGuard.MustHavePermission<ForbiddenAccessException>(Permissions.CanReadRecipes);
+
+            // Do work
         }
     }
 ```
