@@ -63,18 +63,28 @@ In practice, each controller is essentially acting as a router to a feature and 
 
 #### Repositories or not?
 
-Repositories are quite a polarizing topic in the .NET world. I've tried approaches both with and without and personally think both cases have their merits. One of the best breakdowns i think i've seen is
+Repositories are quite a polarizing topic in the .NET world. I've tried approaches both with and without and personally think both cases have their merits. One of the best breakdowns I think I've seen is
 [Derek Comartin's video on it here](https://www.youtube.com/watch?v=01lygxvbao4), but where I've landed is the following:
 
 For Wrapt projects, I've decided to exclude them by default, but depending on your project, you may want to reach for them or similar options for certain use cases
 
-Queries generally don't need repositories as there's no invariant consistency needed here, you just need data. You may have common queries that you want to share sometimes and you have a couple options here:
+Queries generally don't need repositories as there's no invariant consistency needed here, you just need data.
+There's a couple reasons you may still be thinking about using a repository for your queries though.
+
+First, You may have common queries that you want to share sometimes and you have a couple options here:
 
 1. Make an extension class for the entity with a method on an `IQueryable` and/or `DbSet` for the common logic
 2. Make a service/repository that can be used for common calls like this (totally reasonable option IMHO)
 3. Integration specifications -- personally, I like the idea of this in theory and played around with ardalis' [specification pattern](https://github.com/ardalis/Specification) library but had a couple issues and some clunkiness with it.
 
-Any of the above is totally valid and you should choose what makes the most sense for your project and your preferences.
+Any of the above are totally valid and you should choose what makes the most sense for your project and your preferences.
+
+Another common reason is testing your queries. Generally, most of your feature tests should be in the integration test layer where you have a real db to
+test against. You do NOT want to mock DbContext here or use an in-memory db. It's just extra effort and a false sense of security. If you need to test the
+db, use an integration test.
+
+With that said, you may have flows or business logic in your features that you want to unit test too. I'd generally recommend abstracting out a method
+for the logic you want to test so you can focus on that, but if you want to make a service/repository for this, that's totally fine too.
 
 Commands are a bit trickier though. Commands may need a consistency boundary to make sure that you have the proper overarching context for a set of concepts to
 properly update data. For example, if I try to submit an order, I might need to run a validation check that all the items in the order are in a sellable state or in
