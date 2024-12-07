@@ -8,6 +8,7 @@ import { Title } from 'src/components/Title'
 import twitterLargeCard from 'src/img/twitter-large-card.png'
 import '../styles/tailwind.css'
 // import 'intersection-observer'
+import { Analytics } from "@vercel/analytics/react"
 
 if (typeof window !== 'undefined' && !('ResizeObserver' in window)) {
   window.ResizeObserver = ResizeObserver
@@ -84,6 +85,7 @@ function MyApp({ Component, pageProps, router }) {
       {header}
       <Layout {...layoutProps}>
         <Component {...pageProps} />
+        <Analytics />
       </Layout>
     </>
   )
